@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Swap tokens on ROOTSTOCK',
-  description: `Swap tokens on networks like Ethereum, Optimism, Arbitrum and Base via the Balancer decentralized exchange`,
+  description: `Swap tokens on networks like Ethereum, Optimism, Arbitrum and Base on the ROOTSTOCK engine`,
 }
 
 export default function SwapPage() {

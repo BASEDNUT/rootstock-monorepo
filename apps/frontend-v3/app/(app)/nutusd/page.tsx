@@ -5,6 +5,7 @@ import { DefaultPageContainer } from '@repo/lib/shared/components/containers/Def
 import { ArrowUpRight } from 'lucide-react'
 
 const VAULT = '0x846E88618A15766940277471509511bf69443CC1'
+const APP_URL = `https://app.morpho.org/base/vault/${VAULT}/based-nut-usd#overview`
 const CURATOR_URL = `https://curator.morpho.org/vaults/8453/${VAULT}`
 
 const facts = [
@@ -75,13 +76,23 @@ export default function NutUsdPage() {
         <HStack>
           <Button
             as={Link}
-            href={CURATOR_URL}
+            href={APP_URL}
             isExternal
             rightIcon={<ArrowUpRight size="14px" />}
             size="lg"
             variant="primary"
           >
-            Open in Morpho Curator
+            Open in Morpho
+          </Button>
+          <Button
+            as={Link}
+            href={CURATOR_URL}
+            isExternal
+            rightIcon={<ArrowUpRight size="14px" />}
+            size="lg"
+            variant="secondary"
+          >
+            Curator (admin)
           </Button>
         </HStack>
 
