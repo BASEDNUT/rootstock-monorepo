@@ -46,8 +46,8 @@ export function HomeActivity() {
             px={{ base: 'md', lg: '0' }}
             width="max-content"
           >
-            <Button as={NextLink} flex="1" href="/pools" prefetch size="lg" variant="primary">
-              Explore pools
+            <Button as={NextLink} flex="1" href="/swap" prefetch size="lg" variant="primary">
+              Open the app
             </Button>
 
             <Button as={NextLink} flex="1" href="/build/v3" prefetch size="lg" variant="secondary">

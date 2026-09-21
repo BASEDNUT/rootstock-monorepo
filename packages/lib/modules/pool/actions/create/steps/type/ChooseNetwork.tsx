@@ -30,7 +30,7 @@ export function ChooseNetwork({ control }: { control: Control<PoolCreationForm> 
   ]
     .filter(
       (network): network is GqlChain =>
-        // balancer v3 pool creation not yet supported on these networks
+        // pool creation not yet supported on these networks
         !!network && !([GqlChainValues.Polygon] as GqlChain[]).includes(network)
     )
     .map(network => ({

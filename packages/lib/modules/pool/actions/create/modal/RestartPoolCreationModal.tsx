@@ -158,7 +158,7 @@ function BeforePoolDeployedWarning({
   if (showCowAmmWarning) {
     deleteProgressReason = 'to begin creation of a new CoW AMM?'
   } else if (showBalancerWarning) {
-    deleteProgressReason = 'to begin creation of a new Balancer v3 pool?'
+    deleteProgressReason = 'to begin creation of a new pool?'
   } else {
     deleteProgressReason = 'and start again from scratch?'
   }
@@ -185,7 +185,7 @@ function AfterPoolDeployedWarning({
   return (
     <VStack align="start" spacing="md">
       <Text>
-        You have deployed a v3 {poolType} pool but have not seeded it with liquidity. Pool address:
+        You have deployed a {poolType} pool but have not seeded it with liquidity. Pool address:
       </Text>
       <Text color="font.link">{poolAddress}</Text>
       <Text>

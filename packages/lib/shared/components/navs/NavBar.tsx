@@ -98,17 +98,6 @@ function NavLinks({
             </Link>
           </Box>
           <Box as={motion.div} variants={fadeIn}>
-            <Link
-              as={NextLink}
-              color={linkColorFor('/debug/pools')}
-              href="/debug/pools"
-              prefetch
-              variant="nav"
-            >
-              Test-Pools
-            </Link>
-          </Box>
-          <Box as={motion.div} variants={fadeIn}>
             <Link as={NextLink} color={linkColorFor('/debug')} href="/debug" prefetch variant="nav">
               Debug
             </Link>
@@ -134,7 +123,7 @@ export function NavActions({
       return [
         {
           el: (
-            <Button as={NextLink} href="/pools" prefetch px={7} size="md" variant="primary">
+            <Button as={NextLink} href="/swap" prefetch px={7} size="md" variant="primary">
               Launch app
             </Button>
           ),

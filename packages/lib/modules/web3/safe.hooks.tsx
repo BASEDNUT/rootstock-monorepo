@@ -2,8 +2,6 @@ import { Hex } from 'viem'
 import { useUserAccount } from './UserAccountProvider'
 import { useSafeTxQuery } from '../transactions/transaction-steps/safe/useSafeTxQuery'
 import { useWalletConnectMetadata } from './wallet-connect/useWalletConnectMetadata'
-import { useNetworkConfig } from '@repo/lib/config/useNetworkConfig'
-import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 
 // Returns true when using a Safe Smart account:
@@ -50,11 +48,6 @@ export function useTxHash({ wagmiTxHash }: Props) {
 }
 
 export function useSafeAppLink() {
-  const { chain } = useNetworkConfig()
-
-  if (chain === GqlChainValues.Hyperevm) {
-    return `https://safe.onchainden.com/share/safe-app?appUrl=https%3A%2F%2F${PROJECT_CONFIG.projectId}.fi%2Fpools&chain=hyperevm`
-  }
-
-  return `https://app.safe.global/share/safe-app?appUrl=https://${PROJECT_CONFIG.projectId}.fi/pools`
+  const appUrl = `${PROJECT_CONFIG.projectUrl}/swap`
+  return `https://app.safe.global/share/safe-app?appUrl=${encodeURIComponent(appUrl)}`
 }

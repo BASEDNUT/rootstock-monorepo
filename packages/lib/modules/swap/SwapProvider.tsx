@@ -41,7 +41,6 @@ import {
   SwapAction,
   SwapState,
 } from './swap.types'
-import { useIsPoolSwapUrl } from './useIsPoolSwapUrl'
 import { useSwapSteps } from './useSwapSteps'
 import {
   getWrapHandlerClass,
@@ -102,12 +101,11 @@ export type SwapProviderProps = {
 
 export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapProviderProps) {
   const urlTxHash = pathParams.urlTxHash
-  const isPoolSwapUrl = useIsPoolSwapUrl()
   const isLbpSwap = pool && isV3LBP(pool)
   const lbpPool = pool as LbpV3
 
   const isPoolSwap = pool && poolActionableTokens // Hint to tell TS that pool and poolActionableTokens must be defined when poolSwap
-  const shouldDiscardOldPersistedValue = isPoolSwapUrl || isLbpSwap
+  const shouldDiscardOldPersistedValue = isLbpSwap
 
   const swapStateVar = useMakeVarPersisted<SwapState>(
     {
@@ -463,7 +461,7 @@ export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapPro
   }
 
   function replaceUrlPath() {
-    if (isPoolSwapUrl || isLbpSwap) return // Avoid redirection when the swap is within a pool or LBP page
+    if (isLbpSwap) return // Avoid redirection when the swap is within an LBP page
     const { selectedChain, tokenIn, tokenOut, swapType } = swapState
     const networkConfig = getNetworkConfig(selectedChain)
     const { popularTokens } = networkConfig.tokens

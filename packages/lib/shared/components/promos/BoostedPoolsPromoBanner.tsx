@@ -64,7 +64,7 @@ export function BoostedPoolsPromoBanner() {
             cursor="hand"
             flex="1"
             h={{ base: '32px', sm: '40px', lg: '48px' }}
-            href="/pools?poolTags=BOOSTED"
+            href="/swap"
             py="sm"
             rounded="full"
             shadow="2xl"

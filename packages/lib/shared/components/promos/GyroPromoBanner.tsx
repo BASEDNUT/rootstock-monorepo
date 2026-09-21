@@ -175,7 +175,7 @@ export function GyroPromoBanner() {
                 cursor="hand"
                 flex="1"
                 h={{ base: '32px', sm: '40px', lg: '48px' }}
-                href="/pools?protocolVersion=3&poolTypes=GYRO"
+                href="/swap"
                 py="sm"
                 rounded="full"
                 size="md"

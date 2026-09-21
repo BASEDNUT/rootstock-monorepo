@@ -12,26 +12,26 @@ import { motion, useInView } from 'motion/react'
 const MotionGrid = motion(Grid)
 const MotionGridItem = motion(GridItem)
 
-const engineStats = [
+const designChoices = [
   {
-    stat: '1',
-    title: 'Root Vault',
-    subTitle: 'Every pool shares one core ledger',
+    stat: '01',
+    title: 'One ledger',
+    subTitle: 'Every pool settles against the same vault — one place to audit.',
   },
   {
-    stat: '4',
-    title: 'Pool families',
-    subTitle: 'Weighted · stable · boosted · reCLAMM',
+    stat: '02',
+    title: 'Math you can read',
+    subTitle: 'A pool is only its math — small contracts, no engine fork.',
   },
   {
-    stat: '2',
-    title: 'Routers',
-    subTitle: 'Router and BatchRouter entry points',
+    stat: '03',
+    title: 'Hooks at the edges',
+    subTitle: 'Custom behavior attaches without touching the core.',
   },
   {
-    stat: '65',
-    title: 'Contracts live',
-    subTitle: 'Deployed on Base Sepolia',
+    stat: '04',
+    title: 'Routers up front',
+    subTitle: 'One entry point for swaps, adds, removes, and solvers.',
   },
 ]
 
@@ -75,11 +75,11 @@ export function Grow() {
             fontWeight="bold"
             letterSpacing="-0.04rem"
             lineHeight={1}
-            text="The engine today"
+            text="Designed as one piece"
           />
           <FadeIn delay={0.2} direction="up" duration={0.6}>
             <Text color="font.secondary" fontSize="lg" maxW="2xl">
-              The engine’s own deployment — live on testnet while it grows.
+              Four design choices keep the whole engine simple.
             </Text>
           </FadeIn>
         </VStack>
@@ -92,7 +92,7 @@ export function Grow() {
           templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)' }}
           variants={gridVariants}
         >
-          {engineStats.map(s => (
+          {designChoices.map(s => (
             <MotionGridItem key={s.title} variants={gridItemVariants}>
               <FeatureCard
                 radialPatternProps={{
