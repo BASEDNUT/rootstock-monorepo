@@ -1,0 +1,405 @@
+'use client'
+
+import { abbreviateAddress } from '@repo/lib/shared/utils/addresses'
+import {
+  Box,
+  Card,
+  CardProps,
+  Grid,
+  GridItem,
+  HStack,
+  Heading,
+  Icon,
+  Link,
+  Divider,
+  Text,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  VStack,
+} from '@chakra-ui/react'
+import { usePool } from '../../PoolProvider'
+import { AlertTriangle, ArrowUpRight, XCircle } from 'lucide-react'
+import { useMemo } from 'react'
+import type {
+  GqlPriceRateProviderData,
+  GqlHookReviewData,
+  Erc4626ReviewData,
+} from '@repo/lib/shared/services/api/graphql-derived-types'
+import { HookFragment } from '@repo/lib/shared/services/api/generated/graphql'
+import { Address, zeroAddress } from 'viem'
+import { TokenIcon } from '@repo/lib/modules/tokens/TokenIcon'
+import Image from 'next/image'
+import { RateProviderInfoPopOver } from './RateProviderInfo'
+import { getWarnings, isBoosted, isV3LBP, isV3Pool } from '@repo/lib/modules/pool/pool.helpers'
+import { HookInfoPopOver } from './HookInfo'
+import { Erc4626InfoPopOver } from './Erc4626Info'
+import { InfoPopoverToken } from '@repo/lib/modules/tokens/token.types'
+import { getBlockExplorerAddressUrl } from '@repo/lib/shared/utils/blockExplorer'
+import { useHook } from '@repo/lib/modules/hooks/useHook'
+import { getChainId } from '@repo/lib/config/app.config'
+import { HooksMetadata } from '@repo/lib/modules/hooks/getHooksMetadata'
+import { LbpV3, Pool } from '../../pool.types'
+import { CopyAddressButton } from '@repo/lib/modules/tokens/CopyAddressButton'
+
+type RateProvider = {
+  tokenAddress: Address
+  rateProviderAddress: Address
+  priceRateProviderData: GqlPriceRateProviderData | null
+  tokenSymbol: string
+}
+
+function getIconAndLevel(hasWarnings: boolean, isSafe: boolean, hasData: boolean) {
+  let icon
+  let level
+
+  if (!hasData) {
+    icon = <Icon as={AlertTriangle} color="font.warning" cursor="pointer" size={16} />
+    level = 1
+  } else {
+    if (isSafe) {
+      if (hasWarnings) {
+        icon = <Icon as={AlertTriangle} color="font.warning" cursor="pointer" size={16} />
+        level = 1
+      } else {
+        icon = (
+          <Box as="span" cursor="pointer">
+            <Image alt="Notes" height={16} src="/images/icons/notes.svg" width={16} />
+          </Box>
+        )
+
+        level = 2
+      }
+    } else {
+      icon = <Icon as={XCircle} color="red.500" cursor="pointer" size={16} />
+      level = 0
+    }
+  }
+
+  return { icon, level }
+}
+
+function getRateProviderIcon(data: GqlPriceRateProviderData | null, token: InfoPopoverToken) {
+  const hasWarnings = getWarnings(data?.warnings || []).length > 0
+  const isSafe = !!data?.reviewed && data?.summary === 'safe'
+  const hasData = !!data
+
+  const { icon, level } = getIconAndLevel(hasWarnings, isSafe, hasData)
+
+  return (
+    <RateProviderInfoPopOver data={data} level={level} token={token}>
+      {icon}
+    </RateProviderInfoPopOver>
+  )
+}
+
+function getErc4626Icon(data: Erc4626ReviewData | undefined | null, token: InfoPopoverToken) {
+  const hasWarnings = getWarnings(data?.warnings || []).length > 0
+  const hasData = !!data
+  const isSafe = hasData && data?.summary === 'safe'
+
+  const { icon, level } = getIconAndLevel(hasWarnings, isSafe, hasData)
+
+  return (
+    <Erc4626InfoPopOver data={data} level={level} token={token}>
+      {icon}
+    </Erc4626InfoPopOver>
+  )
+}
+
+function getHookIcon(data: GqlHookReviewData | undefined | null) {
+  const hasWarnings = getWarnings(data?.warnings || []).length > 0
+  const isSafe = !!data?.summary && data?.summary === 'safe'
+  const hasData = !!data
+
+  const { icon, level } = getIconAndLevel(hasWarnings, isSafe, hasData)
+
+  return (
+    <HookInfoPopOver data={data} level={level}>
+      {icon}
+    </HookInfoPopOver>
+  )
+}
+
+function getHookName(hook: HookFragment, pool: Pool, hooksMetadata: (HooksMetadata | undefined)[]) {
+  if (!hooksMetadata) return hook.type
+
+  const chainId = getChainId(pool.chain)
+
+  return hooksMetadata.find(metadata =>
+    metadata?.addresses[chainId]?.includes(hook.address as Address)
+  )?.name
+}
+
+export function PoolContracts({ ...props }: CardProps) {
+  const { pool, chain, poolExplorerLink, hasGaugeAddress, gaugeAddress, gaugeExplorerLink } =
+    usePool()
+
+  const { hooks: hooksMetadata } = useHook(pool)
+
+  const contracts = useMemo(() => {
+    const contracts = [
+      {
+        label: 'Pool address',
+        address: pool.address,
+        explorerLink: poolExplorerLink,
+      },
+    ]
+
+    if (hasGaugeAddress) {
+      contracts.push({
+        label: 'Incentives gauge',
+        address: gaugeAddress,
+        explorerLink: gaugeExplorerLink,
+      })
+    }
+
+    if (isV3LBP(pool)) {
+      const lbpPool = pool as LbpV3
+
+      contracts.push({
+        label: 'Sale token contract',
+        address: abbreviateAddress(lbpPool.projectToken as Address),
+        explorerLink: getBlockExplorerAddressUrl(lbpPool.projectToken as Address, pool.chain),
+      })
+    }
+
+    return contracts
+  }, [pool, hasGaugeAddress, poolExplorerLink, gaugeAddress, gaugeExplorerLink])
+
+  const rateProviders = useMemo(() => {
+    return pool.poolTokens
+      .map(token => ({
+        tokenAddress: token.address,
+        tokenSymbol: token.symbol,
+        rateProviderAddress: token.priceRateProvider,
+        priceRateProviderData: token.priceRateProviderData,
+      }))
+      .filter(
+        item => item.rateProviderAddress && item.rateProviderAddress !== zeroAddress
+      ) as RateProvider[]
+  }, [pool])
+
+  const hooks = useMemo(() => {
+    const nestedHooks = pool.poolTokens.flatMap(token =>
+      token.nestedPool ? token.nestedPool.hook : []
+    )
+
+    return [...(pool.hook ? [pool.hook] : []), ...nestedHooks].filter(Boolean)
+  }, [pool])
+
+  const erc4626Tokens = useMemo(() => {
+    if (!isV3Pool(pool)) return []
+    // Avoid showing tokenized vaults when no token has isBufferAllowed
+    if (!isBoosted(pool)) return []
+
+    const erc4626Tokens = pool.poolTokens.filter(
+      token => token.isErc4626 && token.useUnderlyingForAddRemove
+    )
+
+    const erc4626NestedTokens = pool.poolTokens.flatMap(token =>
+      token.nestedPool
+        ? token.nestedPool.tokens.filter(
+            token => token.isErc4626 && token.useUnderlyingForAddRemove
+          )
+        : []
+    )
+
+    return [...(erc4626Tokens ? erc4626Tokens : []), ...erc4626NestedTokens]
+  }, [pool])
+
+  return (
+    <Card {...props}>
+      <VStack alignItems="flex-start" spacing="md" width="full">
+        <Heading fontSize="xl" variant="h4">
+          Pool contracts
+        </Heading>
+        <Divider />
+        {contracts.map(contract => (
+          <Grid
+            gap="sm"
+            key={contract.address}
+            templateColumns={{ base: '1fr 2fr', md: '1fr 3fr' }}
+            w="full"
+          >
+            <GridItem>
+              <Text minW="120px" variant="secondary">
+                {contract.label}:
+              </Text>
+            </GridItem>
+            <GridItem>
+              <HStack gap="xxs">
+                <Link href={contract.explorerLink} isExternal variant="link">
+                  <HStack gap="xxs">
+                    <Text color="link">{abbreviateAddress(contract.address)}</Text>
+                    <ArrowUpRight size={12} />
+                  </HStack>
+                </Link>
+                {contract.label === 'Pool address' && (
+                  <CopyAddressButton address={contract.address} />
+                )}
+              </HStack>
+            </GridItem>
+          </Grid>
+        ))}
+        {hooks.length > 0 && (
+          <Grid gap="sm" templateColumns={{ base: '1fr 2fr', md: '1fr 3fr' }} w="full">
+            <GridItem>
+              <Popover trigger="hover">
+                <PopoverTrigger>
+                  <Text className="tooltip-dashed-underline" minW="120px" variant="secondary">
+                    {hooks.length === 1 ? 'Hook:' : 'Hooks:'}
+                  </Text>
+                </PopoverTrigger>
+                <PopoverContent maxW="300px" p="sm" w="auto">
+                  <Text fontSize="sm" variant="secondary">
+                    Hooks are contracts that can be used to modify the behavior of the pool.
+                  </Text>
+                </PopoverContent>
+              </Popover>
+            </GridItem>
+            <GridItem>
+              <VStack alignItems="flex-start">
+                {hooks.map((hook, index) => {
+                  return (
+                    hook && (
+                      <HStack key={hook.address}>
+                        <Link
+                          href={getBlockExplorerAddressUrl(hook.address, chain)}
+                          isExternal
+                          key={hook.address}
+                          variant="link"
+                        >
+                          <HStack gap="xxs">
+                            <Text color="link">
+                              {abbreviateAddress(hook.address)} (
+                              {getHookName(hook, pool, hooksMetadata)})
+                            </Text>
+                            <ArrowUpRight size={12} />
+                          </HStack>
+                        </Link>
+                        {(index > 0 || !pool.hook) && <Text variant="secondary">(nested)</Text>}
+                        {getHookIcon(hook.reviewData)}
+                      </HStack>
+                    )
+                  )
+                })}
+              </VStack>
+            </GridItem>
+          </Grid>
+        )}
+        {rateProviders.length > 0 && (
+          <Grid gap="sm" templateColumns={{ base: '1fr 2fr', md: '1fr 3fr' }} w="full">
+            <GridItem>
+              <Popover trigger="hover">
+                <PopoverTrigger>
+                  <Text className="tooltip-dashed-underline" minW="120px" variant="secondary">
+                    {rateProviders.length === 1 ? 'Rate provider:' : 'Rate providers:'}
+                  </Text>
+                </PopoverTrigger>
+                <PopoverContent maxW="300px" p="sm" w="auto">
+                  <Text fontSize="sm" variant="secondary">
+                    Rate Providers are contracts that provide an exchange rate between two assets.
+                    This can come from any on-chain source, including oracles or from other
+                    calculations. This introduces risks around the rate provider being able to
+                    supply accurate and timely exchange rates.
+                  </Text>
+                </PopoverContent>
+              </Popover>
+            </GridItem>
+            <GridItem>
+              <VStack alignItems="flex-start">
+                {rateProviders.map(provider => {
+                  const token = {
+                    address: provider.tokenAddress,
+                    symbol: provider.tokenSymbol,
+                    chain,
+                  }
+
+                  return (
+                    <HStack key={provider.tokenAddress}>
+                      <TokenIcon
+                        address={provider.tokenAddress}
+                        alt={provider.tokenSymbol}
+                        chain={chain}
+                        size={16}
+                      />
+                      <Link
+                        href={getBlockExplorerAddressUrl(provider.rateProviderAddress, chain)}
+                        isExternal
+                        key={provider.rateProviderAddress}
+                        variant="link"
+                      >
+                        <HStack gap="xxs">
+                          <Text color="link">
+                            {abbreviateAddress(provider.rateProviderAddress)}
+                          </Text>
+                          <ArrowUpRight size={12} />
+                        </HStack>
+                      </Link>
+                      {getRateProviderIcon(provider.priceRateProviderData, token)}
+                    </HStack>
+                  )
+                })}
+              </VStack>
+            </GridItem>
+          </Grid>
+        )}
+        {erc4626Tokens.length > 0 && (
+          <Grid gap="sm" templateColumns={{ base: '1fr 2fr', md: '1fr 3fr' }} w="full">
+            <GridItem>
+              <Popover trigger="hover">
+                <PopoverTrigger>
+                  <Text className="tooltip-dashed-underline" minW="120px" variant="secondary">
+                    {erc4626Tokens.length === 1 ? 'Tokenized vault:' : 'Tokenized vaults:'}
+                  </Text>
+                </PopoverTrigger>
+                <PopoverContent maxW="300px" p="sm" w="auto">
+                  <Text fontSize="sm" variant="secondary">
+                    ERC-4626 (tokenized vault) is a standard to optimize and unify the technical
+                    parameters of yield-bearing vaults. It provides a standard API for tokenized
+                    yield-bearing vaults that represent shares of a single underlying ERC-20 token.
+                  </Text>
+                </PopoverContent>
+              </Popover>
+            </GridItem>
+            <GridItem>
+              <VStack alignItems="flex-start">
+                {erc4626Tokens.map(erc4626Token => {
+                  const token = {
+                    address: erc4626Token.address as Address,
+                    symbol: erc4626Token.symbol,
+                    chain,
+                  }
+
+                  return (
+                    <HStack key={erc4626Token.address}>
+                      <TokenIcon
+                        address={erc4626Token.address}
+                        alt={erc4626Token.symbol}
+                        chain={chain}
+                        size={16}
+                      />
+                      <Link
+                        href={getBlockExplorerAddressUrl(erc4626Token.address, chain)}
+                        isExternal
+                        key={erc4626Token.address}
+                        variant="link"
+                      >
+                        <HStack gap="xxs">
+                          <Text color="link">{abbreviateAddress(erc4626Token.address)}</Text>
+                          <ArrowUpRight size={12} />
+                        </HStack>
+                      </Link>
+                      {getErc4626Icon(erc4626Token.erc4626ReviewData, token)}
+                    </HStack>
+                  )
+                })}
+              </VStack>
+            </GridItem>
+          </Grid>
+        )}
+      </VStack>
+    </Card>
+  )
+}

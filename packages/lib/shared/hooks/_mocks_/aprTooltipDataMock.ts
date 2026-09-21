@@ -1,0 +1,30 @@
+import type { GqlPoolAprItem } from '../../services/api/graphql-derived-types'
+import { useAprTooltip } from '../useAprTooltip'
+
+const aprItems = [
+  {
+    __typename: 'GqlPoolAprItem',
+    id: '0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112-rETH-yield-apr',
+    title: 'rETH APR',
+    apr: 0.006773985616957908,
+    type: 'IB_YIELD',
+  },
+  {
+    __typename: 'GqlPoolAprItem',
+    id: '0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112-swap-apr',
+    title: 'Swap fees APR',
+    apr: 0.0007062046857971015,
+    type: 'SWAP_FEE_24H',
+  },
+  {
+    __typename: 'GqlPoolAprItem',
+    id: '0x79ef6103a513951a3b25743db509e267685726b7-BAL-apr-boost',
+    title: 'BAL reward APR',
+    apr: 0.04786495,
+    type: 'STAKING_BOOST',
+  },
+] as GqlPoolAprItem[]
+
+export const aprTooltipDataMock = {
+  aprItems,
+} as Parameters<typeof useAprTooltip>[0]

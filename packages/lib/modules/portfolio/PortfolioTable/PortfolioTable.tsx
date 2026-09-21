@@ -1,0 +1,311 @@
+import { PaginatedTable } from '@repo/lib/shared/components/tables/PaginatedTable'
+import { usePortfolio } from '../PortfolioProvider'
+import { PortfolioTableHeader } from './PortfolioTableHeader'
+import { PortfolioTableRow } from './PortfolioTableRow'
+import {
+  Box,
+  Card,
+  Center,
+  Checkbox,
+  Divider,
+  Heading,
+  HStack,
+  Skeleton,
+  Stack,
+  Text,
+  useBreakpointValue,
+  VStack,
+  Link,
+} from '@chakra-ui/react'
+import FadeInOnView from '@repo/lib/shared/components/containers/FadeInOnView'
+import { useUserAccount } from '../../web3/UserAccountProvider'
+import { ConnectWallet } from '../../web3/ConnectWallet'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import {
+  PortfolioFilters,
+  PortfolioFilterTags,
+  usePortfolioFilterTagsVisible,
+} from './PortfolioFilters'
+import { usePortfolioFilters } from './PortfolioFiltersProvider'
+import { motion } from 'motion/react'
+import { usePortfolioSorting } from './usePortfolioSorting'
+import { usePoolMigrations } from '../../pool/migrations/PoolMigrationsProvider'
+import { getChainId } from '@repo/lib/config/app.config'
+import { MigrationAlert } from '../../pool/migrations/MigrationAlert'
+import { isChainDeprecated } from '../../chains/chain.utils'
+import { BalAlert } from '@repo/lib/shared/components/alerts/BalAlert'
+import { memo, useMemo } from 'react'
+import { isBalancer } from '@repo/lib/config/getProjectConfig'
+
+const rowProps = (needsLastColumnWider: boolean) => ({
+  px: [0, 4],
+  gridTemplateColumns: `32px minmax(320px, 1fr) minmax(180px, max-content) minmax(100px, max-content) 126px ${needsLastColumnWider ? '160px' : 'minmax(100px, max-content)'}`,
+  alignItems: 'center',
+  gap: { base: 'xxs', xl: 'lg' },
+})
+
+export function PortfolioTable() {
+  const { isConnected } = useUserAccount()
+  const isFilterVisible = usePortfolioFilterTagsVisible()
+  const isMd = useBreakpointValue({ base: false, md: true })
+  const { sortedPools, setSorting, currentSortingObj } = usePortfolioSorting()
+
+  const hasStakingBoost = sortedPools.some(pool =>
+    pool.dynamicData?.aprItems?.some(item => item.type === 'STAKING_BOOST')
+  )
+
+  const tableRowProps = useMemo(() => rowProps(hasStakingBoost), [hasStakingBoost])
+
+  const {
+    selectedNetworks,
+    selectedPoolTypes,
+    toggleNetwork,
+    togglePoolType,
+    toggleStakingType,
+    selectedStakingTypes,
+    hasTinyBalances,
+    setShouldFilterTinyBalances,
+    shouldFilterTinyBalances,
+  } = usePortfolioFilters()
+
+  const { projectName } = PROJECT_CONFIG
+
+  const variants = {
+    visible: {
+      transform: isMd ? 'translateY(-40px)' : 'translateY(0)',
+    },
+    hidden: {
+      transform: 'translateY(0)',
+    },
+  }
+
+  const { needsMigration } = usePoolMigrations()
+
+  const poolsThatNeedMigration = useMemo(
+    () =>
+      sortedPools
+        .filter(pool => needsMigration(pool.protocolVersion, getChainId(pool.chain), pool.id))
+        .sort(
+          (a, b) => (b.userBalance?.totalBalanceUsd || 0) - (a.userBalance?.totalBalanceUsd || 0)
+        )
+        .filter((item, pos, ary) => !pos || item.id !== ary[pos - 1]?.id), // deduplication
+    [sortedPools, needsMigration]
+  )
+
+  const deprecatedChainPools = sortedPools.filter(pool => isChainDeprecated(pool.chain)).length
+
+  return (
+    <FadeInOnView>
+      <VStack align="start" spacing="md" w="full">
+        <Stack
+          alignItems={isFilterVisible ? 'flex-end' : 'flex-start'}
+          direction="row"
+          justify="space-between"
+          minW="max-content"
+          w="full"
+        >
+          <VStack align="start" flex={1} minW="max-content" pb={{ base: '0', md: '0' }}>
+            <HStack w="full">
+              <Box position="relative" top="0">
+                <Box
+                  animate={isFilterVisible ? 'visible' : 'hidden'}
+                  as={motion.div}
+                  left="0"
+                  minW={{ base: 'auto', md: '270px' }}
+                  position={{ base: 'relative', md: 'absolute' }}
+                  top="8px"
+                  transition="all 0.15s var(--ease-out-cubic)"
+                  variants={variants}
+                  willChange="transform"
+                >
+                  <Heading as="h2" size="h4" variant="special" w="full">
+                    {`${projectName} portfolio`}
+                  </Heading>
+                </Box>
+              </Box>
+            </HStack>
+
+            {isFilterVisible && (
+              <PortfolioFilterTags
+                networks={selectedNetworks}
+                poolTypes={selectedPoolTypes}
+                stakingTypes={selectedStakingTypes}
+                toggleNetwork={toggleNetwork}
+                togglePoolType={togglePoolType}
+                toggleStakingType={toggleStakingType}
+              />
+            )}
+          </VStack>
+
+          <Stack
+            align={{ base: 'end', sm: 'center' }}
+            direction="row"
+            w={{ base: 'full', md: 'auto' }}
+          >
+            <PortfolioFilters
+              selectedNetworks={selectedNetworks}
+              selectedPoolTypes={selectedPoolTypes}
+            />
+          </Stack>
+        </Stack>
+
+        {poolsThatNeedMigration.map(pool => (
+          <MigrationAlert key={pool.id} pool={pool} />
+        ))}
+
+        {deprecatedChainPools > 0 && (
+          <BalAlert
+            content={`You have ${deprecatedChainPools} affected ${deprecatedChainPools === 1 ? 'position' : 'positions'} on this chains.
+            Please remove your liquidity asap.`}
+            status="warning"
+            title="Mode and Fraxtal are being sunset on Balancer"
+          />
+        )}
+
+        {isConnected ? (
+          <Card
+            alignItems="flex-start"
+            left={{ base: '-4px', sm: '0' }}
+            overflowX={{ base: 'auto', '2xl': 'hidden' }}
+            overflowY="hidden"
+            p={{ base: '0', sm: '0' }}
+            position="relative"
+            // fixing right padding for horizontal scroll on mobile
+            pr={{ base: 'lg', sm: 'lg', md: 'lg', lg: '0' }}
+            w={{ base: '100vw', lg: 'full' }}
+          >
+            <Box minW="max-content" w="full">
+              <PortfolioTableLoadingGate
+                currentSortingObj={currentSortingObj}
+                setSorting={setSorting}
+                sortedPools={sortedPools}
+                tableRowProps={tableRowProps}
+              />
+            </Box>
+          </Card>
+        ) : (
+          <Card
+            alignItems="flex-start"
+            left={{ base: '-4px', sm: '0' }}
+            p={{ base: '0', sm: '0' }}
+            position="relative"
+            // fixing right padding for horizontal scroll on mobile
+            pr={{ base: 'lg', sm: 'lg', md: 'lg', lg: '0' }}
+            w={{ base: '100vw', lg: 'full' }}
+          >
+            <PortfolioTableHeader
+              currentSortingObj={currentSortingObj}
+              setCurrentSortingObj={setSorting}
+              {...tableRowProps}
+            />
+            <Divider />
+            <Center h="160px" rounded="lg" w="full">
+              <Box>
+                <ConnectWallet size="lg" variant="primary" />
+              </Box>
+            </Center>
+          </Card>
+        )}
+        {hasTinyBalances && (
+          <Checkbox
+            isChecked={shouldFilterTinyBalances}
+            onChange={() => {
+              setShouldFilterTinyBalances(!shouldFilterTinyBalances)
+            }}
+            size="lg"
+          >
+            <Text fontSize="md" variant="secondary">
+              Hide pools under $0.01
+            </Text>
+          </Checkbox>
+        )}
+        {isBalancer && (
+          <Text color="font.secondary" fontSize="sm">
+            Any positions for legacy chains can be found on{' '}
+            <Link href="https://legacy.balancer.fi" isExternal textDecoration="underline">
+              legacy.balancer.fi
+            </Link>
+            .
+          </Text>
+        )}
+      </VStack>
+    </FadeInOnView>
+  )
+}
+
+const PortfolioTableLoadingGate = memo(function PortfolioTableLoadingGate({
+  currentSortingObj,
+  setSorting,
+  sortedPools,
+  tableRowProps,
+}: {
+  currentSortingObj: ReturnType<typeof usePortfolioSorting>['currentSortingObj']
+  setSorting: ReturnType<typeof usePortfolioSorting>['setSorting']
+  sortedPools: ReturnType<typeof usePortfolioSorting>['sortedPools']
+  tableRowProps: ReturnType<typeof rowProps>
+}) {
+  const { isLoadingPortfolio } = usePortfolio()
+
+  if (isLoadingPortfolio) {
+    return (
+      <>
+        <PortfolioTableHeader
+          currentSortingObj={currentSortingObj}
+          setCurrentSortingObj={setSorting}
+          {...tableRowProps}
+        />
+        <Divider />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Box key={`skeleton-${i}`} px="xs" py="xs" w="full">
+            <Skeleton height="68px" w="full" />
+          </Box>
+        ))}
+      </>
+    )
+  }
+
+  return (
+    <LoadedPortfolioTableContent
+      currentSortingObj={currentSortingObj}
+      setSorting={setSorting}
+      sortedPools={sortedPools}
+      tableRowProps={tableRowProps}
+    />
+  )
+})
+
+const LoadedPortfolioTableContent = memo(function LoadedPortfolioTableContent({
+  currentSortingObj,
+  setSorting,
+  sortedPools,
+  tableRowProps,
+}: {
+  currentSortingObj: ReturnType<typeof usePortfolioSorting>['currentSortingObj']
+  setSorting: ReturnType<typeof usePortfolioSorting>['setSorting']
+  sortedPools: ReturnType<typeof usePortfolioSorting>['sortedPools']
+  tableRowProps: ReturnType<typeof rowProps>
+}) {
+  return (
+    <PaginatedTable
+      alignItems="flex-start"
+      getRowId={row => row.uniqueKey}
+      items={sortedPools}
+      left={{ base: '-4px', sm: '0' }}
+      loading={false}
+      noItemsFoundLabel="You have no current positions"
+      paginationProps={undefined}
+      position="relative"
+      renderTableHeader={() => (
+        <PortfolioTableHeader
+          currentSortingObj={currentSortingObj}
+          setCurrentSortingObj={setSorting}
+          {...tableRowProps}
+        />
+      )}
+      renderTableRow={({ item }) => {
+        return <PortfolioTableRow keyValue={item.id} pool={item} {...tableRowProps} />
+      }}
+      showPagination={false}
+    />
+  )
+})

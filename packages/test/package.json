@@ -1,0 +1,30 @@
+{
+  "name": "@repo/test",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@apollo/client": "catalog:",
+    "@balancer/sdk": "6.2.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/prettier-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.0.3",
+    "eslint": "10.10.0",
+    "prool": "0.2.4",
+    "viem": "2.56.0",
+    "wagmi": "3.7.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0 --cache",
+    "lint:fix": "eslint . --fix --max-warnings 0 --cache",
+    "prettier": "prettier '**/*.*(md|json|yaml|ts|js|tsx)' --check --cache --log-level=warn",
+    "prettier:fix": "prettier '**/*.*(md|json|yaml|ts|js|tsx)' --write --cache --log-level=warn",
+    "typecheck": "tsc --project tsconfig.json --noEmit --incremental"
+  }
+}

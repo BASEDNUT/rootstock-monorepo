@@ -1,0 +1,177 @@
+import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
+import { PropsWithChildren, createContext } from 'react'
+import { LS_KEYS } from '@repo/lib/modules/local-storage/local-storage.constants'
+import { usePersistentForm } from '@repo/lib/shared/hooks/usePersistentForm'
+import {
+  INITIAL_TOKEN_CONFIG,
+  INITIAL_POOL_CREATION_FORM,
+  INITIAL_AUTORANGE_CONFIG,
+  INITIAL_ECLP_CONFIG,
+  NUM_FORMAT,
+  BALANCER_PROTOCOL_ID,
+  POOL_CREATION_FORM_STEPS,
+} from './constants'
+import { PoolCreationForm, PoolCreationToken, AutoRangeConfig, EclpConfigForm } from './types'
+import { Address } from 'viem'
+import { useLocalStorage } from 'usehooks-ts'
+import { invertNumber } from '@repo/lib/shared/utils/numbers'
+import { ApiOrCustomToken } from '@repo/lib/modules/tokens/token.types'
+import { useMemo } from 'react'
+import { useTokens } from '@repo/lib/modules/tokens/TokensProvider'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { fNumCustom } from '@repo/lib/shared/utils/numbers'
+import { useWatch } from 'react-hook-form'
+import { isBalancer } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { useSearchParams } from 'next/navigation'
+import { useFormSteps } from '@repo/lib/shared/hooks/useFormSteps'
+import { validatePoolTokens } from './validatePoolCreationForm'
+
+export type UsePoolCreationFormResult = ReturnType<typeof usePoolFormLogic>
+export const PoolCreationFormContext = createContext<UsePoolCreationFormResult | null>(null)
+
+export function usePoolFormLogic() {
+  const [poolAddress, setPoolAddress] = useLocalStorage<Address | undefined>(
+    LS_KEYS.PoolCreation.Address,
+    undefined
+  )
+
+  const autoRangeConfigForm = usePersistentForm<AutoRangeConfig>(
+    LS_KEYS.PoolCreation.AutoRangeConfig,
+    INITIAL_AUTORANGE_CONFIG,
+    { mode: 'all' }
+  )
+
+  const eclpConfigForm = usePersistentForm<EclpConfigForm>(
+    LS_KEYS.PoolCreation.EclpConfig,
+    INITIAL_ECLP_CONFIG,
+    { mode: 'all' }
+  )
+
+  const protocol = isBalancer ? BALANCER_PROTOCOL_ID : PROJECT_CONFIG.projectName
+
+  const poolCreationForm = usePersistentForm<PoolCreationForm>(
+    LS_KEYS.PoolCreation.Form,
+    { ...INITIAL_POOL_CREATION_FORM, protocol },
+    { mode: 'all' }
+  )
+
+  const updatePoolToken = (index: number, updates: Partial<PoolCreationToken>) => {
+    const currentPoolTokens = poolCreationForm.getValues('poolTokens')
+    const newPoolTokens = [...currentPoolTokens]
+    const currentToken = newPoolTokens[index]
+    if (!currentToken) return
+    newPoolTokens[index] = { ...currentToken, ...updates }
+    poolCreationForm.setValue('poolTokens', newPoolTokens)
+  }
+
+  const invertAutoRangePriceParams = () => {
+    const { initialMinPrice, initialMaxPrice, initialTargetPrice } = autoRangeConfigForm.getValues()
+    autoRangeConfigForm.setValue('initialMinPrice', invertNumber(initialMaxPrice))
+    autoRangeConfigForm.setValue('initialMaxPrice', invertNumber(initialMinPrice))
+    autoRangeConfigForm.setValue('initialTargetPrice', invertNumber(initialTargetPrice))
+
+    // keep order of pool tokens consistent with AutoRange params
+    const { poolTokens } = poolCreationForm.getValues()
+    poolCreationForm.setValue('poolTokens', [...poolTokens].reverse())
+  }
+
+  const invertGyroEclpPriceParams = () => {
+    const { alpha, beta, peakPrice, lambda } = eclpConfigForm.getValues()
+
+    eclpConfigForm.reset({
+      alpha: fNumCustom(invertNumber(beta), NUM_FORMAT),
+      beta: fNumCustom(invertNumber(alpha), NUM_FORMAT),
+      peakPrice: fNumCustom(invertNumber(peakPrice), NUM_FORMAT),
+      lambda: lambda,
+    })
+
+    // keep order of pool tokens consistent with gyro eclp params
+    const { poolTokens } = poolCreationForm.getValues()
+    poolCreationForm.setValue('poolTokens', [...poolTokens].reverse())
+  }
+
+  const addPoolToken = () => {
+    const { poolTokens } = poolCreationForm.getValues()
+    poolCreationForm.setValue('poolTokens', [...poolTokens, INITIAL_TOKEN_CONFIG])
+  }
+
+  const removePoolToken = (index: number) => {
+    const { poolTokens } = poolCreationForm.getValues()
+
+    poolCreationForm.setValue(
+      'poolTokens',
+      poolTokens.filter((_, i) => i !== index)
+    )
+  }
+
+  const [network, poolTokens] = useWatch({
+    control: poolCreationForm.control,
+    name: ['network', 'poolTokens'],
+  })
+
+  const searchParams = useSearchParams()
+
+  const formSteps = useFormSteps({
+    steps: POOL_CREATION_FORM_STEPS,
+    basePath: '/create',
+    localStorageKey: LS_KEYS.PoolCreation.StepIndex,
+    isFormHydrated: poolCreationForm.isHydrated,
+    shouldSkipRedirectToSavedStep: searchParams.has('protocol'),
+    canRenderStepFn: (currentStepIndex: number) => {
+      const stepRequiresValidTokens = currentStepIndex >= 2
+      const hasValidTokens = validatePoolTokens.isValidTokens(poolTokens)
+      const canRenderStep = stepRequiresValidTokens ? hasValidTokens : true
+      return canRenderStep
+    },
+  })
+
+  const resetPoolCreationForm = () => {
+    setPoolAddress(undefined)
+    poolCreationForm.resetToInitial()
+    autoRangeConfigForm.resetToInitial()
+    eclpConfigForm.resetToInitial()
+    formSteps.resetSteps()
+  }
+
+  const { getTokensByChain, isLoadingTokens: isLoadingTokenList } = useTokens()
+
+  const tokenList = useMemo(() => {
+    const networkTokens = getTokensByChain(network.toUpperCase() as GqlChain) || []
+    const networkAddresses = new Set(networkTokens.map(t => t.address))
+
+    const unknownTokens = poolTokens
+      .filter(token => token.address && !networkAddresses.has(token.address))
+      .map(token => token.data)
+      .filter((token): token is ApiOrCustomToken => token !== undefined)
+
+    return [...networkTokens, ...unknownTokens]
+  }, [getTokensByChain, network, poolTokens])
+
+  return {
+    ...formSteps,
+    poolCreationForm,
+    autoRangeConfigForm,
+    eclpConfigForm,
+    updatePoolToken,
+    removePoolToken,
+    addPoolToken,
+    invertAutoRangePriceParams,
+    invertGyroEclpPriceParams,
+    resetPoolCreationForm,
+    tokenList,
+    isLoadingTokenList,
+    poolAddress,
+    setPoolAddress,
+  }
+}
+
+export function PoolCreationFormProvider({ children }: PropsWithChildren) {
+  const hook = usePoolFormLogic()
+  return (
+    <PoolCreationFormContext.Provider value={hook}>{children}</PoolCreationFormContext.Provider>
+  )
+}
+
+export const usePoolCreationForm = (): UsePoolCreationFormResult =>
+  useMandatoryContext(PoolCreationFormContext, 'PoolCreationForm')

@@ -1,0 +1,288 @@
+import { NumberText } from '@repo/lib/shared/components/typography/NumberText'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import { bn, fNum } from '@repo/lib/shared/utils/numbers'
+import {
+  HStack,
+  VStack,
+  Text,
+  Box,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@chakra-ui/react'
+import { useSwap } from './SwapProvider'
+import { GqlSorSwapTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { useUserSettings } from '../user/settings/UserSettingsProvider'
+import { usePriceImpact } from '@repo/lib/modules/price-impact/PriceImpactProvider'
+import { SdkSimulateSwapResponse } from './swap.types'
+import { useTokens } from '../tokens/TokensProvider'
+import { NativeWrapHandler } from './handlers/NativeWrap.handler'
+import { InfoIcon } from '@repo/lib/shared/components/icons/InfoIcon'
+import pluralize from 'pluralize'
+import { BaseDefaultSwapHandler } from './handlers/BaseDefaultSwap.handler'
+import { getFullPriceImpactLabel, getMaxSlippageLabel } from '../price-impact/price-impact.utils'
+import { RoutesPopover } from './RoutesCard'
+
+export function OrderRoute() {
+  const { simulationQuery, tokenIn, tokenOut, selectedChain } = useSwap()
+
+  const queryData = simulationQuery.data as SdkSimulateSwapResponse
+  const orderRouteVersion = queryData ? queryData.protocolVersion : 2
+
+  const pathsCount = queryData?.paths?.length || 0
+
+  const hopCount = queryData?.paths
+    ? queryData.paths.reduce((acc, path) => {
+        return acc + (path.isBuffer || []).filter(buffer => buffer === false).length
+      }, 0)
+    : queryData?.hopCount || 0
+
+  function getRouteHopsLabel() {
+    if (hopCount === 0) return 'Unknown'
+    const pathsText = pathsCount > 1 ? `${pathsCount} paths, ` : ''
+    return `${pathsText}${hopCount} ${pluralize('hop', hopCount)} (Bv${orderRouteVersion})`
+  }
+
+  const label = getRouteHopsLabel()
+  const hasPaths = queryData?.paths && queryData.paths.length > 0
+
+  return (
+    <HStack justify="space-between" w="full">
+      <Text color="grayText" fontSize="sm">
+        Order route
+      </Text>
+      <HStack>
+        {hasPaths ? (
+          <HStack>
+            <RoutesPopover
+              chain={selectedChain}
+              maxHops={hopCount}
+              paths={queryData.paths || []}
+              protocolVersion={orderRouteVersion}
+              totalInputAmount={Number(tokenIn.amount)}
+              totalOutputAmount={Number(tokenOut.amount)}
+            >
+              <Text
+                _after={{
+                  borderBottom: '1px dotted',
+                  borderColor: 'currentColor',
+                  bottom: '-2px',
+                  content: '""',
+                  left: 0,
+                  opacity: 0.5,
+                  position: 'absolute',
+                  width: '100%',
+                }}
+                color="grayText"
+                cursor="pointer"
+                fontSize="sm"
+                position="relative"
+              >
+                {label}
+              </Text>
+            </RoutesPopover>
+            <Popover trigger="hover">
+              <PopoverTrigger>
+                <Box
+                  _hover={{ opacity: 1 }}
+                  opacity="0.5"
+                  transition="opacity 0.2s var(--ease-out-cubic)"
+                >
+                  <InfoIcon />
+                </Box>
+              </PopoverTrigger>
+              <PopoverContent maxW="300px" p="sm" w="auto">
+                <Text fontSize="sm" variant="secondary">
+                  Balancer Vault version and number of swap hops
+                </Text>
+              </PopoverContent>
+            </Popover>
+          </HStack>
+        ) : (
+          <HStack>
+            <Text color="grayText" fontSize="sm">
+              {label}
+            </Text>
+            <Popover trigger="hover">
+              <PopoverTrigger>
+                <Box
+                  _hover={{ opacity: 1 }}
+                  opacity="0.5"
+                  transition="opacity 0.2s var(--ease-out-cubic)"
+                >
+                  <InfoIcon />
+                </Box>
+              </PopoverTrigger>
+              <PopoverContent maxW="300px" p="sm" w="auto">
+                <Text fontSize="sm" variant="secondary">
+                  Balancer Vault version and number of swap hops
+                </Text>
+              </PopoverContent>
+            </Popover>
+          </HStack>
+        )}
+      </HStack>
+    </HStack>
+  )
+}
+
+export function SwapDetails({ hideOrderRoute }: { hideOrderRoute?: boolean }) {
+  const { toCurrency } = useCurrency()
+  const { slippage, slippageDecimal } = useUserSettings()
+  const { usdValueForToken } = useTokens()
+  const { tokenInInfo, tokenOutInfo, swapType, tokenIn, tokenOut, handler } = useSwap()
+
+  const { priceImpactLevel, priceImpactColor, PriceImpactIcon, priceImpact } = usePriceImpact()
+
+  const isDefaultSwap = handler instanceof BaseDefaultSwapHandler
+  const isNativeWrapOrUnwrap = handler instanceof NativeWrapHandler
+
+  const _slippage = isNativeWrapOrUnwrap ? 0 : slippage
+  const _slippageDecimal = isNativeWrapOrUnwrap ? 0 : slippageDecimal
+
+  const returnAmountUsd =
+    swapType === GqlSorSwapTypeValues.ExactIn
+      ? usdValueForToken(tokenOutInfo, tokenOut.amount)
+      : usdValueForToken(tokenInInfo, tokenIn.amount)
+
+  const priceImpactUsd = bn(priceImpact || 0).times(returnAmountUsd)
+
+  const fullPriceImpactLabel = getFullPriceImpactLabel(
+    priceImpact,
+    toCurrency(priceImpactUsd, { abbreviated: false })
+  )
+
+  const maxSlippageUsd = bn(_slippage).div(100).times(returnAmountUsd)
+
+  const fullMaxSlippageLabel = getMaxSlippageLabel(
+    _slippage,
+    toCurrency(maxSlippageUsd, { abbreviated: false })
+  )
+
+  const isExactIn = swapType === GqlSorSwapTypeValues.ExactIn
+
+  const limitLabel = isExactIn ? "You'll get at least" : "You'll pay at most"
+  const limitToken = isExactIn ? tokenOutInfo : tokenInInfo
+
+  const limitValue = isExactIn
+    ? bn(tokenOut.amount || '0')
+        .minus(bn(tokenOut.amount || '0').times(_slippageDecimal))
+        .toString()
+    : bn(tokenIn.amount || '0')
+        .plus(bn(tokenIn.amount || '0').times(_slippageDecimal))
+        .toString()
+
+  const limitTooltip = isExactIn
+    ? 'You will get at least this amount, even if you suffer maximum slippage ' +
+      'from unfavorable market price movements before your transaction executes on-chain.'
+    : 'At most, you will spend this amount, even if you suffer maximum slippage ' +
+      'from unfavortable market price movements before your transaction executes on-chain.'
+
+  const priceImpactTooltip =
+    priceImpactLevel === 'unknown'
+      ? 'This usually displays the loss from the swap, comparing the value of the token input vs token output, including swap fees (based on pools routes) and price impact (based on current market prices). However, for some reason, the price impact currently can’t be calculated. This may be due to the pricing provider being down or not knowing one of the tokens. Only proceed if you know exactly what you are doing.'
+      : 'This is the loss from the swap, comparing the value of the token input vs token output. It includes swap fees (based on pools routes) and price impact (based on current market prices).'
+
+  const slippageLabel = isExactIn
+    ? `This is the maximum slippage that the swap will allow.
+        It is based on the quoted amount out minus your slippage tolerance, using current market prices.
+        You can change your slippage tolerance in your settings.`
+    : `This is the maximum slippage that the swap will allow.
+        It is based on the quoted amount in plus your slippage tolerance, using current market prices.
+        You can change your slippage tolerance in your settings.`
+
+  return (
+    <VStack align="start" fontSize="sm" spacing="sm" w="full">
+      <HStack justify="space-between" w="full">
+        <Text color={priceImpactColor} fontSize="sm">
+          Token in vs token out
+        </Text>
+        <HStack>
+          {priceImpactLevel === 'unknown' ? (
+            <Text fontSize="sm">Unknown</Text>
+          ) : (
+            <NumberText color={priceImpactColor} fontSize="sm">
+              {fullPriceImpactLabel}
+            </NumberText>
+          )}
+          <Popover trigger="hover">
+            <PopoverTrigger>
+              {priceImpactLevel === 'low' ? (
+                <Box
+                  _hover={{ opacity: 1 }}
+                  opacity="0.5"
+                  transition="opacity 0.2s var(--ease-out-cubic)"
+                >
+                  <InfoIcon />
+                </Box>
+              ) : (
+                <Box>
+                  <PriceImpactIcon priceImpactLevel={priceImpactLevel} />
+                </Box>
+              )}
+            </PopoverTrigger>
+            <PopoverContent p="sm">
+              <Text fontSize="sm" variant="secondary">
+                {priceImpactTooltip}
+              </Text>
+            </PopoverContent>
+          </Popover>
+        </HStack>
+      </HStack>
+      <HStack justify="space-between" w="full">
+        <Text color="grayText" fontSize="sm">
+          Max slippage
+        </Text>
+        <HStack>
+          <NumberText color="grayText" fontSize="sm">
+            {fullMaxSlippageLabel}
+          </NumberText>
+          <Popover trigger="hover">
+            <PopoverTrigger>
+              <Box
+                _hover={{ opacity: 1 }}
+                opacity="0.5"
+                transition="opacity 0.2s var(--ease-out-cubic)"
+              >
+                <InfoIcon />
+              </Box>
+            </PopoverTrigger>
+            <PopoverContent p="sm">
+              <Text fontSize="sm" variant="secondary">
+                {slippageLabel}
+              </Text>
+            </PopoverContent>
+          </Popover>
+        </HStack>
+      </HStack>
+      <HStack justify="space-between" w="full">
+        <Text color="grayText" fontSize="sm">
+          {limitLabel}
+        </Text>
+        <HStack>
+          <NumberText color="grayText" fontSize="sm">
+            {fNum('token', limitValue, { abbreviated: false })} {limitToken?.symbol}
+          </NumberText>
+          <Popover trigger="hover">
+            <PopoverTrigger>
+              <Box
+                _hover={{ opacity: 1 }}
+                opacity="0.5"
+                transition="opacity 0.2s var(--ease-out-cubic)"
+              >
+                <InfoIcon />
+              </Box>
+            </PopoverTrigger>
+            <PopoverContent p="sm">
+              <Text fontSize="sm" variant="secondary">
+                {limitTooltip}
+              </Text>
+            </PopoverContent>
+          </Popover>
+        </HStack>
+      </HStack>
+
+      {isDefaultSwap && !hideOrderRoute ? <OrderRoute /> : null}
+    </VStack>
+  )
+}

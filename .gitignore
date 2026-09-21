@@ -1,0 +1,58 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# testing
+coverage
+
+# turbo
+.turbo
+
+# vercel
+.vercel
+
+# build outputs
+.next/
+out/
+dist
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+.DS_Store
+*.pem
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# ide
+.vscode
+.idea
+.aider*
+
+# entry config file
+.sentryclirc
+.env.sentry-build-plugin
+
+# for packages/lib
+generated/
+.eslintcache
+.prettiercache
+
+# V8 compilation cache
+v8-compile-cache-0/
+

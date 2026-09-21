@@ -1,0 +1,245 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+'use client'
+
+import {
+  Box,
+  BoxProps,
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  VStack,
+  Text,
+  Center,
+  Stack,
+  Link,
+} from '@chakra-ui/react'
+import { PlayVideoButton } from '@repo/lib/shared/components/btns/PlayVideoButton'
+import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
+import Noise from '@repo/lib/shared/components/layout/Noise'
+import { ReactNode } from 'react'
+import { SandBg } from './shared/SandBg'
+import Image from 'next/image'
+
+// @ts-ignore
+import createCustomAMMsSrc from './images/video-createCustomAMMs.png'
+// @ts-ignore
+import prototypePoolSrc from './images/video-prototypePool.png'
+// @ts-ignore
+import createHookSrc from './images/video-createHook.png'
+// @ts-ignore
+import createRouterSrc from './images/video-createRouter.png'
+import { RadialPattern } from './shared/RadialPattern'
+import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
+
+const videos = {
+  createCustomAMMs: {
+    title: 'Create custom AMMs',
+    url: 'https://youtu.be/oJAXQCMVdfA?si=Vnusjr2rzGVLI4Lm',
+    src: createCustomAMMsSrc,
+  },
+  prototypePool: {
+    title: 'Prototype a pool',
+    url: 'https://youtu.be/m6q5M34ZdXw?si=FfZhc6fQRHht3JME',
+    src: prototypePoolSrc,
+  },
+  createHook: {
+    title: 'Create a hook',
+    url: 'https://youtu.be/kaz6duliRPA?si=CMTRINvkDwrR-7s-',
+    src: createHookSrc,
+  },
+  createRouter: {
+    title: 'Create a router',
+    url: 'https://youtu.be/pO1ChmSFTaY?si=6wRUk2Ff5yJyGrIn',
+    src: createRouterSrc,
+  },
+}
+
+export function VideoBox({
+  label,
+  labelProps = {},
+  bgVariant,
+  id,
+  feature = false,
+  ...props
+}: BoxProps & {
+  label?: string | ReactNode
+  labelProps?: BoxProps
+  bgVariant?: 1 | 2 | 3
+  id: keyof typeof videos
+  feature?: boolean
+}) {
+  const video = videos[id]
+
+  return (
+    <Link href={video.url} isExternal role="group">
+      <Box
+        background="background.level0"
+        overflow="hidden"
+        position="relative"
+        rounded="md"
+        shadow="md"
+        {...props}
+      >
+        {feature && (
+          <>
+            <Image
+              alt="initial frame"
+              fill
+              sizes="100vw"
+              src={video.src}
+              style={{
+                objectFit: 'cover',
+              }}
+            />
+            <Box
+              _groupHover={{ opacity: 0.5 }}
+              bg="background.base"
+              h="full"
+              opacity={0}
+              position="absolute"
+              transition="opacity 0.2s var(--ease-out-cubic)"
+              w="full"
+            />
+          </>
+        )}
+        {bgVariant && <SandBg variant={bgVariant} />}
+        <Center h="full" position="absolute" w="full">
+          <Box
+            _groupHover={{ transform: 'scale(1.1)' }}
+            transition="opacity 0.3s var(--ease-out-cubic)"
+          >
+            <PlayVideoButton size={62} />
+          </Box>
+        </Center>
+        <Box
+          bottom="0"
+          left="0"
+          p="md"
+          position="absolute"
+          right="0"
+          textAlign="center"
+          {...labelProps}
+        >
+          {label}
+        </Box>
+      </Box>
+    </Link>
+  )
+}
+
+export function Videos() {
+  return (
+    <Noise backgroundColor="background.level0WithOpacity" position="relative">
+      <Box minH="500px" position="absolute" w="full">
+        <Box bottom={0} h="500px" left={0} position="absolute" top={0} w="100vw">
+          <RadialPattern
+            circleCount={8}
+            height={700}
+            innerHeight={150}
+            innerWidth={500}
+            padding="15px"
+            position="absolute"
+            right={-400}
+            top={-100}
+            width={1000}
+          />
+        </Box>
+      </Box>
+      <DefaultPageContainer noVerticalPadding position="relative" py={['3xl', '10rem']} zIndex={2}>
+        <VStack align="start" spacing="lg" w="full">
+          <Stack
+            align={{ base: 'start', lg: 'end' }}
+            direction={{ base: 'column', lg: 'row' }}
+            justify="space-between"
+            spacing="lg"
+            w="full"
+          >
+            <WordsPullUp
+              as="h2"
+              color="font.primary"
+              fontSize="4xl"
+              fontWeight="bold"
+              letterSpacing="-0.04rem"
+              lineHeight={1}
+              text="Video tutorials"
+            />
+            <Button
+              as={Link}
+              href="/create"
+              variant="secondary"
+            >
+              Create a pool
+            </Button>
+          </Stack>
+          <Card>
+            <VideoBox
+              feature
+              id="createCustomAMMs"
+              label={
+                <Text fontSize="xl" fontWeight="bold">
+                  {videos.createCustomAMMs.title}
+                </Text>
+              }
+              mb="md"
+              minH="600px"
+            />
+            <Grid gap="md" templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}>
+              <GridItem>
+                <VideoBox
+                  bgVariant={1}
+                  id="prototypePool"
+                  label={
+                    <Text fontSize="md" fontWeight="bold">
+                      {videos.prototypePool.title}
+                    </Text>
+                  }
+                  minH="200px"
+                />
+              </GridItem>
+              <GridItem>
+                <VideoBox
+                  bgVariant={2}
+                  id="createHook"
+                  label={
+                    <Text fontSize="md" fontWeight="bold">
+                      {videos.createHook.title}
+                    </Text>
+                  }
+                  minH="200px"
+                />
+              </GridItem>
+              <GridItem>
+                <VideoBox
+                  bgVariant={3}
+                  id="createRouter"
+                  label={
+                    <Text fontSize="md" fontWeight="bold">
+                      {videos.createRouter.title}
+                    </Text>
+                  }
+                  minH="200px"
+                />
+              </GridItem>
+            </Grid>
+          </Card>
+        </VStack>
+      </DefaultPageContainer>
+      <Box minH="500px" position="absolute" w="full" zIndex={-1}>
+        <Box bottom={0} h="500px" left={0} position="absolute" top={0} w="100vw">
+          <RadialPattern
+            circleCount={8}
+            height={700}
+            innerHeight={150}
+            innerWidth={500}
+            left={-400}
+            padding="15px"
+            position="absolute"
+            top={-500}
+            width={1000}
+          />
+        </Box>
+      </Box>
+    </Noise>
+  )
+}

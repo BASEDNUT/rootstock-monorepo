@@ -1,0 +1,50 @@
+import { GetVeBalUserDocument } from '@repo/lib/shared/services/api/generated/graphql'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
+import type { GqlVeBalLockSnapshot } from '@repo/lib/shared/services/api/graphql-derived-types'
+import { useQuery } from '@apollo/client/react'
+import { useVeBALBalance } from './useVeBALBalance'
+import { useUserAccount } from '@repo/lib/modules/web3/UserAccountProvider'
+import { secondsToMilliseconds } from 'date-fns'
+
+export function useVebalUserData() {
+  const { userAddress } = useUserAccount()
+
+  const apiResponse = useQuery(GetVeBalUserDocument, {
+    variables: {
+      address: userAddress.toLowerCase(),
+      chain: GqlChainValues.Mainnet,
+    },
+  })
+
+  const balanceResponse = useVeBALBalance(userAddress)
+  const noVeBALBalance = balanceResponse.veBALBalance === 0n
+
+  const isLoading = apiResponse.loading || balanceResponse.isLoading
+
+  const refetch = () => {
+    apiResponse.refetch()
+    balanceResponse.refetch()
+  }
+
+  const snapshots = apiResponse.data?.veBalGetUser.lockSnapshots
+
+  const lastLockTimestamp =
+    snapshots && snapshots.length > 0
+      ? secondsToMilliseconds(calculateLastLock(snapshots)?.timestamp || 0)
+      : undefined
+
+  return {
+    isLoading,
+    veBALBalance: balanceResponse.veBALBalance,
+    noVeBALBalance,
+    rank: apiResponse.data?.veBalGetUser.rank,
+    snapshots,
+    lastLockTimestamp,
+    refetch,
+  }
+}
+
+function calculateLastLock(snapshots: GqlVeBalLockSnapshot[]) {
+  const userLocks = [...snapshots].sort((a, b) => a.timestamp - b.timestamp)
+  return userLocks[userLocks.length - 1]
+}

@@ -1,0 +1,86 @@
+import {
+  Card,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalProps,
+} from '@chakra-ui/react'
+import { useBreakpoints } from '@repo/lib/shared/hooks/useBreakpoints'
+import { MobileStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/MobileStepTracker'
+import { getStylesForModalContentWithStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/step-tracker.utils'
+import { DesktopStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/DesktopStepTracker'
+import { TransactionModalHeader } from '@repo/lib/shared/components/modals/TransactionModalHeader'
+import { ActionModalFooter } from '@repo/lib/shared/components/modals/ActionModalFooter'
+import { SuccessOverlay } from '@repo/lib/shared/components/modals/SuccessOverlay'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { AnimateHeightChange } from '@repo/lib/shared/components/animations/AnimateHeightChange'
+import { useLevelUpStep } from '../hooks/useLevelUpStep'
+import { useTransactionSteps } from '@repo/lib/modules/transactions/transaction-steps/useTransactionSteps'
+
+type Props = {
+  isOpen: boolean
+  onClose(): void
+  chain: GqlChain
+  nextLevel: number
+  relicId: string
+}
+
+export function LevelUpModal({
+  isOpen,
+  onClose,
+  chain,
+  nextLevel,
+  relicId,
+  ...rest
+}: Props & Omit<ModalProps, 'children' | 'onClose'>) {
+  const { isDesktop, isMobile } = useBreakpoints()
+  const { step: levelUpStep } = useLevelUpStep(relicId)
+  const levelUpTransactionSteps = useTransactionSteps([levelUpStep], false)
+  const levelUpTxHash = levelUpTransactionSteps.lastTransaction?.result?.data?.transactionHash
+
+  function handleOnClose() {
+    levelUpTransactionSteps.resetTransactionSteps()
+    onClose()
+  }
+
+  const isSuccess = !!levelUpTxHash
+
+  return (
+    <Modal
+      isCentered
+      isOpen={isOpen}
+      onClose={onClose}
+      preserveScrollBarGap
+      trapFocus={!isSuccess}
+      {...rest}
+    >
+      <SuccessOverlay startAnimation={!!levelUpTxHash} />
+      <ModalContent {...getStylesForModalContentWithStepTracker(isDesktop)}>
+        {isDesktop && (
+          <DesktopStepTracker chain={chain} transactionSteps={levelUpTransactionSteps} />
+        )}
+        <TransactionModalHeader chain={chain} label="Level Up" txHash={levelUpTxHash} />
+        <ModalCloseButton />
+        <ModalBody>
+          <AnimateHeightChange spacing="sm">
+            {isMobile && (
+              <MobileStepTracker chain={chain} transactionSteps={levelUpTransactionSteps} />
+            )}
+            <Card variant="modalSubSection">
+              {isSuccess
+                ? `Successfully levelled up to ${nextLevel}.`
+                : `The next level is ${nextLevel}.`}
+            </Card>
+          </AnimateHeightChange>
+        </ModalBody>
+        <ActionModalFooter
+          currentStep={levelUpTransactionSteps.currentStep}
+          isSuccess={isSuccess}
+          returnAction={handleOnClose}
+          returnLabel="Return to maBEETS"
+        />
+      </ModalContent>
+    </Modal>
+  )
+}

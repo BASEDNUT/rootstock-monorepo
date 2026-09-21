@@ -1,0 +1,698 @@
+import { createContext, PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { fNum, invert } from '@repo/lib/shared/utils/numbers'
+import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
+import { useBreakpoints } from '@repo/lib/shared/hooks/useBreakpoints'
+import { useSelectColor } from '@repo/lib/shared/hooks/useSelectColor'
+import type { AutoRangeData } from './useAutoRangeData'
+
+type AutoRangeChartContextType = ReturnType<typeof useAutoRangeChartLogic>
+
+const AutoRangeChartContext = createContext<AutoRangeChartContextType | null>(null)
+
+function getGradientColor(colorStops: string[]) {
+  return {
+    type: 'linear',
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: colorStops.map((color, index) => ({ offset: index, color })),
+  }
+}
+
+export function useAutoRangeChartLogic(chartData: AutoRangeData | undefined) {
+  const { isMobile } = useBreakpoints()
+  const [isReversed, setIsReversed] = useState(false)
+  const [chartInstance, setChartInstance] = useState<any>(null)
+  const selectColor = useSelectColor()
+
+  const isLoading = !!chartData?.isLoading
+  const isPoolWithinTargetRange = !!chartData?.isPoolWithinTargetRange
+
+  const secondaryFontColor = selectColor('font', 'secondary')
+  const highlightFontColor = selectColor('font', 'highlight')
+  const warningFontColor = selectColor('font', 'warning')
+  const borderColor = selectColor('background', 'level0')
+
+  function toggleIsReversed() {
+    setIsReversed(!isReversed)
+  }
+
+  const tokens = useMemo(() => {
+    const poolTokens = chartData?.poolTokens
+    if (!poolTokens) return ''
+
+    return isReversed ? poolTokens.reverse().join(' / ') : poolTokens.join(' / ')
+  }, [chartData?.poolTokens, isReversed])
+
+  const options = useMemo(() => {
+    const data = (chartData || {}) as any
+    const { marginValue, isPoolWithinRange } = data
+
+    let { maxPriceValue, minPriceValue, lowerMarginValue, upperMarginValue, currentPriceValue } =
+      data
+
+    if (
+      chartData &&
+      maxPriceValue !== undefined &&
+      minPriceValue !== undefined &&
+      lowerMarginValue !== undefined &&
+      upperMarginValue !== undefined &&
+      currentPriceValue !== undefined &&
+      isReversed
+    ) {
+      const minPriceInverted = invert(maxPriceValue)
+      const maxPriceInverted = invert(minPriceValue)
+      const lowerMarginInverted = invert(upperMarginValue)
+      const upperMarginInverted = invert(lowerMarginValue)
+      const currentPriceInverted = invert(currentPriceValue)
+
+      minPriceValue = minPriceInverted
+      maxPriceValue = maxPriceInverted
+      lowerMarginValue = lowerMarginInverted
+      upperMarginValue = upperMarginInverted
+      currentPriceValue = currentPriceInverted
+    }
+
+    const isPriceAdjusting = isPoolWithinRange && !isPoolWithinTargetRange
+
+    const isLowMarginValue = marginValue && marginValue < 26
+    const needsMobileStyles = isMobile || isLowMarginValue
+
+    let showTargetValues = true
+    let showMinMaxValues = true
+    const totalGreenAndOrangeBars = 52
+
+    // always have a minimum of 1 orange bar
+    const baseOrangeBarCount =
+      marginValue && marginValue < 4
+        ? 1
+        : Math.floor((totalGreenAndOrangeBars * (marginValue || 0)) / 100 / 2)
+
+    // if the margin is very small or very big, show only the target values or min/max values depending on the pool state
+    if (marginValue && marginValue < 4) {
+      if (isPoolWithinTargetRange) {
+        showTargetValues = true
+        showMinMaxValues = false
+      } else if (isPoolWithinRange) {
+        showTargetValues = false
+        showMinMaxValues = true
+      }
+    } else if (marginValue && marginValue > 92) {
+      showTargetValues = false
+      showMinMaxValues = true
+    }
+
+    const baseGreenBarCount = totalGreenAndOrangeBars - 2 * baseOrangeBarCount
+    const baseGreyBarCount = 9
+    const totalBars = 2 * baseGreyBarCount + 2 * baseOrangeBarCount + baseGreenBarCount
+
+    // for some reason the number of orange (or green) bars matters to echarts in the grid
+    const gridBottomDesktop = baseOrangeBarCount % 2 === 0 ? '19.5%' : '1%'
+
+    const gridBottomMobile =
+      baseOrangeBarCount % 2 === 0 && !(showMinMaxValues && !showTargetValues) ? '28%' : '16%'
+
+    const baseGreyBarConfig = {
+      count: baseGreyBarCount,
+      value: isMobile ? 1 : 3,
+      gradientColors: ['rgba(160, 174, 192, 0.5)', 'rgba(160, 174, 192, 0.1)'],
+      borderRadius: 20,
+      segmentType: 'grey',
+    }
+
+    const baseOrangeBarConfig = {
+      count: baseOrangeBarCount,
+      value: 100,
+      gradientColors: ['rgb(253, 186, 116)', 'rgba(151, 111, 69, 0.5)'],
+      borderRadius: 20,
+      segmentType: 'orange',
+    }
+
+    const greenBarConfig = {
+      name: 'Green',
+      count: baseGreenBarCount,
+      value: 100,
+      gradientColors: ['rgb(99, 242, 190)', 'rgba(57, 140, 110, 0.5)'],
+      borderRadius: 20,
+      segmentType: 'green',
+    }
+
+    const barSegmentsConfig = [
+      { ...baseGreyBarConfig, name: 'Left Grey' },
+      { ...baseOrangeBarConfig, name: 'Left Orange' },
+      greenBarConfig,
+      { ...baseOrangeBarConfig, name: 'Right Orange' },
+      { ...baseGreyBarConfig, name: 'Right Grey' },
+    ]
+
+    const allCategories: string[] = []
+    const seriesData: any[] = []
+    let categoryNumber = 1
+
+    // Calculate which bar the current price corresponds to
+    const getCurrentPriceBarIndex = () => {
+      const { poolCenteredness = 0, isPoolAboveCenter = false } = chartData || {}
+
+      const totalGreenAndOrangeBars = 2 * baseOrangeBarCount + baseGreenBarCount
+      let barIndex: number
+
+      if (isPoolAboveCenter) {
+        barIndex = Math.floor((poolCenteredness / 2) * totalGreenAndOrangeBars)
+      } else {
+        barIndex = Math.floor(((2 - poolCenteredness) / 2) * totalGreenAndOrangeBars)
+      }
+
+      return (isReversed ? totalGreenAndOrangeBars - barIndex - 1 : barIndex) + baseGreyBarCount
+    }
+
+    const currentPriceBarIndex = getCurrentPriceBarIndex()
+
+    barSegmentsConfig.forEach(segment => {
+      const segmentCategories: string[] = []
+      const segmentStartIndex = allCategories.length
+
+      for (let i = 0; i < segment.count; i++) {
+        segmentCategories.push(String(categoryNumber++))
+      }
+
+      allCategories.push(...segmentCategories)
+
+      // Create series data for this segment
+      const segmentSeriesData = Array(segment.count)
+        .fill(null)
+        .map((_, i) => {
+          const isCurrentPriceBar = segmentStartIndex + i === currentPriceBarIndex
+
+          // Define special bar styles based on position in segment
+          const isFirstInSegment = i === 0
+          const isLastInSegment = i === segment.count - 1
+          const isMiddleInSegment = !isFirstInSegment && !isLastInSegment
+
+          // All bars have full border radius by default
+          const barBorderRadius = segment.borderRadius
+
+          return {
+            value: segment.value,
+            itemStyle: {
+              color: isCurrentPriceBar
+                ? isPriceAdjusting
+                  ? warningFontColor
+                  : highlightFontColor
+                : getGradientColor(segment.gradientColors),
+              borderRadius: barBorderRadius,
+              borderColor,
+              borderWidth: 0.5,
+            },
+            // Store segment info for hover effects
+            segmentType: segment.segmentType,
+            segmentStartIndex,
+            segmentEndIndex: segmentStartIndex + segment.count - 1,
+            barIndex: segmentStartIndex + i,
+            isFirstInSegment,
+            isLastInSegment,
+            isMiddleInSegment,
+            // Define hover state styling
+            emphasis: {
+              itemStyle: {
+                borderColor,
+                borderWidth: 0.5,
+                color: isCurrentPriceBar
+                  ? isPriceAdjusting
+                    ? warningFontColor
+                    : highlightFontColor
+                  : getGradientColor(segment.gradientColors),
+              },
+            },
+          }
+        })
+
+      seriesData.push(...segmentSeriesData)
+    })
+
+    const baseRichProps = {
+      fontSize: 12,
+      lineHeight: 13,
+      color: secondaryFontColor,
+      align: 'center',
+    }
+
+    const paddingRight = isMobile ? 5 : 10
+
+    const richStyles = {
+      base: baseRichProps,
+      triangle: {
+        ...baseRichProps,
+        fontSize: 9,
+        lineHeight: 12,
+        color: '#718096',
+      },
+      current: {
+        ...baseRichProps,
+        color: isPriceAdjusting ? warningFontColor : highlightFontColor,
+      },
+      currentTriangle: {
+        ...baseRichProps,
+        fontSize: 8,
+        lineHeight: 14,
+        color: isPriceAdjusting ? warningFontColor : highlightFontColor,
+      },
+      withRightPadding: {
+        ...baseRichProps,
+        padding: [0, paddingRight, 0, 0],
+      },
+      withRightBottomPadding: {
+        ...baseRichProps,
+        padding: [0, paddingRight, 5, 0],
+      },
+      withTopRightPadding: {
+        ...baseRichProps,
+        padding: [showMinMaxValues && !showTargetValues ? 0 : 100, paddingRight, 0, 0],
+      },
+    }
+
+    return {
+      tooltip: {
+        show: true,
+        trigger: 'item',
+        formatter: (params: any) => {
+          const { data } = params
+
+          // data.segmentType: 'orange', 'green', 'grey'
+          // data.segmentStartIndex, data.segmentEndIndex
+          if (data.segmentType === 'orange') {
+            // Determine if left or right orange by index
+            return `The ${data.segmentStartIndex < baseGreyBarCount + baseOrangeBarCount ? 'lower' : 'upper'} margin is part of the uniform concentrated liquidity of the pool. When the current price is within this range, swaps continue to route through the pool and LPs earn swap fees. Also, the pool will begin to automatically readjust and recenter the concentrated liquidity around the current price.`
+          }
+
+          if (data.segmentType === 'green') {
+            return 'This is part of the uniform concentrated liquidity of the pool. When the current price is anywhere within this range, swaps route through the pool and LPs earn swap fees that are likely to be higher compared to an otherwise equivalent weighted pool.'
+          }
+
+          if (data.segmentType === 'grey') {
+            // Determine if left or right grey by index
+            return `When the current price is ${data.segmentStartIndex < baseGreyBarCount ? 'below the minimum' : 'above the maximum'} price of the concentrated liquidity range, swaps will not route through the pool and LPs will not earn fees. The pool will automatically readjust ${data.segmentStartIndex < baseGreyBarCount ? 'downwards' : 'upwards'} to recenter the concentrated liquidity around the current price.`
+          }
+
+          return ''
+        },
+        backgroundColor: '#222',
+        textStyle: { color: '#fff', fontSize: 12 },
+        borderWidth: 0,
+        borderRadius: 4,
+        padding: 6,
+        extraCssText:
+          'max-width:222px; white-space:pre-line; word-break:break-word; word-wrap:break-word; line-height:1.3;',
+      },
+      grid: {
+        left: isMobile ? '-7%' : '-3%',
+        right: '1%',
+        top: isMobile ? '50px' : '15%',
+        bottom: needsMobileStyles ? gridBottomMobile : gridBottomDesktop,
+        containLabel: true,
+      },
+      xAxis: {
+        show: true,
+        type: 'category',
+        data: allCategories,
+        position: 'bottom',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          show: true,
+          interval: 0,
+          formatter: (value: string, index: number) => {
+            if (showMinMaxValues && index === baseGreyBarCount) {
+              return `{${needsMobileStyles ? 'triangleMobile' : 'triangle'}|▲}\n{${needsMobileStyles ? 'labelTextMobile' : 'labelText'}|Min price}\n{${needsMobileStyles ? 'priceValueMobile' : 'priceValue'}|${minPriceValue !== undefined ? fNum('tokenRatio', minPriceValue) : 'N/A'}}`
+            }
+
+            if (showTargetValues && index === baseGreyBarCount + baseOrangeBarCount) {
+              return `{triangle|▲}\n{labelText|Low target}\n{priceValue|${upperMarginValue !== undefined ? fNum('tokenRatio', upperMarginValue) : 'N/A'}}`
+            }
+
+            if (showTargetValues && index === totalBars - baseGreyBarCount - baseOrangeBarCount) {
+              return `{triangle|▲}\n{labelText|High target}\n{priceValue|${lowerMarginValue !== undefined ? fNum('tokenRatio', lowerMarginValue) : 'N/A'}}`
+            }
+
+            if (showMinMaxValues && index === totalBars - baseGreyBarCount) {
+              return `{${needsMobileStyles ? 'triangleMobile' : 'triangle'}|▲}\n{${needsMobileStyles ? 'labelTextMobile' : 'labelText'}|Max price}\n{${needsMobileStyles ? 'priceValueMobile' : 'priceValue'}|${maxPriceValue !== undefined ? fNum('tokenRatio', maxPriceValue) : 'N/A'}}`
+            }
+
+            return ''
+          },
+          rich: {
+            triangle: {
+              ...richStyles.triangle,
+              ...richStyles.withRightBottomPadding,
+              fontSize: 9,
+            },
+            labelText: {
+              ...richStyles.base,
+              ...richStyles.withRightBottomPadding,
+            },
+            priceValue: {
+              ...richStyles.base,
+              ...richStyles.withRightPadding,
+            },
+            triangleMobile: {
+              ...richStyles.triangle,
+              ...richStyles.withTopRightPadding,
+            },
+            labelTextMobile: {
+              ...richStyles.base,
+              ...richStyles.withTopRightPadding,
+            },
+            priceValueMobile: {
+              ...richStyles.base,
+              padding: [showMinMaxValues && !showTargetValues ? 0 : 110, 10, 0, 0],
+            },
+          },
+        },
+      },
+      yAxis: {
+        show: false,
+        type: 'value',
+      },
+      series: [
+        {
+          data: seriesData.map((value, index) => {
+            if (index === currentPriceBarIndex) {
+              return {
+                ...value,
+                label: {
+                  show: true,
+                  position: 'top',
+                  formatter: `{labelText|Current price}\n{priceValue|${currentPriceValue !== undefined ? fNum('tokenRatio', currentPriceValue) : 'N/A'}}\n{triangle|▼}`,
+                  rich: {
+                    triangle: {
+                      ...richStyles.currentTriangle,
+                    },
+                    labelText: {
+                      ...richStyles.current,
+                      padding: [0, 0, 5, 0],
+                    },
+                    priceValue: {
+                      ...richStyles.current,
+                    },
+                  },
+                },
+              }
+            }
+
+            return value
+          }),
+          type: 'bar',
+          barWidth: '100%',
+          barGap: '0',
+          animation: false,
+          silent: false, // Enable interactions for hover effects
+          emphasis: {
+            focus: 'series', // Focus the entire series when hovering
+            scale: false, // Disable default scaling behavior
+          },
+        },
+      ],
+    }
+  }, [chartData, isReversed])
+
+  const outOfRangeText =
+    "The current price has moved beyond this AutoRange Pool's range, so it isn't earning swap fees right now. Its range keeps shifting to follow the price and resume earning, with no manual rebalancing needed."
+
+  const inRangeReadjustingText =
+    'The current price has moved past the target range but stays within the margin, so the AutoRange Pool keeps earning swap fees while it automatically readjusts its range to re-center liquidity around the price.'
+
+  const inRangeText =
+    "The current price sits within this AutoRange Pool's target range, so liquidity stays concentrated around it and earns high swap fees."
+
+  // Apply hover effects when chart instance is available and chart data is ready
+  useEffect(() => {
+    if (!chartInstance || !options.series || !options.series[0] || !options.series[0].data) return
+
+    // No need for segments config as we're handling border radius dynamically
+
+    // Extract series data from options
+    const seriesData = options.series[0].data || []
+
+    // Track current active segment to prevent flickering
+    let activeSegment: { segmentType: string; startIndex: number; endIndex: number } | null = null
+    let hoverTimer: number | null = null
+
+    // Pre-compute all the possible segment states for better performance
+    // This avoids recalculating during mouse events
+    const segmentStates: Record<string, any[]> = {}
+
+    seriesData.forEach((bar: any) => {
+      if (bar && bar.segmentType && ['green', 'orange', 'grey'].includes(bar.segmentType)) {
+        const segmentKey = `${bar.segmentType}-${bar.segmentStartIndex}-${bar.segmentEndIndex}`
+
+        if (!segmentStates[segmentKey]) {
+          const segmentBars: any[] = Array(bar.segmentEndIndex - bar.segmentStartIndex + 1)
+
+          for (let i = bar.segmentStartIndex; i <= bar.segmentEndIndex; i++) {
+            const isMiddleBar = i !== bar.segmentStartIndex && i !== bar.segmentEndIndex
+            const isFirstInSegment = i === bar.segmentStartIndex
+            const isLastInSegment = i === bar.segmentEndIndex
+            const isSingleBar = bar.segmentStartIndex === bar.segmentEndIndex
+
+            // Store hover border radius based on position (applied only during hover)
+            let hoverBorderRadius: number | number[] = 0
+            if (isSingleBar) hoverBorderRadius = 20
+            else if (isFirstInSegment) hoverBorderRadius = [20, 0, 0, 20] as number[]
+            else if (isLastInSegment) hoverBorderRadius = [0, 20, 20, 0] as number[]
+
+            segmentBars[i - bar.segmentStartIndex] = {
+              itemStyle: {
+                // Don't set borderRadius here - just store it for hover state
+                hoverBorderRadius, // Store the hover border radius but don't apply it yet
+                opacity: 1,
+              },
+              // Increase width for better overlap between bars - prevents flickering by ensuring bars touch
+              barWidth: isMiddleBar ? '120%' : '110%',
+            }
+          }
+
+          segmentStates[segmentKey] = segmentBars
+        }
+      }
+    })
+
+    // Apply hover effect to a specific segment
+    const applyHoverEffect = (
+      segmentType: string,
+      segmentStartIndex: number,
+      segmentEndIndex: number
+    ) => {
+      // Clear any pending timer
+      if (hoverTimer !== null) {
+        window.clearTimeout(hoverTimer)
+        hoverTimer = null
+      }
+
+      // Update active segment tracking
+      activeSegment = {
+        segmentType,
+        startIndex: segmentStartIndex,
+        endIndex: segmentEndIndex,
+      }
+
+      // Prepare a single update with all changes at once
+      const updatedSeriesData = chartInstance
+        .getOption()
+        .series[0].data.map((d: any, idx: number) => {
+          // Default: dim all bars to opacity 0.5
+          let update = {
+            ...d,
+            itemStyle: {
+              ...d.itemStyle,
+              opacity: 0.5,
+            },
+          }
+
+          // For bars in the hovered segment, apply the pre-computed state
+          if (idx >= segmentStartIndex && idx <= segmentEndIndex) {
+            const segmentKey = `${segmentType}-${segmentStartIndex}-${segmentEndIndex}`
+            const relativeIdx = idx - segmentStartIndex
+            const segmentStyle = segmentStates[segmentKey]?.[relativeIdx]
+
+            if (segmentStyle) {
+              update = {
+                ...d,
+                itemStyle: {
+                  ...d.itemStyle,
+                  // Apply the hover border radius only during hover
+                  borderRadius: segmentStyle.itemStyle.hoverBorderRadius,
+                  opacity: segmentStyle.itemStyle.opacity,
+                },
+                barWidth: segmentStyle.barWidth,
+              }
+            }
+          }
+
+          return update
+        })
+
+      // Make a single setOption call with all changes
+      chartInstance.setOption(
+        {
+          series: [
+            {
+              data: updatedSeriesData,
+            },
+          ],
+        },
+        false
+      )
+
+      // Highlight the hovered segment in a single dispatch
+      for (let i = segmentStartIndex; i <= segmentEndIndex; i++) {
+        chartInstance.dispatchAction({
+          type: 'highlight',
+          seriesIndex: 0,
+          dataIndex: i,
+        })
+      }
+    }
+
+    // Reset all hover effects
+    const resetHoverEffect = () => {
+      activeSegment = null
+
+      // Reset all bars to original state in a single update
+      const resetData = chartInstance.getOption().series[0].data.map((d: any, i: number) => {
+        const item = seriesData[i] as any
+        if (!item) return d
+
+        // Always restore full border radius when not hovering
+        const borderRadius = 20
+
+        return {
+          ...d,
+          itemStyle: {
+            ...d.itemStyle,
+            borderRadius,
+            opacity: 1,
+          },
+          barWidth: '90%',
+        }
+      })
+
+      // Single setOption call to reset everything
+      chartInstance.setOption(
+        {
+          series: [
+            {
+              data: resetData,
+            },
+          ],
+        },
+        false
+      )
+
+      // Single downplay action
+      chartInstance.dispatchAction({
+        type: 'downplay',
+        seriesIndex: 0,
+      })
+    }
+
+    // Setup event handlers for hover effects
+    const mouseoverHandler = (params: any) => {
+      if (!params || params.dataIndex === undefined) return
+
+      const barIndex = params.dataIndex
+      const barItem = seriesData[barIndex] as any
+      if (!barItem) return
+
+      // Only apply effects to bars within the same segment
+      const { segmentType, segmentStartIndex, segmentEndIndex } = barItem
+
+      // Apply gooey effect to green, orange, and grey segments
+      if (!['green', 'orange', 'grey'].includes(segmentType)) return
+
+      // Clear any pending reset timer
+      if (hoverTimer !== null) {
+        window.clearTimeout(hoverTimer)
+        hoverTimer = null
+      }
+
+      // Check if we're already hovering this segment
+      if (
+        activeSegment &&
+        activeSegment.segmentType === segmentType &&
+        activeSegment.startIndex === segmentStartIndex &&
+        activeSegment.endIndex === segmentEndIndex
+      ) {
+        // Already hovering this segment, no need to reapply
+        return
+      }
+
+      // Apply hover effect to the new segment
+      applyHoverEffect(segmentType, segmentStartIndex, segmentEndIndex)
+    }
+
+    // Handler for mouse leaving a bar - use small delay to prevent flickering
+    const mouseoutHandler = () => {
+      // Don't reset immediately - set a small delay to allow moving between bars
+      // without flickering
+      if (hoverTimer !== null) {
+        window.clearTimeout(hoverTimer)
+      }
+
+      hoverTimer = window.setTimeout(() => {
+        resetHoverEffect()
+        hoverTimer = null
+      }, 50) // Small delay to allow mouse to move between bars
+    }
+
+    // Handler for mouse leaving the entire chart area - immediate reset
+    const chartMouseoutHandler = () => {
+      if (hoverTimer !== null) {
+        window.clearTimeout(hoverTimer)
+        hoverTimer = null
+      }
+
+      resetHoverEffect()
+    }
+
+    // Register events on chart
+    chartInstance.on('mouseover', 'series.bar', mouseoverHandler)
+    chartInstance.on('mouseout', 'series.bar', mouseoutHandler)
+    chartInstance.on('globalout', chartMouseoutHandler)
+
+    // Cleanup event handlers on unmount
+    return () => {
+      if (chartInstance) {
+        chartInstance.off('mouseover', 'series.bar', mouseoverHandler)
+        chartInstance.off('mouseout', 'series.bar', mouseoutHandler)
+        chartInstance.off('globalout', chartMouseoutHandler)
+      }
+    }
+  }, [chartInstance, options])
+
+  return {
+    options,
+    hasChartData: !!chartData,
+    isLoading,
+    isPoolWithinTargetRange,
+    toggleIsReversed,
+    outOfRangeText,
+    inRangeText,
+    inRangeReadjustingText,
+    isPoolWithinRange: chartData?.isPoolWithinRange,
+    tokens,
+    setChartInstance,
+  }
+}
+
+export function AutoRangeChartProvider({
+  children,
+  chartData,
+}: PropsWithChildren<{
+  chartData: AutoRangeData | undefined
+}>) {
+  const hook = useAutoRangeChartLogic(chartData)
+  return <AutoRangeChartContext.Provider value={hook}>{children}</AutoRangeChartContext.Provider>
+}
+
+export const useAutoRangeChart = (): AutoRangeChartContextType =>
+  useMandatoryContext(AutoRangeChartContext, 'AutoRangeChart')

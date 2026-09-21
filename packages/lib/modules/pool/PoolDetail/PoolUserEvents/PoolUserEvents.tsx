@@ -1,0 +1,222 @@
+import { Grid, GridItem, Text, Box, HStack, Link, Divider } from '@chakra-ui/react'
+import { usePool } from '../../PoolProvider'
+import { useLayoutEffect, useMemo, useState } from 'react'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import type {
+  GqlPoolAddRemoveEventV3,
+  GqlPoolSwapEventV3,
+} from '@repo/lib/shared/services/api/graphql-derived-types'
+import { GetPoolEventsQuery } from '@repo/lib/shared/services/api/generated/graphql'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { TokenIcon } from '@repo/lib/modules/tokens/TokenIcon'
+import { secondsToMilliseconds } from 'date-fns'
+import { ArrowUpRight } from 'lucide-react'
+import { PoolEventItem } from '../../usePoolEvents'
+import { calcTotalStakedBalance, getUserTotalBalance } from '../../user-balance.helpers'
+import { fNum, bn } from '@repo/lib/shared/utils/numbers'
+import { isEmpty } from 'lodash'
+import { getBlockExplorerTxUrl } from '@repo/lib/shared/utils/blockExplorer'
+import { formatDistanceToNowAbbr } from '@repo/lib/shared/utils/time'
+import { PoolTransactionsCard } from '../../PoolTransactionsCard'
+
+type PoolEventRowProps = {
+  poolEvent: PoolEventItem
+  usdValue: string
+  chain: GqlChain
+  txUrl: string
+}
+
+const GRID_COLUMNS = '100px 150px 100px 1fr'
+
+function Action({ poolEventType }: { poolEventType: 'Add' | 'Remove' | 'Swap' }) {
+  const eventTypeColor =
+    poolEventType === 'Add' ? 'green.500' : poolEventType === 'Remove' ? 'red.500' : 'blue.500'
+
+  return (
+    <HStack>
+      <Box
+        as="span"
+        backgroundColor={eventTypeColor}
+        borderRadius="50%"
+        display="inline-block"
+        h="8px"
+        w="8px"
+      />
+      <Text>{poolEventType}</Text>
+    </HStack>
+  )
+}
+
+function PoolEventRow({ poolEvent, usdValue, chain, txUrl }: PoolEventRowProps) {
+  // Only show add/remove/swap events
+  if (!['GqlPoolAddRemoveEventV3', 'GqlPoolSwapEventV3'].includes(poolEvent.__typename)) {
+    return null
+  }
+
+  const poolEventType = getEventType(poolEvent)
+
+  return (
+    <Grid
+      gap={{ base: '2', md: '4' }}
+      mb="4"
+      templateAreas={{
+        base: `"action value time"
+               "tokens tokens tokens"`,
+        md: `"action tokens value time"`,
+      }}
+      templateColumns={{ base: 'fit-content(150px) 50px 1fr', md: GRID_COLUMNS }}
+      w="full"
+    >
+      <GridItem area="action">
+        <Action poolEventType={poolEventType} />
+      </GridItem>
+      <GridItem area="tokens">
+        <Tokens chain={chain} poolEvent={poolEvent} />
+      </GridItem>
+      <GridItem area="value" textAlign={{ base: 'left', md: 'right' }}>
+        <Text>{usdValue}</Text>
+      </GridItem>
+      <GridItem area="time" mr="sm">
+        <HStack gap="1" justifyContent="flex-end">
+          <Text color="grayText">
+            {formatDistanceToNowAbbr(new Date(secondsToMilliseconds(poolEvent.timestamp)))}
+          </Text>
+          <Link color="grayText" href={txUrl} isExternal>
+            <ArrowUpRight size={16} />
+          </Link>
+        </HStack>
+      </GridItem>
+    </Grid>
+  )
+}
+
+function getEventType(item: PoolEventItem) {
+  switch (item.type) {
+    case 'SWAP':
+      return 'Swap'
+    case 'ADD':
+      return 'Add'
+    case 'REMOVE':
+      return 'Remove'
+    default:
+      throw new Error(`Unknown event type: ${item.type}`)
+  }
+}
+
+function Tokens({ poolEvent, chain }: { poolEvent: PoolEventItem; chain: GqlChain }) {
+  if (poolEvent.__typename === 'GqlPoolSwapEventV3') {
+    const swapEvent = poolEvent as GqlPoolSwapEventV3
+    return <SwapTokens chain={chain} swapEvent={swapEvent} />
+  }
+
+  const addRemoveEvent = poolEvent as GqlPoolAddRemoveEventV3
+  return <AddRemoveTokens addRemoveEvent={addRemoveEvent} chain={chain} />
+}
+
+function AddRemoveTokens({
+  addRemoveEvent,
+  chain,
+}: {
+  addRemoveEvent: GqlPoolAddRemoveEventV3
+  chain: GqlChain
+}) {
+  return addRemoveEvent.tokens
+    .filter(token => token.amount !== '0')
+    .map(token => (
+      <HStack gap={['xs', 'sm']} key={token.address} mb="sm">
+        <TokenIcon address={token.address} alt={token.address} chain={chain} size={24} />
+        <Text overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+          {fNum('token', token.amount)}
+        </Text>
+      </HStack>
+    ))
+}
+
+function SwapTokens({ swapEvent, chain }: { swapEvent: GqlPoolSwapEventV3; chain: GqlChain }) {
+  const tokenIn = swapEvent.tokenIn
+  const tokenOut = swapEvent.tokenOut
+  return (
+    <>
+      <HStack gap={['xs', 'sm']} mb="sm">
+        <TokenIcon address={tokenIn.address} alt={tokenIn.address} chain={chain} size={24} />
+        <Text overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+          {fNum('token', tokenIn.amount)} in
+        </Text>
+      </HStack>
+
+      <HStack gap={['xs', 'sm']} mb="sm">
+        <TokenIcon
+          address={swapEvent.tokenOut.address}
+          alt={swapEvent.tokenOut.address}
+          chain={chain}
+          size={24}
+        />
+        <Text overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+          {fNum('token', tokenOut.amount)} out
+        </Text>
+      </HStack>
+    </>
+  )
+}
+
+export default function PoolUserEvents({
+  userPoolEvents,
+}: {
+  userPoolEvents: GetPoolEventsQuery['poolEvents']
+}) {
+  const { myLiquiditySectionRef, chain, pool } = usePool()
+  const [height, setHeight] = useState(0)
+  const { toCurrency } = useCurrency()
+
+  // keep this card the same height as the 'My liquidity' section
+  useLayoutEffect(() => {
+    if (myLiquiditySectionRef && myLiquiditySectionRef.current) {
+      setHeight(myLiquiditySectionRef.current.offsetHeight)
+    }
+  }, [])
+
+  const stakedPercentage = useMemo(() => {
+    const totalBalance = getUserTotalBalance(pool)
+    const stakedBalance = calcTotalStakedBalance(pool)
+    const ratio = bn(stakedBalance).div(totalBalance)
+
+    if (stakedBalance === '0') {
+      return fNum('percentage', 0)
+    } else if (ratio.isGreaterThan(0.99999) && ratio.isLessThan(1.00001)) {
+      // to avoid very small rounding errors
+      return fNum('percentage', 1)
+    } else {
+      return fNum('stakedPercentage', ratio)
+    }
+  }, [pool])
+
+  return (
+    <PoolTransactionsCard
+      cardProps={{ h: height }}
+      footer={
+        <>
+          <Divider />
+          <HStack mt="auto" spacing="4">
+            <Text fontSize="0.85rem" variant="secondary">
+              {`${stakedPercentage} staked`}
+            </Text>
+          </HStack>
+        </>
+      }
+      hasNoTransactions={isEmpty(userPoolEvents)}
+      headerTemplateColumns={GRID_COLUMNS}
+      isLoading={false}
+      title="My transactions"
+    >
+      {userPoolEvents.map(poolEvent => (
+        <PoolEventRow
+          chain={chain}
+          key={poolEvent.id}
+          poolEvent={poolEvent}
+          txUrl={getBlockExplorerTxUrl(poolEvent.tx, poolEvent.chain)}
+          usdValue={toCurrency(poolEvent.valueUSD)}
+        />
+      ))}
+    </PoolTransactionsCard>
+  )
+}

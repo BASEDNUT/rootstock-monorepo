@@ -1,0 +1,320 @@
+import {
+  Box,
+  Divider,
+  ListItem,
+  UnorderedList,
+  VStack,
+  HStack,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+} from '@chakra-ui/react'
+import ButtonGroup, {
+  ButtonGroupOption,
+} from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
+import { bn, fNum } from '@repo/lib/shared/utils/numbers'
+import { useEffect } from 'react'
+import { usePool } from '../../../PoolProvider'
+import {
+  requiresProportionalInput,
+  requiresProportionalInputReason,
+  supportsProportionalAddLiquidityKind,
+  supportsProportionalAddLiquidityReasons,
+} from '../../LiquidityActionHelpers'
+import { useAddLiquidity } from '../AddLiquidityProvider'
+import { TokenInputsMaybeProportional } from './TokenInputsMaybeProportional'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import { isV3Pool, isGyroEPool, isAutoRange } from '../../../pool.helpers'
+import { useGetPoolTokensWithActualWeights } from '../../../useGetPoolTokensWithActualWeights'
+import { BalAlert } from '@repo/lib/shared/components/alerts/BalAlert'
+import { BalAlertContent } from '@repo/lib/shared/components/alerts/BalAlertContent'
+import { useGetECLPLiquidityProfile } from '@repo/lib/modules/eclp/hooks/useGetECLPLiquidityProfile'
+import { usePoolTokenPriceWarnings } from '../../../usePoolTokenPriceWarnings'
+import { InfoIcon } from '@repo/lib/shared/components/icons/InfoIcon'
+import { MinimumDepositErrorsAlert } from '../MinimumDepositErrorsAlert'
+import { useStableSurgeMetrics } from '@repo/lib/modules/hooks/stable-surge/useStableSurgeMetrics'
+import { useAutoRangeData } from '@repo/lib/modules/autorange/useAutoRangeData'
+
+const MIN_LIQUIDITY_FOR_BALANCED_ADD = 50000
+
+function PoolWeightsInfo() {
+  const { pool } = usePool()
+  const { poolTokensWithActualWeights, compositionTokens } = useGetPoolTokensWithActualWeights(pool)
+  const { isAnyTokenWithoutPrice, addLiquidityWarning } = usePoolTokenPriceWarnings(pool)
+
+  if (isAnyTokenWithoutPrice) {
+    return <BalAlert content={addLiquidityWarning} status="warning" />
+  } else {
+    return (
+      <BalAlert
+        content={
+          <BalAlertContent
+            description={
+              <Box
+                as="span"
+                color="black"
+                fontSize="sm"
+                fontWeight="medium"
+                sx={{ textWrap: 'balance' }}
+              >
+                Proportional adds avoid price impact by matching the current ratio of each token's
+                USD value within the pool:
+              </Box>
+            }
+            forceColumnMode
+            wrapText
+          >
+            <UnorderedList>
+              <ListItem
+                color="font.black"
+                fontSize="sm"
+                fontWeight="medium"
+                position="relative"
+                top="-4px"
+              >
+                {compositionTokens
+                  .map(
+                    token =>
+                      `${token.symbol}: ${fNum(
+                        'weight',
+                        poolTokensWithActualWeights[token.address]!,
+                        {
+                          abbreviated: false,
+                        }
+                      )}`
+                  )
+                  .join(', ')}
+              </ListItem>
+            </UnorderedList>
+          </BalAlertContent>
+        }
+        mb="sm"
+        p="sm"
+        pb="xxs !important"
+        status="info"
+      />
+    )
+  }
+}
+
+function OutOfRangeWarning() {
+  return (
+    <BalAlert
+      content={
+        <BalAlertContent
+          title="This CLP is currently out of range"
+          tooltipLabel="No swap fees accrue when CLP is outside the price range. Fees resume automatically when prices return to the range."
+          wrapText
+        />
+      }
+      status="warning"
+    />
+  )
+}
+
+export function AddLiquidityFormTabs({
+  totalUSDValue,
+  nestedAddLiquidityEnabled,
+  tabIndex,
+  setFlexibleTab,
+  setProportionalTab,
+  setUnbalancedTab,
+  wantsUnbalanced,
+}: {
+  totalUSDValue: string
+  nestedAddLiquidityEnabled: boolean
+  tabIndex: number
+  setFlexibleTab: () => void
+  setProportionalTab: () => void
+  setUnbalancedTab?: () => void
+  wantsUnbalanced?: boolean
+}) {
+  const { clearAmountsIn, isMinimumDepositMet, minimumDepositErrors } = useAddLiquidity()
+  const { isLoading, pool } = usePool()
+  const { toCurrency } = useCurrency()
+  const { poolIsInRange } = useGetECLPLiquidityProfile()
+  const { surging } = useStableSurgeMetrics(pool)
+
+  const isDisabledProportionalTab =
+    nestedAddLiquidityEnabled || !supportsProportionalAddLiquidityKind(pool)
+
+  const isBelowMinTvlThreshold =
+    isV3Pool(pool) &&
+    !isDisabledProportionalTab &&
+    bn(pool.dynamicData.totalLiquidity).lt(bn(MIN_LIQUIDITY_FOR_BALANCED_ADD))
+
+  const isOutOfRange = isGyroEPool(pool) && !poolIsInRange
+
+  const isReclamm = isAutoRange(pool.type)
+  const autoRangeData = useAutoRangeData()
+  const isUnbalancedDisabled = isReclamm && !autoRangeData?.isPoolWithinTargetRange
+
+  const isDisabledFlexibleTab =
+    requiresProportionalInput(pool) || isBelowMinTvlThreshold || surging || isReclamm
+
+  const supportsUnbalancedAdd = isV3Pool(pool) && isReclamm
+
+  const isDisabledUnbalancedTab = !supportsUnbalancedAdd
+
+  function getFlexibleTabTooltipLabel(): string | undefined {
+    if (requiresProportionalInput(pool)) {
+      return requiresProportionalInputReason(pool)
+    }
+
+    if (isBelowMinTvlThreshold) {
+      return `Liquidity must be added proportionally until the pool TVL is greater than ${toCurrency(MIN_LIQUIDITY_FOR_BALANCED_ADD, { abbreviated: false, noDecimals: true })}`
+    }
+
+    if (surging) {
+      return 'Flexible adds are disabled when a pool with stable surge hook is surging'
+    }
+
+    if (isReclamm) {
+      return 'Flexible adds are not available for RECLAMM pools. Use Unbalanced instead.'
+    }
+
+    return
+  }
+
+  function handleTabChanged(option: ButtonGroupOption): void {
+    if (tabIndex.toString() === option.value) return // Avoids handling click in the current tab
+    clearAmountsIn()
+
+    if (option.value === '0') {
+      if (isReclamm && setUnbalancedTab) {
+        setUnbalancedTab()
+      } else {
+        setFlexibleTab()
+      }
+    } else if (option.value === '1') {
+      setProportionalTab()
+    }
+  }
+
+  const firstTab: ButtonGroupOption = isReclamm
+    ? {
+        value: '0',
+        label: 'Unbalanced',
+        dataId: 'add-liquidity-tab-unbalanced',
+        disabled: isUnbalancedDisabled,
+        tabTooltipLabel: isUnbalancedDisabled
+          ? 'Unbalanced adds are disabled while the pool is not within its target range'
+          : undefined,
+      }
+    : {
+        value: '0',
+        label: 'Flexible',
+        dataId: 'add-liquidity-tab-flexible',
+        disabled: isDisabledFlexibleTab,
+        tabTooltipLabel: getFlexibleTabTooltipLabel(),
+      }
+
+  const options: ButtonGroupOption[] = [
+    firstTab,
+    {
+      value: '1',
+      label: 'Proportional',
+      dataId: 'add-liquidity-tab-proportional',
+      disabled: isDisabledProportionalTab,
+      tabTooltipLabel: isDisabledProportionalTab
+        ? supportsProportionalAddLiquidityReasons(pool) ||
+          'This pool does not support liquidity to be added proportionally'
+        : undefined,
+    },
+  ]
+
+  useEffect(() => {
+    if (!isLoading && isDisabledFlexibleTab) {
+      if (isReclamm && setUnbalancedTab) {
+        setUnbalancedTab()
+      } else {
+        setProportionalTab()
+      }
+    }
+  }, [isDisabledFlexibleTab, isLoading, isReclamm, setUnbalancedTab, setProportionalTab])
+
+  useEffect(() => {
+    if (!isLoading && !isReclamm && tabIndex === 2 && isDisabledUnbalancedTab) {
+      setFlexibleTab()
+    }
+  }, [isDisabledUnbalancedTab, isLoading, isReclamm, tabIndex, setFlexibleTab])
+
+  useEffect(() => {
+    if (!isLoading && isReclamm && tabIndex === 0 && isUnbalancedDisabled) {
+      setProportionalTab()
+    }
+  }, [isUnbalancedDisabled, isLoading, isReclamm, tabIndex, setProportionalTab])
+
+  const isProportional = tabIndex === 1
+
+  return (
+    <VStack alignItems="start" w="full">
+      {!isDisabledProportionalTab && <PoolWeightsInfo />}
+      <HStack pb="sm" w="full">
+        <ButtonGroup
+          currentOption={options[tabIndex]}
+          fontSize="md"
+          groupId="add-liquidity"
+          minWidth="116px"
+          onChange={handleTabChanged}
+          options={options}
+          size="sm"
+        />
+        <Popover placement="top" trigger="hover">
+          <PopoverTrigger>
+            <Box
+              _hover={{ opacity: 1 }}
+              opacity="0.6"
+              transition="opacity 0.2s var(--ease-out-cubic)"
+            >
+              <InfoIcon />
+            </Box>
+          </PopoverTrigger>
+          <PopoverContent maxW="300px" p="sm" w="auto">
+            <VStack align="start" spacing="sm">
+              {isReclamm ? (
+                <Box>
+                  <Text fontSize="sm" fontWeight="bold" mb="xxs">
+                    Unbalanced Adds
+                  </Text>
+                  <Text fontSize="sm" variant="secondary">
+                    Select any token pool token and enter an amount. The router will calculate the
+                    optimal BPT output for your provided pool token amount.
+                  </Text>
+                </Box>
+              ) : (
+                <Box>
+                  <Text fontSize="sm" fontWeight="bold" mb="xxs">
+                    Flexible Adds
+                  </Text>
+                  <Text fontSize="sm" variant="secondary">
+                    Enter any amount for each token manually. Balances are independent, and no
+                    automatic adjustments will be made.
+                  </Text>
+                </Box>
+              )}
+              <Box>
+                <Text fontSize="sm" fontWeight="bold" mb="xxs">
+                  Proportional Adds (No price impact)
+                </Text>
+                <Text fontSize="sm" variant="secondary">
+                  When you enter an amount for one token, the others are automatically adjusted to
+                  maintain the pool's proportional balance.
+                </Text>
+              </Box>
+            </VStack>
+          </PopoverContent>
+        </Popover>
+        <Divider w="full" />
+      </HStack>
+      {!isMinimumDepositMet && <MinimumDepositErrorsAlert errors={minimumDepositErrors} />}
+      {isOutOfRange && <OutOfRangeWarning />}
+      <TokenInputsMaybeProportional
+        isProportional={isProportional}
+        totalUSDValue={totalUSDValue}
+        wantsUnbalanced={wantsUnbalanced}
+      />
+    </VStack>
+  )
+}

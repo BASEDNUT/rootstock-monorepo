@@ -1,0 +1,15 @@
+{
+  "extends": "@repo/typescript-config/react-library.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "types": ["vitest/globals"],
+    "baseUrl": ".",
+    "paths": {
+      "@repo/lib/*": ["../../packages/lib/*"],
+      "@repo/test/*": ["../../packages/test/*"]
+    },
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "global.d.ts"],
+  "exclude": ["node_modules", "**/generated/**"]
+}

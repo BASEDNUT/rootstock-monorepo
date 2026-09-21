@@ -1,0 +1,96 @@
+'use client'
+
+import { DesktopStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/DesktopStepTracker'
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalProps } from '@chakra-ui/react'
+import { RefObject, useRef } from 'react'
+import { getStylesForModalContentWithStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/step-tracker.utils'
+import { useBreakpoints } from '@repo/lib/shared/hooks/useBreakpoints'
+import { SuccessOverlay } from '@repo/lib/shared/components/modals/SuccessOverlay'
+import { usePool } from '../../PoolProvider'
+import { MobileStepTracker } from '@repo/lib/modules/transactions/transaction-steps/step-tracker/MobileStepTracker'
+import { useUnstake } from './UnstakeProvider'
+import { UnstakePreview } from './UnstakePreview'
+import { TransactionModalHeader } from '@repo/lib/shared/components/modals/TransactionModalHeader'
+import { ActionModalFooter } from '@repo/lib/shared/components/modals/ActionModalFooter'
+import { usePoolRedirect } from '../../pool.hooks'
+import { AnimateHeightChange } from '@repo/lib/shared/components/animations/AnimateHeightChange'
+import { getChainId } from '@repo/lib/config/app.config'
+import { usePoolMigrations } from '../../migrations/PoolMigrationsProvider'
+import { MigrationAlert } from './MigrationAlert'
+import { TxBatchAlert } from '@repo/lib/shared/components/alerts/TxBatchAlert'
+import { useShouldBatchTransactions } from '@repo/lib/modules/transactions/transaction-steps/tx-batch.hooks'
+
+type Props = {
+  isOpen: boolean
+  onClose(): void
+  onOpen(): void
+  finalFocusRef?: RefObject<HTMLInputElement | null>
+}
+
+export function UnstakeModal({
+  isOpen,
+  onClose,
+  finalFocusRef,
+  ...rest
+}: Props & Omit<ModalProps, 'children'>) {
+  const { isDesktop } = useBreakpoints()
+  const initialFocusRef = useRef(null)
+  const { transactionSteps, unstakeTxHash } = useUnstake()
+  const shouldBatchTransactions = useShouldBatchTransactions()
+  const { pool } = usePool()
+  const { isMobile } = useBreakpoints()
+  const { redirectToPoolPage } = usePoolRedirect(pool)
+  const { needsMigration } = usePoolMigrations()
+
+  const isSuccess = !!unstakeTxHash
+
+  return (
+    <Modal
+      finalFocusRef={finalFocusRef}
+      initialFocusRef={initialFocusRef}
+      isCentered
+      isOpen={isOpen}
+      onClose={onClose}
+      preserveScrollBarGap
+      trapFocus={!isSuccess}
+      {...rest}
+    >
+      <SuccessOverlay startAnimation={!!unstakeTxHash} />
+
+      <ModalContent {...getStylesForModalContentWithStepTracker(isDesktop)}>
+        {isDesktop && (
+          <DesktopStepTracker
+            chain={pool.chain}
+            isTxBatch={shouldBatchTransactions}
+            transactionSteps={transactionSteps}
+          />
+        )}
+        <TransactionModalHeader
+          chain={pool.chain}
+          label="Unstake LP tokens"
+          txHash={unstakeTxHash}
+        />
+        <ModalCloseButton />
+        <ModalBody>
+          {!isSuccess && <TxBatchAlert mb="sm" steps={transactionSteps.steps} />}
+          <AnimateHeightChange spacing="sm" w="full">
+            {isMobile && (
+              <MobileStepTracker chain={pool.chain} transactionSteps={transactionSteps} />
+            )}
+            <UnstakePreview />
+
+            {needsMigration(pool.protocolVersion, getChainId(pool.chain), pool.id) && isSuccess && (
+              <MigrationAlert pool={pool} />
+            )}
+          </AnimateHeightChange>
+        </ModalBody>
+        <ActionModalFooter
+          currentStep={transactionSteps.currentStep!}
+          isSuccess={isSuccess}
+          returnAction={redirectToPoolPage}
+          returnLabel="Return to pool"
+        />
+      </ModalContent>
+    </Modal>
+  )
+}

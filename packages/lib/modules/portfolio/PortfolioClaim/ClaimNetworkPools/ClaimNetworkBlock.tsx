@@ -1,0 +1,97 @@
+import { NetworkIcon } from '@repo/lib/shared/components/icons/NetworkIcon'
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  HStack,
+  Heading,
+  IconButton,
+  Image,
+  Stack,
+} from '@chakra-ui/react'
+import { ReactNode } from 'react'
+import { chainToSlugMap } from '../../../pool/pool.utils'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import { useBreakpoints } from '@repo/lib/shared/hooks/useBreakpoints'
+import { AlertTriangle, ChevronRight } from 'lucide-react'
+import { isChainDeprecated } from '@repo/lib/modules/chains/chain.utils'
+
+type Props = {
+  chain: GqlChain
+  networkTotalClaimableFiatBalance: number
+  title?: ReactNode
+  icon?: string
+  onClick(): void
+}
+
+export function ClaimNetworkBlock({
+  chain,
+  title,
+  networkTotalClaimableFiatBalance,
+  icon,
+  onClick,
+}: Props) {
+  const { toCurrency } = useCurrency()
+  const { isDesktop, isMobile } = useBreakpoints()
+
+  const iconSize = isDesktop ? 12 : 8
+  return (
+    <Card
+      flex="1"
+      onClick={isMobile ? onClick : undefined}
+      p={['sm', 'md']}
+      shadow="xl"
+      variant="level1"
+      w="full"
+    >
+      <Flex alignItems="center" justifyContent="space-between">
+        <HStack gap="ms">
+          {icon ? (
+            <Image alt="Claim icon" h="48px" src={icon} w="48px" />
+          ) : (
+            <NetworkIcon chain={chain} shadow="md" size={iconSize} />
+          )}
+
+          <Stack gap={1}>
+            <HStack>
+              <Heading size="sm" textTransform="capitalize">
+                {title || chainToSlugMap[chain]}
+              </Heading>
+              {isChainDeprecated(chain) && (
+                <Box color="font.warning">
+                  <AlertTriangle size="16" />
+                </Box>
+              )}
+            </HStack>
+            {isDesktop && (
+              <Heading size="md" variant="special">
+                {toCurrency(networkTotalClaimableFiatBalance)}
+              </Heading>
+            )}
+          </Stack>
+        </HStack>
+
+        {isMobile && (
+          <HStack alignItems="center" gap={0} onClick={onClick}>
+            <Heading size="sm" variant="sand">
+              {toCurrency(networkTotalClaimableFiatBalance)}
+            </Heading>
+            <IconButton
+              aria-label=""
+              color="font.highlight"
+              icon={<ChevronRight />}
+              variant="ghost"
+            />
+          </HStack>
+        )}
+        {isDesktop && (
+          <Button onClick={onClick} variant="secondary">
+            View
+          </Button>
+        )}
+      </Flex>
+    </Card>
+  )
+}

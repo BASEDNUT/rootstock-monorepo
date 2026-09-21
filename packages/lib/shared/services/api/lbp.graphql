@@ -1,0 +1,80 @@
+mutation CreateLBP($input: CreateLBPInput!, $type: GqlPoolType) {
+  createLBP(input: $input, type: $type)
+}
+
+fragment LbpV3CommonMetadataFields on GqlPoolLiquidityBootstrappingV3 {
+  description
+  discord
+  endTime
+  farcaster
+  isProjectTokenSwapInBlocked
+  lbpName
+  lbpOwner
+  projectToken
+  projectTokenEndWeight
+  projectTokenIndex
+  projectTokenStartWeight
+  reserveToken
+  reserveTokenIndex
+  reserveTokenVirtualBalance
+  startTime
+  telegram
+  isSeedless
+  topTrades {
+    address
+    value
+  }
+  website
+  x
+}
+
+fragment FixedPriceLbpCommonMetadataFields on GqlPoolFixedPriceLBP {
+  description
+  discord
+  endTime
+  farcaster
+  isProjectTokenSwapInBlocked
+  lbpName
+  lbpOwner
+  projectToken
+  projectTokenIndex
+  projectTokenRate
+  reserveToken
+  reserveTokenIndex
+  startTime
+  telegram
+  topTrades {
+    address
+    value
+  }
+  website
+  x
+}
+
+fragment LBPPriceChartData on LBPPriceChartData {
+  buyVolume
+  cumulativeFees
+  cumulativeVolume
+  fees
+  projectTokenBalance
+  projectTokenPrice # in reserve token
+  reserveTokenBalance
+  reservePrice # in USD
+  sellVolume
+  swapCount
+  timestamp
+  tvl
+  volume
+}
+
+query GetLbpPriceInfo($chain: GqlChain!, $poolId: String!, $dataPoints: Int!) {
+  prices: lbpPriceChart(chain: $chain, id: $poolId, dataPoints: $dataPoints) {
+    ...LBPPriceChartData
+  }
+}
+
+query GetFixedLbpPriceInfo($chain: GqlChain!, $poolId: String!, $dataPoints: Int!) {
+  prices: fixedLbpPriceChart(chain: $chain, id: $poolId, dataPoints: $dataPoints) {
+    ...LBPPriceChartData
+  }
+}

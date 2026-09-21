@@ -1,0 +1,258 @@
+import { Heading, VStack, Text, HStack, Radio, SimpleGrid, useRadioGroup } from '@chakra-ui/react'
+import { InfoIconPopover } from '../../InfoIconPopover'
+import { useAutoRangeConfigurationOptions } from './useAutoRangeConfigurationOptions'
+import { usePoolCreationForm } from '../../PoolCreationFormProvider'
+import { NumberInput } from '@repo/lib/shared/components/inputs/NumberInput'
+import { bn, isBnParseable } from '@repo/lib/shared/utils/numbers'
+import { getPercentFromPrice } from '../../helpers'
+import { formatNumber } from '../../helpers'
+import { RadioCard } from '@repo/lib/shared/components/inputs/RadioCardGroup'
+import { useWatch, Control, FieldPath, FieldValues } from 'react-hook-form'
+import { useState, SVGProps } from 'react'
+
+export function AutoRangeConfiguration() {
+  const autoRangeConfigurationOptions = useAutoRangeConfigurationOptions()
+
+  return (
+    <VStack align="start" spacing="xl" w="full">
+      <Heading color="font.maxContrast" size="md">
+        AutoRange configuration
+      </Heading>
+      {autoRangeConfigurationOptions.map(option => (
+        <ConfigOptionsGroup
+          control={option.control}
+          customInputLabel={option.customInputLabel}
+          key={option.label}
+          label={option.label}
+          name={option.name}
+          options={option.options}
+          tooltip={option.tooltip}
+          updateFn={option.updateFn}
+          validateFn={option.validateFn}
+        />
+      ))}
+    </VStack>
+  )
+}
+
+export type ConfigOptionsGroupProps<T extends FieldValues = FieldValues> = {
+  label: string
+  options: {
+    label: string
+    displayValue: string
+    rawValue: string
+    svg?: React.ComponentType<SVGProps<SVGSVGElement>>
+  }[]
+  updateFn: (rawValue: string) => void
+  validateFn: (value: string) => string | boolean
+  name: FieldPath<T>
+  control: Control<T>
+  customInputLabel: string
+  tooltip: string
+}
+
+export function ConfigOptionsGroup<T extends FieldValues = FieldValues>({
+  label,
+  options,
+  updateFn,
+  validateFn,
+  name,
+  control,
+  customInputLabel,
+  tooltip,
+}: ConfigOptionsGroupProps<T>) {
+  const { autoRangeConfigForm } = usePoolCreationForm()
+
+  const [initialMinPrice, initialTargetPrice, initialMaxPrice] = useWatch({
+    control: autoRangeConfigForm.control,
+    name: ['initialMinPrice', 'initialTargetPrice', 'initialMaxPrice'],
+  })
+
+  const [forceCustom, setForceCustom] = useState(false)
+  const formValue = useWatch({ control, name })
+  const normalizedFormValue = formValue?.toString?.() ?? ''
+
+  const matchedOption = options.find(option => {
+    if (option.rawValue === normalizedFormValue) return true
+    if (normalizedFormValue === '') return false
+
+    const optionNumber = Number(option.rawValue)
+    const formValueNumber = Number(normalizedFormValue)
+
+    if (Number.isNaN(optionNumber) || Number.isNaN(formValueNumber)) return false
+
+    return optionNumber === formValueNumber
+  })
+
+  const isCustom = forceCustom || (!matchedOption && normalizedFormValue !== '')
+  const selectedValue = isCustom ? '' : (matchedOption?.rawValue ?? '')
+  const isCustomTargetPrice = isCustom && name === 'initialTargetPrice'
+  const hasParseableMinPrice = isBnParseable(initialMinPrice)
+  const hasParseableTargetPrice = isBnParseable(initialTargetPrice)
+  const hasParseableMaxPrice = isBnParseable(initialMaxPrice)
+  const ispriceRangePercentage = name === 'priceRangePercentage'
+  const isCustomPriceRange = isCustom && ispriceRangePercentage
+  const isPercentage = name === 'centerednessMargin' || name === 'priceShiftDailyRate'
+  const cardOptions = options
+
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name,
+    value: selectedValue,
+    onChange: (value: string) => {
+      setForceCustom(false)
+      updateFn(value)
+    },
+  })
+
+  const radioGroupProps = getRootProps()
+
+  const cardContainerProps = {
+    alignItems: 'center',
+    bg: 'background.level2',
+    borderColor: 'transparent',
+    borderRadius: 'lg',
+    borderWidth: '1px',
+    boxShadow: 'lg',
+    color: 'font.secondary',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    h: 141,
+    justifyContent: 'center',
+    px: 2,
+    pt: 4,
+    pb: 3,
+    textAlign: 'center',
+    _checked: {
+      bg: '#63F2BE0D',
+      borderColor: 'green.400 !important',
+      boxShadow: 'none',
+      color: 'font.maxContrast',
+    },
+    _hover: {
+      boxShadow: 'md',
+    },
+  } as const
+
+  return (
+    <VStack align="start" spacing="md" w="full">
+      <HStack>
+        <Text fontWeight="bold" textAlign="start" w="full">
+          {label}
+        </Text>
+        <InfoIconPopover message={tooltip} />
+      </HStack>
+      <SimpleGrid columns={3} spacing={{ base: 'sm', md: 'md' }} w="full" {...radioGroupProps}>
+        {cardOptions.map((option, idx) => {
+          const radio = getRadioProps({ value: option.rawValue })
+          const key = `${label.replace(/\s+/g, '-')}-${idx}`
+
+          return (
+            <RadioCard key={key} {...radio} containerProps={cardContainerProps}>
+              <VStack align="center" h="full" justify="center" spacing="3" textAlign="center">
+                {option.svg && <option.svg height="100%" width="100%" />}
+                <VStack spacing="1">
+                  <Text color="inherit" fontSize={{ base: 'xs', sm: 'sm' }}>
+                    {option.label}
+                  </Text>
+                  <Text color="inherit" fontWeight="bold">
+                    {option.displayValue}
+                  </Text>
+                </VStack>
+              </VStack>
+            </RadioCard>
+          )
+        })}
+      </SimpleGrid>
+      <Radio
+        isChecked={isCustom}
+        mt="2"
+        name={name}
+        onChange={() => {
+          setForceCustom(true)
+          updateFn('')
+        }}
+        value=""
+      >
+        <Text color="font.secondary">Or choose custom</Text>
+      </Radio>
+      {isCustomPriceRange ? (
+        <VStack align="start" spacing="md" w="full">
+          <NumberInput
+            control={autoRangeConfigForm.control}
+            label={'Range low price'}
+            name={'initialMinPrice'}
+            percentageLabel={
+              hasParseableMinPrice && hasParseableTargetPrice
+                ? getPercentFromPrice(initialMinPrice, initialTargetPrice)
+                : '-10.00'
+            }
+            placeholder={
+              hasParseableTargetPrice
+                ? bn(initialTargetPrice).times(0.9).toString().slice(0, 7)
+                : ''
+            }
+            validate={value => {
+              if (!isBnParseable(value)) return true
+
+              if (hasParseableTargetPrice && bn(value).gte(bn(initialTargetPrice))) {
+                return 'Range low price must be less than target price'
+              }
+
+              if (hasParseableMaxPrice && bn(value).gte(bn(initialMaxPrice))) {
+                return 'Range low price must be less than range high price'
+              }
+
+              return true
+            }}
+            width="full"
+          />
+          <NumberInput
+            control={autoRangeConfigForm.control}
+            label={'Range high price'}
+            name={'initialMaxPrice'}
+            percentageLabel={
+              hasParseableMaxPrice && hasParseableTargetPrice
+                ? getPercentFromPrice(initialMaxPrice, initialTargetPrice)
+                : '10.00'
+            }
+            placeholder={
+              hasParseableTargetPrice
+                ? formatNumber(bn(initialTargetPrice).times(1.1).toString())
+                : ''
+            }
+            validate={value => {
+              if (!isBnParseable(value)) return true
+
+              if (hasParseableTargetPrice && bn(value).lte(bn(initialTargetPrice))) {
+                return 'Range high price must be greater than target price'
+              }
+
+              if (hasParseableMinPrice && bn(value).lte(bn(initialMinPrice))) {
+                return 'Range high price must be greater than range low price'
+              }
+
+              return true
+            }}
+            width="full"
+          />
+        </VStack>
+      ) : isCustom && options[1] ? (
+        <NumberInput
+          control={control}
+          isPercentage={isPercentage}
+          label={customInputLabel}
+          name={name}
+          percentageLabel={
+            isCustomTargetPrice && isBnParseable(formValue)
+              ? getPercentFromPrice(formValue, options[1].rawValue)
+              : ''
+          }
+          placeholder={options[1].displayValue.replace('%', '')}
+          validate={value => validateFn(Number.isNaN(value) ? '' : value.toString())}
+          width="full"
+        />
+      ) : null}
+    </VStack>
+  )
+}

@@ -1,0 +1,388 @@
+'use client'
+
+import {
+  GqlChain,
+  GqlPoolOrderBy,
+  GqlPoolOrderDirection,
+} from '@repo/lib/shared/services/api/generated/graphql'
+import {
+  GqlChainValues,
+  GqlPoolOrderByValues,
+  GqlPoolOrderDirectionValues,
+  GqlPoolTypeValues,
+} from '@repo/lib/shared/services/api/graphql-enums'
+import { uniq } from 'lodash'
+import {
+  parseAsArrayOf,
+  parseAsStringLiteral,
+  parseAsFloat,
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryState,
+} from 'nuqs'
+import {
+  POOL_TYPE_MAP,
+  PoolFilterType,
+  PoolHookTagType,
+  poolHookTagFilters,
+  poolTagFilters,
+  poolTypeFilters,
+  PoolTagType,
+  SortingState,
+} from '../pool.types'
+import { PaginationState } from '@repo/lib/shared/components/pagination/pagination.types'
+
+import { ButtonGroupOption } from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+
+export const PROTOCOL_VERSION_TABS: ButtonGroupOption[] = [
+  {
+    value: 'all',
+    label: 'All',
+  },
+  {
+    value: 'v2',
+    label: 'v2',
+  },
+  {
+    value: 'v3',
+    label: 'v3',
+  },
+  {
+    value: 'cow',
+    label: 'CoW',
+  },
+] as const
+
+const JOINABLE_POOLS_FIRST = 100
+
+const poolListQueryStateParsers = {
+  first: parseAsInteger.withDefault(20),
+  skip: parseAsInteger.withDefault(0),
+  orderBy: parseAsStringEnum<GqlPoolOrderBy>(Object.values(GqlPoolOrderByValues)).withDefault(
+    GqlPoolOrderByValues.TotalLiquidity
+  ),
+  orderDirection: parseAsStringEnum<GqlPoolOrderDirection>(
+    Object.values(GqlPoolOrderDirectionValues)
+  ).withDefault(GqlPoolOrderDirectionValues.Desc),
+  poolTypes: parseAsArrayOf(
+    parseAsStringEnum<PoolFilterType>(poolTypeFilters as unknown as PoolFilterType[])
+  ).withDefault([]),
+  networks: parseAsArrayOf(parseAsStringEnum<GqlChain>(Object.values(GqlChainValues))).withDefault(
+    []
+  ),
+  protocolVersion: parseAsInteger,
+  textSearch: parseAsString,
+  userAddress: parseAsString,
+  joinablePools: parseAsStringLiteral(['true'] as const),
+  minTvl: parseAsFloat.withDefault(0),
+  poolTags: parseAsArrayOf(
+    parseAsStringEnum<PoolTagType>(poolTagFilters as unknown as PoolTagType[])
+  ).withDefault([]),
+  poolHookTags: parseAsArrayOf(
+    parseAsStringEnum<PoolHookTagType>(poolHookTagFilters as unknown as PoolHookTagType[])
+  ).withDefault([]),
+}
+
+export function usePoolListQueryState() {
+  const [first, setFirst] = useQueryState('first', poolListQueryStateParsers.first)
+  const [skip, setSkip] = useQueryState('skip', poolListQueryStateParsers.skip)
+  const [orderBy, setOrderBy] = useQueryState('orderBy', poolListQueryStateParsers.orderBy)
+  const [poolTypes, setPoolTypes] = useQueryState('poolTypes', poolListQueryStateParsers.poolTypes)
+  const [networks, setNetworks] = useQueryState('networks', poolListQueryStateParsers.networks)
+  const [minTvl, setMinTvl] = useQueryState('minTvl', poolListQueryStateParsers.minTvl)
+  const [poolTags, setPoolTags] = useQueryState('poolTags', poolListQueryStateParsers.poolTags)
+
+  const [poolHookTags, setPoolHookTags] = useQueryState(
+    'poolHookTags',
+    poolListQueryStateParsers.poolHookTags
+  )
+
+  const [orderDirection, setOrderDirection] = useQueryState(
+    'orderDirection',
+    poolListQueryStateParsers.orderDirection
+  )
+
+  const [protocolVersion, setProtocolVersion] = useQueryState(
+    'protocolVersion',
+    poolListQueryStateParsers.protocolVersion
+  )
+
+  const [textSearch, setTextSearch] = useQueryState(
+    'textSearch',
+    poolListQueryStateParsers.textSearch
+  )
+
+  const [userAddress, setUserAddress] = useQueryState(
+    'userAddress',
+    poolListQueryStateParsers.userAddress
+  )
+
+  const [joinablePoolsValue, setJoinablePoolsValue] = useQueryState(
+    'joinablePools',
+    poolListQueryStateParsers.joinablePools
+  )
+
+  const joinablePools = joinablePoolsValue === 'true'
+
+  // Set internal checked state
+  function toggleUserAddress(checked: boolean, address: string) {
+    if (skip) setSkip(0)
+
+    if (checked) {
+      setUserAddress(address)
+    } else {
+      setUserAddress(null)
+    }
+  }
+
+  // Set internal checked state
+  function toggleJoinablePools(checked: boolean) {
+    if (checked) {
+      setJoinablePoolsValue('true')
+      setFirst(JOINABLE_POOLS_FIRST)
+      setSkip(null)
+    } else {
+      setJoinablePoolsValue(null)
+      setFirst(null)
+      setSkip(null)
+    }
+  }
+
+  // Set internal checked state
+  function togglePoolTag(checked: boolean, poolTag: PoolTagType) {
+    if (skip) setSkip(0)
+
+    if (checked) {
+      setPoolTags(current => uniq([...current, poolTag]))
+    } else {
+      setPoolTags(current => {
+        const next = current.filter(item => item !== poolTag)
+        return next.length ? next : null
+      })
+    }
+  }
+
+  // Set internal checked state
+  function togglePoolHookTag(checked: boolean, poolHookTag: PoolHookTagType) {
+    if (skip) setSkip(0)
+
+    if (checked) {
+      setPoolHookTags(current => uniq([...current, poolHookTag]))
+    } else {
+      setPoolHookTags(current => {
+        const next = current.filter(item => item !== poolHookTag)
+        return next.length ? next : null
+      })
+    }
+  }
+
+  // Set internal checked state
+  function toggleNetwork(checked: boolean, network: GqlChain) {
+    if (skip) setSkip(0)
+
+    if (checked) {
+      setNetworks(current => uniq([...current, network]))
+    } else {
+      setNetworks(current => {
+        const next = current.filter(chain => chain !== network)
+        return next.length ? next : null
+      })
+    }
+  }
+
+  // Set internal checked state
+  function togglePoolType(checked: boolean, poolType: PoolFilterType) {
+    if (skip) setSkip(0)
+
+    if (checked) {
+      setPoolTypes(current => uniq([...current, poolType]))
+    } else {
+      setPoolTypes(current => {
+        const next = current.filter(type => type !== poolType)
+        return next.length ? next : null
+      })
+    }
+  }
+
+  function setSorting(sortingState: SortingState) {
+    if (sortingState.length > 0) {
+      setSkip(0)
+      setOrderBy(sortingState[0]!.id)
+
+      setOrderDirection(
+        sortingState[0]!.desc ? GqlPoolOrderDirectionValues.Desc : GqlPoolOrderDirectionValues.Asc
+      )
+    } else {
+      setOrderBy(GqlPoolOrderByValues.TotalLiquidity)
+      setOrderDirection(GqlPoolOrderDirectionValues.Desc)
+    }
+  }
+
+  function setPagination(pagination: PaginationState) {
+    setFirst(pagination.pageSize === 20 ? null : pagination.pageSize)
+
+    setSkip(
+      pagination.pageIndex * pagination.pageSize === 0
+        ? null
+        : pagination.pageIndex * pagination.pageSize
+    )
+  }
+
+  function setSearch(text: string) {
+    if (text.length > 0) {
+      setSkip(0)
+    }
+
+    setTextSearch(text)
+  }
+
+  function poolTagLabel(poolTag: PoolTagType) {
+    switch (poolTag) {
+      case 'INCENTIVIZED':
+        return 'Incentivized'
+      case 'POINTS':
+        return 'Points'
+      case 'BOOSTED':
+        return 'Boosted'
+      case 'RWA':
+        return 'RWA'
+      case 'DYNAMIC_ECLP':
+        return 'Dynamic Gyro CLP'
+      default:
+        return (poolTag as string).toLowerCase().replace('_', ' ')
+    }
+  }
+
+  function poolHookTagLabel(poolHookTag: PoolHookTagType) {
+    switch (poolHookTag) {
+      case 'HOOKS_STABLESURGE':
+        return 'StableSurge'
+      case 'HOOKS_MEVCAPTURE':
+        return 'MEV Capture'
+      case 'HOOKS_EXITFEE':
+        return 'ExitFee'
+      case 'HOOKS_FEETAKING':
+        return 'FeeTaking'
+      default:
+        return (poolHookTag as string).toLowerCase().replace('_', ' ')
+    }
+  }
+
+  function resetFilters() {
+    setNetworks(null)
+    setPoolTypes(null)
+    setMinTvl(null)
+    setPoolTags(null)
+    setUserAddress(null)
+    setFirst(null)
+    setSkip(null)
+    setOrderBy(null)
+    setOrderDirection(null)
+    setProtocolVersion(null)
+    setPoolHookTags(null)
+    setJoinablePoolsValue(null)
+  }
+
+  const totalFilterCount =
+    networks.length +
+    poolTypes.length +
+    (userAddress ? 1 : 0) +
+    (minTvl > 0 ? 1 : 0) +
+    poolTags.length +
+    (protocolVersion ? 1 : 0) +
+    poolHookTags.length +
+    (joinablePools ? 1 : 0)
+
+  const sorting: SortingState = orderBy
+    ? [{ id: orderBy, desc: orderDirection === GqlPoolOrderDirectionValues.Desc }]
+    : []
+
+  const pagination: PaginationState = {
+    pageIndex: skip / first,
+    pageSize: first,
+  }
+
+  const mappedPoolTypes = uniq(
+    (poolTypes.length > 0 ? poolTypes : Object.keys(POOL_TYPE_MAP))
+      .map(poolType => POOL_TYPE_MAP[poolType as keyof typeof POOL_TYPE_MAP])
+      .flat()
+  )
+
+  const mappedPoolTags = poolTags.length > 0 ? poolTags : []
+
+  const queryVariables = {
+    first,
+    skip,
+    orderBy,
+    orderDirection,
+    where: {
+      poolTypeIn: mappedPoolTypes.filter(
+        poolType => poolType !== GqlPoolTypeValues.LiquidityBootstrapping
+      ),
+      poolTypeNotIn: [GqlPoolTypeValues.LiquidityBootstrapping],
+      chainIn: networks.length > 0 ? networks : PROJECT_CONFIG.supportedNetworks,
+      userAddress,
+      minTvl,
+      tagIn:
+        mappedPoolTags.length > 0 || poolHookTags.length > 0
+          ? [...mappedPoolTags, ...(poolHookTags || [])]
+          : null,
+      tagNotIn: ['BLACK_LISTED'],
+      protocolVersionIn: protocolVersion ? [protocolVersion] : undefined,
+      reviewedOnly: true,
+    },
+    textSearch,
+  }
+
+  function _setMinTvl(value: number | null) {
+    if (skip) setSkip(0)
+    setMinTvl(value)
+  }
+
+  return {
+    state: {
+      first,
+      skip,
+      orderBy,
+      orderDirection,
+      poolTypes,
+      networks,
+      textSearch,
+      protocolVersion,
+    },
+    toggleUserAddress,
+    toggleNetwork,
+    togglePoolType,
+    togglePoolTag,
+    togglePoolHookTag,
+    toggleJoinablePools,
+    setSorting,
+    setPagination,
+    setSearch,
+    setMinTvl: _setMinTvl,
+    setPoolTypes,
+    setPoolTags,
+    setPoolHookTags,
+    resetFilters,
+    poolTagLabel,
+    poolHookTagLabel,
+    setNetworks,
+    setProtocolVersion,
+    poolTags,
+    protocolVersion,
+    minTvl,
+    searchText: textSearch,
+    pagination,
+    sorting,
+    totalFilterCount,
+    poolTypes,
+    networks,
+    mappedPoolTypes,
+    queryVariables,
+    userAddress,
+    joinablePools,
+    poolHookTags,
+  }
+}
