@@ -1,133 +1,47 @@
-# Balancer frontend monorepo
+# ROOTSTOCK monorepo
 
-_This project uses `pnpm`, if you haven't already installed it you can find the documentation here:
-https://pnpm.io/installation_
+**BASED NUT's Rootstock** — a programmable liquidity engine for custom markets.
+One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer v3's audited architecture and grown for Based Nut.
 
-_The monorepo uses [pnpm workspaces](https://pnpm.io/workspaces) along with Turborepo to manage
-build orchestration, to learn more about Turborepo please see the
-[docs](https://turbo.build/repo/docs)._
+## What's here
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/balancer/frontend-monorepo)
+| Path | Content |
+|---|---|
+| `apps/frontend-v3` | The ROOTSTOCK frontend (Base Sepolia testnet) — swap, create pool, LBP, nutUSD vault |
+| `packages/lib` | Shared frontend library (Chakra theme, modules, config) |
+| `audits/reclamm` | reCLAMM pool math audit reports (Cantina, Certora) |
+| `audits/v3-core` | Upstream Balancer v3 core audit reports (Spearbit, Trail of Bits, Certora, Cantina) |
 
-## What's inside?
+## The engine
 
-This monorepo includes the following apps & packages:
+- **Root Vault** — one contract holds every asset and keeps one ledger for every pool
+- **Root Pools** — the market math: weighted, stable, boosted, reCLAMM, custom
+- **Root Hooks** — policies that run before and after every market operation
+- **Root Routers** — the entry point for swaps and liquidity, users and solvers
 
-### Apps
+## Testnet
 
-- [apps/frontend-v3](https://github.com/balancer/frontend-monorepo/tree/main/apps/frontend-v3): The
-  official web app for the Balancer protocol, hosted at [https://balancer.fi](https://balancer.fi).
-- [apps/beets-frontend-v3](https://github.com/balancer/frontend-monorepo/tree/main/apps/beets-frontend-v3):
-  The (still in development) web app for the Beets protocol.
+65 contracts deployed on Base Sepolia, end-to-end verified (initialize, add, swap, remove).
 
-### Packages
+## nutUSD
 
-- [packages/lib](https://github.com/balancer/frontend-monorepo/tree/main/packages/lib): Shared logic
-  for all frontend-v3 apps.
-- [packages/eslint-config](https://github.com/balancer/frontend-monorepo/tree/main/packages/eslint-config):
-  eslint configurations.
-- [packages/typescript-config](https://github.com/balancer/frontend-monorepo/tree/main/packages/typescript-config):
-  Typescript config's used throughout the monorepo.
+USDC lending vault on Morpho Blue, live on Base mainnet: `0x846E88618A15766940277471509511bf69443CC1`
 
-## Getting started
+- App (deposit/withdraw): https://app.morpho.org/base/vault/0x846E88618A15766940277471509511bf69443CC1/based-nut-usd
+- Curator (admin): https://curator.morpho.org/vaults/8453/0x846E88618A15766940277471509511bf69443CC1
 
-Click on the links below to see the README for each app:
+## Lineage and licenses
 
-- [frontend-v3](https://github.com/balancer/frontend-monorepo/tree/main/apps/frontend-v3/README.md)
-- [beets-frontend-v3](https://github.com/balancer/frontend-monorepo/tree/main/apps/beets-frontend-v3/README.md)
+This project is a fork of Balancer's open-source architecture:
 
-### Build
+- Contracts: forked from the GPL-3.0 licensed `balancer-v3-monorepo` (pristine copy, full upstream test suite passing)
+- Frontend: forked from the MIT licensed `frontend-monorepo` (this tree)
+- reCLAMM pool math: forked from the GPL-3.0 licensed `balancer/reclamm`
 
-To build all apps and packages, run the following command:
+Balancer's architecture is their work — we keep it, credit it, and grow on it. Full audit reports for the inherited architecture live in `audits/`.
 
-```
-pnpm build
-```
+## Based Nut
 
-### Testing
-
-To run unit tests:
-
-```
-pnpm test:unit
-```
-
-To run integration tests:
-
-```
-pnpm test:integration
-```
-
-To run e2e tests with playwright UI:
-
-1. Copy the root `.env.template` file to `.env.local`
-
-```
-cp .env.template .env.local
-```
-
-2. Start a local anvil fork:
-
-```
-make fork-ethereum
-```
-
-3. Start the local development server in fork mode:
-
-```
-pnpm dev:bal:fork
-```
-
-4. Start the playwright UI for Balancer:
-
-```
-pnpm test:e2e:dev:ui:bal
-```
-
-### Install a package
-
-If you want to install a new npm package in a sub application like `frontend-v3` add the --filter
-option to your install command, e.g.:
-
-```
-pnpm add some-pkg --filter=frontend-v3
-```
-
-This filter should match the `name` attribute in the app or package package.json.
-
-## Turborepo
-
-### Remote Caching
-
-Turborepo can use a technique known as
-[Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache
-artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with
-Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the
-following commands:
-
-```
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your
-[Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the
-root of your Turborepo:
-
-```
-npx turbo link
-```
-
-### Useful links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- The Orchard: https://orchard.basednut.com
+- Terminal (data layer): https://terminal.basednut.com
+- X: https://x.com/BASEDNUT_
