@@ -20,7 +20,7 @@ In every PR we:
 
 - Use `turbo` to run the `build` with the code of that PR
 - Run `pnpm start` to serve the generated build
-- Wait for the 2 frontend builds being served (`balancer` in `localhost:3000` and `beets` in
+Wait for the frontend build being served (`rootstock` in `localhost:3000`).
   `localhost:3001`)
 - Run `playwright` tests for both apps
 
