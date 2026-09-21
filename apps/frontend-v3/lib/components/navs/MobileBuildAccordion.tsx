@@ -14,24 +14,14 @@ import {
 } from '@chakra-ui/react'
 import { ArrowUpRight } from 'lucide-react'
 import NextLink from 'next/link'
-import { BalancerIconCircular } from '@repo/lib/shared/components/icons/logos/BalancerIconCircular'
-import { CowIconCircular } from '@repo/lib/shared/components/icons/logos/CowIconCircular'
+import { NutLogo } from '../imgs/NutLogo'
 import { FormSubsection } from '@repo/lib/shared/components/inputs/FormSubsection'
-import {
-  COW_PROTOCOL_ID,
-  BALANCER_PROTOCOL_ID,
-} from '@repo/lib/modules/pool/actions/create/constants'
 
 const CREATE_POOL_LINKS = [
   {
     label: 'ROOTSTOCK',
-    href: `/create?protocol=${BALANCER_PROTOCOL_ID.toLowerCase()}`,
-    icon: <BalancerIconCircular size={24} />,
-  },
-  {
-    label: 'CoW AMM',
-    href: `/create?protocol=${COW_PROTOCOL_ID.toLowerCase()}`,
-    icon: <CowIconCircular size={24} />,
+    href: '/create',
+    icon: <NutLogo width="22px" />,
   },
 ]
 

@@ -210,8 +210,8 @@ export function Audits() {
                 text="Audited lineage"
               />
               <Text color="font.secondary" fontSize="lg" maxW="2xl">
-                The engine ships as a pristine copy of Balancer v3’s audited contracts — the full
-                upstream suite passes green, with zero modifications.
+                The engine ships as a pristine fork of a fully audited architecture — the complete
+                inherited test suite passes green, with zero modifications.
               </Text>
             </VStack>
             <Button isDisabled variant="secondary">

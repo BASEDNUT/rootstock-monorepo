@@ -17,7 +17,6 @@ import { SwapSummary } from './SwapSummary'
 import { useSwapReceipt } from '../../transactions/transaction-steps/receipts/receipt.hooks'
 import { useUserAccount } from '../../web3/UserAccountProvider'
 import { useTokens } from '../../tokens/TokensProvider'
-import { useIsPoolSwapUrl } from '../useIsPoolSwapUrl'
 import { TxBatchAlert } from '@repo/lib/shared/components/alerts/TxBatchAlert'
 import { useShouldBatchTransactions } from '@repo/lib/modules/transactions/transaction-steps/tx-batch.hooks'
 
@@ -34,7 +33,6 @@ export function SwapPreviewModal({
   finalFocusRef,
   ...rest
 }: Props & Omit<ModalProps, 'children'>) {
-  const isPoolSwapUrl = useIsPoolSwapUrl()
   const shouldBatchTransactions = useShouldBatchTransactions()
   const { isDesktop } = useBreakpoints()
   const initialFocusRef = useRef(null)
@@ -65,9 +63,7 @@ export function SwapPreviewModal({
 
   useEffect(() => {
     if (!isWrap && swapTxHash && !window.location.pathname.includes(swapTxHash) && !isLbpSwap) {
-      const url = isPoolSwapUrl
-        ? `${window.location.pathname}/${swapTxHash}`
-        : `/swap/${chainToSlugMap[selectedChain]}/${swapTxHash}`
+      const url = `/swap/${chainToSlugMap[selectedChain]}/${swapTxHash}`
 
       window.history.pushState({}, '', url)
     }
@@ -122,7 +118,7 @@ export function SwapPreviewModal({
           isSuccess={isSuccess}
           returnAction={onClose}
           returnLabel={
-            isLbpSwap ? 'Return to lbp' : isPoolSwapUrl ? 'Return to pool' : 'Swap again'
+            isLbpSwap ? 'Return to lbp' : 'Swap again'
           }
           urlTxHash={urlTxHash}
         />

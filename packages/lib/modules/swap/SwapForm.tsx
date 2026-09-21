@@ -36,7 +36,6 @@ import { useUserAccount } from '../web3/UserAccountProvider'
 import { ConnectWallet } from '../web3/ConnectWallet'
 import { SafeAppAlert } from '@repo/lib/shared/components/alerts/SafeAppAlert'
 import { useTokens } from '../tokens/TokensProvider'
-import { useIsPoolSwapUrl } from './useIsPoolSwapUrl'
 import { CompactTokenSelectModal } from '../tokens/TokenSelectModal/TokenSelectList/CompactTokenSelectModal'
 import { PoolSwapCard } from './PoolSwapCard'
 import { isSameAddress } from '@repo/lib/shared/utils/addresses'
@@ -69,7 +68,6 @@ export function SwapForm({
   customToken,
   customTokenUsdPrice,
 }: Props) {
-  const isPoolSwapUrl = useIsPoolSwapUrl()
 
   const {
     tokenIn,
@@ -194,7 +192,7 @@ export function SwapForm({
       resetSwapAmounts()
       resetPriceImpact()
       transactionSteps.resetTransactionSteps()
-      if (isPoolSwapUrl || isLbpSwap) return redirectToPoolPage?.()
+      if (isLbpSwap) return redirectToPoolPage?.()
       replaceUrlPath()
     }
   }

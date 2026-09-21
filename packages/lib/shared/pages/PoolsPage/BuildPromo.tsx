@@ -64,7 +64,7 @@ export function BuildPromo() {
               <Button
                 as={NextLink}
                 flex={1}
-                href="https://terminal.basednut.com/pools"
+                href="https://terminal.basednut.com"
                 size="lg"
                 variant="tertiary"
               >

@@ -34,19 +34,44 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   redirects: async () => [
     {
-      source: '/pools/mode/:path*',
-      destination: 'https://legacy.balancer.fi',
+      source: '/pools',
+      destination: 'https://terminal.basednut.com',
       permanent: true,
     },
     {
-      source: '/pools/fraxtal/:path*',
-      destination: 'https://legacy.balancer.fi',
+      source: '/pools/:path*',
+      destination: 'https://terminal.basednut.com',
+      permanent: true,
+    },
+    {
+      source: '/portfolio',
+      destination: 'https://terminal.basednut.com',
+      permanent: true,
+    },
+    {
+      source: '/portfolio/:path*',
+      destination: 'https://terminal.basednut.com',
       permanent: true,
     },
     {
       source: '/vebal',
-      destination: '/vebal/manage',
+      destination: 'https://terminal.basednut.com',
       permanent: true,
+    },
+    {
+      source: '/vebal/:path*',
+      destination: 'https://terminal.basednut.com',
+      permanent: true,
+    },
+    {
+      source: '/testooors',
+      destination: '/debug',
+      permanent: false,
+    },
+    {
+      source: '/components',
+      destination: '/',
+      permanent: false,
     },
   ],
 }
@@ -80,10 +105,6 @@ async function manifestHeaders() {
   return [
     {
       source: '/manifest.json',
-      headers: corsHeaders,
-    },
-    {
-      source: '/pools/manifest.json',
       headers: corsHeaders,
     },
   ]

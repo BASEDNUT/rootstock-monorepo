@@ -278,7 +278,7 @@ export function useUninitializedPool() {
     }
 
     return {
-      protocol: 'Balancer v3' as const,
+      protocol: 'ROOTSTOCK' as const,
       network,
       poolType,
       name: nameResult,

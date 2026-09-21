@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: `A programmable liquidity engine for custom markets — pools, hooks, and routing in one core.`,
   openGraph: {
     title: `ROOTSTOCK—Custom markets made simple`,
-    description: `DeFi's most extensive AMM product suite. The Balancer protocol delivers fungible and yield-bearing liquidity across Ethereum and select EVM chains.`,
+    description: `A programmable liquidity engine for custom markets — pools, hooks, and routing in one core.`,
     siteName: 'ROOTSTOCK',
   },
 }

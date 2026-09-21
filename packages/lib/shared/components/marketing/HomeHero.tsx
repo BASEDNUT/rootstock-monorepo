@@ -84,8 +84,8 @@ export function HomeHero() {
                   <Text pb="lg" variant="secondary">
                     Join <span>240,000+</span> Liquidity Providers
                   </Text>
-                  <Button as={NextLink} href="/pools" prefetch size="lg" variant="primary">
-                    Explore pools
+                  <Button as={NextLink} href="/swap" prefetch size="lg" variant="primary">
+                    Open the app
                   </Button>
                 </Box>
               </Box>

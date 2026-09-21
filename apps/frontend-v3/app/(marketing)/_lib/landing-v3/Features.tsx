@@ -73,7 +73,7 @@ const features = [
   {
     title: 'Rate Scaling',
     shortDescription:
-      'V3 abstracts the complexity of managing LSTs by moving all rate scaling into the Vault, providing pools with uniform rate-scaled balances and input values by default, ensuring that yield from yield-bearing tokens is not captured by arbitrage traders.',
+      'The Vault abstracts the complexity of managing LSTs by moving all rate scaling into itself, providing pools with uniform rate-scaled balances and input values by default, ensuring that yield from yield-bearing tokens is not captured by arbitrage traders.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
@@ -251,7 +251,7 @@ export function Features() {
             <chakra.span color="font.primary">Custom liquidity solutions.</chakra.span>
             <chakra.span color="font.primary" style={{ opacity: 0.6 }}>
               {' '}
-              With v3, developers harness a tech stack that automates low-level development tasks,
+              Developers harness a tech stack that automates low-level development tasks,
               enabling them to focus exclusively on innovation.
             </chakra.span>
           </Heading>

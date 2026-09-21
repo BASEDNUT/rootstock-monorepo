@@ -125,7 +125,7 @@ export function MevCapturePromoBanner() {
                 cursor="hand"
                 flex="1"
                 h={{ base: '32px', sm: '40px', lg: '48px' }}
-                href="/pools?poolTags=MevCapture"
+                href="/swap"
                 py="sm"
                 rounded="full"
                 size="md"

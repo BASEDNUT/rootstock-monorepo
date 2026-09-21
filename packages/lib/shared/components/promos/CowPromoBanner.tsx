@@ -85,7 +85,7 @@ export function CowPromoBanner() {
             color="#194D05"
             flex="1"
             h={{ base: '32px', sm: '40px', md: '48px' }}
-            href="/pools/cow"
+            href="/swap"
             prefetch
             py="sm"
             rounded="full"
