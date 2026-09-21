@@ -7,12 +7,12 @@ import { PropsWithChildren } from 'react'
 import { Providers } from '@repo/lib/shared/components/site/providers'
 import { NavBarContainer } from '@bal/lib/components/navs/NavBarContainer'
 import { ThemeProvider } from '@bal/lib/services/chakra/ThemeProvider'
-import { BalancerLogoType } from '@bal/lib/components/imgs/BalancerLogoType'
+import { NutLogoType } from '@bal/lib/components/imgs/NutLogoType'
 import { Footer } from '@repo/lib/shared/components/navs/Footer'
 
 export const metadata: Metadata = {
-  title: `Balancer—DeFi Liquidity Pools`,
-  description: `Explore liquidity pools on Balancer and earn passively in yield-bearing pools.`,
+  title: `ROOTSTOCK—DeFi Liquidity Pools`,
+  description: `Explore liquidity pools on ROOTSTOCK and earn passively in yield-bearing pools.`,
   icons: [
     { rel: 'icon', type: 'image/x-icon', url: '/favicon.ico' },
     {
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     },
   ],
   openGraph: {
-    title: `Balancer—DeFi Liquidity Pools`,
-    description: `Explore liquidity pools on Balancer and earn passively in yield-bearing pools.`,
-    siteName: 'Balancer',
+    title: `ROOTSTOCK—DeFi Liquidity Pools`,
+    description: `Explore liquidity pools on ROOTSTOCK and earn passively in yield-bearing pools.`,
+    siteName: 'ROOTSTOCK',
     type: 'website',
   },
   other: {
@@ -46,15 +46,15 @@ export default function RootLayout({ children }: PropsWithChildren) {
         className={satoshiFont.className}
         style={{ marginRight: '0px !important' }} // Required to prevent layout shift introduced by Rainbowkit
       >
-        <NextTopLoader color="#7f6ae8" showSpinner={false} />
+        <NextTopLoader color="#e8b36a" showSpinner={false} />
         <ThemeProvider>
           <Providers>
             <NavBarContainer />
             {children}
             <Footer
-              logoType={<BalancerLogoType />}
-              subTitle="Balancer is a battle-tested toolkit for true AMM experimentation and innovation."
-              title="AMMs made easy"
+              logoType={<NutLogoType />}
+              subTitle="Battle-tested AMM engineering, forked and grown."
+              title="Custom markets made simple"
             />
             <SpeedInsights />
           </Providers>

@@ -1,11 +1,11 @@
 'use client'
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Box, Card, Grid, GridItem, HStack, IconButton, Text, VStack, Link } from '@chakra-ui/react'
+import { Box, Card, Grid, GridItem, HStack, IconButton, Text, VStack } from '@chakra-ui/react'
 import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
 
 // @ts-ignore
-import { ArrowUpRight, Code } from 'lucide-react'
+import { Code } from 'lucide-react'
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
 import Noise from '@repo/lib/shared/components/layout/Noise'
@@ -17,50 +17,15 @@ import { FadeIn } from '@repo/lib/shared/components/animations/FadeIn'
 
 const contracts = [
   {
-    title: 'Router',
-    url: 'https://docs.balancer.fi/concepts/router/overview.html',
-    shortDescription: 'Entry-point for all pool operations',
+    title: 'Root Vault',
+    shortDescription: 'Holds every asset and keeps one ledger for every pool',
     description:
-      'Routers serve as the pivotal interface for users, facilitating efficient interaction with the underlying Vault primitives. Rather than directly engaging with the Vault, users are encouraged to use Routers as their primary entry point. This approach streamlines operations and enhances flexibility by abstracting multi-step operations into simple user-facing functions.',
-    tags: {
-      'Common user actions': ['Initialize', 'Add', 'Remove', 'Swap'],
-      Functions: [
-        'Operation aggregation',
-        'External API provision',
-        'Vault integration',
-        'Custom logic',
-        'Dynamic updating',
-      ],
-    },
-  },
-  {
-    title: 'Pool',
-    url: 'https://docs.balancer.fi/concepts/explore-available-balancer-pools/',
-    shortDescription: 'Handles math for pool operations',
-    description:
-      'Balancer Pools are smart contracts that define how traders can swap between tokens on Balancer Protocol. The architecture of Balancer Protocol empowers anyone to create custom pool types. What makes Balancer Pools unique from those of other protocols is their unparalleled flexibility. With the introduction of Hooks and Dynamic Swap Fees, the degree of customization is boundless.\n\nBalancer has already developed, audited and deployed a variety of pool types showcasing diverse functionalities. These pools are readily accessible for existing use cases without requiring permission. ',
-    tags: {
-      'Existing pool types': [
-        'Weighted pools',
-        'Stable pool',
-        '80/20 pool',
-        'Boosted pool',
-        'Liquidity Boostrapping Pools (LBP)',
-      ],
-    },
-  },
-  {
-    title: 'Vault',
-    url: 'https://docs.balancer.fi/concepts/vault/',
-    shortDescription: 'Handles accounting & holds tokens',
-    description:
-      'The Vault is the core of the Balancer protocol; it is a smart contract that holds and manages all tokens in each Balancer pool. First introduced in Balancer v2, the vault architecture separates token accounting from pool logic, allowing for simplified pool contracts that focus on the implementation of their swap, add liquidity and remove liquidity logic.',
+      'The Root Vault is the core of the engine — one smart contract that holds and manages all tokens in every pool. It separates token accounting from pool logic, so pools stay simple and carry only their market math.\n\nOne vault means one place to audit and one ledger to trust. Swaps, adds, and removes settle atomically against it in a single transaction — pools never hold tokens themselves.',
     tags: {
       Features: [
         'Transient accounting',
         'ERC20MultiToken',
-        'Liquidity Buffers',
-        'Token types',
+        'Liquidity buffers',
         'Decimal scaling',
         'Rate scaling',
         'Yield fee',
@@ -71,19 +36,49 @@ const contracts = [
     },
   },
   {
-    title: 'Hook',
-    url: 'https://docs.balancer.fi/concepts/core-concepts/hooks.html',
-    shortDescription: 'Can execute actions before and/or after pool does math',
+    title: 'Root Pools',
+    shortDescription: 'The market math, attached to the Vault',
     description:
-      'Hooks introduce a framework to extend existing pool types at various key points throughout the pool’s lifecycle. Hooks can execute actions during pool operation and also compute a dynamic swap fee.\n\nHooks are implemented as standalone contracts that can have their own internal logic and state. One hook contract can facilitate many pools (and pool types). The hook system is flexible and allows developers to implement custom logic at different points of the pool’s lifecycle.',
+      'Pools define how traders swap between tokens. Anyone can create custom pool types — weighted, stable, boosted, or entirely custom curves — with flexibility bounded only by the math you write.\n\nBecause a pool is only its math, a new pool type is a small contract — not a fork of the whole engine. Register it with the Vault and it inherits accounting, scaling, and fee plumbing on day one.',
     tags: {
-      'Pool lifecycle points': [
+      'Pool types': [
+        'Weighted pools',
+        'Stable pools',
+        'Boosted pools',
+        'reCLAMM',
+        'Launch pools',
+        'Custom math',
+      ],
+    },
+  },
+  {
+    title: 'Root Hooks',
+    shortDescription: 'Policies that run before and after every market operation',
+    description:
+      'Hooks extend pool behavior at key points throughout the pool lifecycle. A hook is a standalone contract with its own logic and state — one hook can serve many pools and pool types.\n\nA hook can compute dynamic swap fees, guard against hostile quotes, or attach custom accounting to any lifecycle point. Since hooks are standalone, one deployment serves every pool that opts in.',
+    tags: {
+      'Lifecycle points': [
         'On pool register',
-        'Pool initialization (before/after)',
-        'Adds (before/after)',
-        'Removes (before/after)',
-        'Swaps (before/after)',
-        'Dynamic swap fee computation',
+        'Initialization',
+        'Adds',
+        'Removes',
+        'Swaps',
+        'Dynamic swap fees',
+      ],
+    },
+  },
+  {
+    title: 'Root Routers',
+    shortDescription: 'The entry point for swaps and liquidity, users and solvers',
+    description:
+      'Routers are the primary interface for users and solvers, abstracting multi-step operations into simple functions — the entry point for swaps, liquidity operations, and batch execution.\n\nMulti-step operations — a swap routed through several pools, an unbalanced liquidity add, a batch of user intents — collapse into one call. Aggregators and solvers integrate once and reach every pool in the engine.',
+    tags: {
+      Capabilities: [
+        'Operation aggregation',
+        'Quotes',
+        'Pathing',
+        'Batch execution',
+        'Custom logic',
       ],
     },
   },
@@ -125,14 +120,7 @@ function ContractCard({
             <Text fontSize="xl" fontWeight="bold">
               {contract.title}
             </Text>
-            {isExpanded && (
-              <Link href={contract.url} isExternal>
-                <HStack spacing={0}>
-                  <span>View docs</span>
-                  <ArrowUpRight size={16} />
-                </HStack>
-              </Link>
-            )}
+            
           </HStack>
 
           <Text color="font.secondary" sx={{ textWrap: 'balance' }} w="80%">
@@ -196,13 +184,12 @@ export function Contracts() {
                   fontWeight="bold"
                   letterSpacing="-0.04rem"
                   lineHeight={1}
-                  text="Contracts"
+                  text="The engine"
                 />
                 <FadeIn delay={0.2} direction="up" duration={0.6}>
                   <Text color="font.secondary" fontSize="lg">
-                    The four main contracts of Balancer v3 enhance flexibility and minimize the
-                    intricacies involved in constructing pools, empowering builders to focus on
-                    innovation rather than grappling with complex code.
+                    Four contracts form one core. The Root Vault holds the accounting and the assets —
+                    pools, hooks, and routers attach to it.
                   </Text>
                 </FadeIn>
               </VStack>

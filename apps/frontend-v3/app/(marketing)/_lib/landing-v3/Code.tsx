@@ -82,9 +82,9 @@ export function Code() {
           />
           <FadeIn delay={0.2} direction="up" duration={0.6}>
             <Text color="font.secondary" fontSize="lg" maxW="2xl">
-              Balancer v3’s architecture focuses on simplicity, flexibility, and extensibility at
-              its core. The v3 Vault more formally defines the requirements of a custom pool,
-              shifting core design patterns out of the pool and into the Vault.
+              The architecture focuses on simplicity, flexibility, and extensibility at its core. The
+                Root Vault formally defines the requirements of a custom pool, shifting core
+                design patterns out of the pool and into the Vault.
             </Text>
           </FadeIn>
         </VStack>
@@ -142,13 +142,13 @@ export function Code() {
                       letterSpacing="-0.04rem"
                       lineHeight={1}
                       pr={{ base: 'xxs', lg: '0.9' }}
-                      text="Building on v3 is simple"
+                      text="Building on ROOTSTOCK is simple"
                     />
                     <FadeIn delay={0.2} direction="up" duration={0.6}>
                       <Text color="font.secondary">
-                        To make custom pool creation easy, core functions have been moved from pools
-                        into the heavily audited Vault. For example, here’s all the code needed to
-                        build a swap function for a Constant Product Pool.
+                        A pool is just math. Accounting, balances, fees, and scaling all live in the Root
+                        Vault — so this is a complete swap function for a constant product pool.
+                        Nothing else required.
                       </Text>
                     </FadeIn>
                   </VStack>

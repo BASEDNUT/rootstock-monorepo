@@ -18,14 +18,13 @@ import { PlayVideoButton } from '@repo/lib/shared/components/btns/PlayVideoButto
 import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
 import Noise from '@repo/lib/shared/components/layout/Noise'
 import { ReactNode } from 'react'
-import { ArrowUpRight } from 'lucide-react'
 import { SandBg } from './shared/SandBg'
 import Image from 'next/image'
 
 // @ts-ignore
 import createCustomAMMsSrc from './images/video-createCustomAMMs.png'
 // @ts-ignore
-import scaffoldBalancerSrc from './images/video-scaffoldBalancer.png'
+import prototypePoolSrc from './images/video-prototypePool.png'
 // @ts-ignore
 import createHookSrc from './images/video-createHook.png'
 // @ts-ignore
@@ -35,22 +34,22 @@ import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
 
 const videos = {
   createCustomAMMs: {
-    title: '',
+    title: 'Create custom AMMs',
     url: 'https://youtu.be/oJAXQCMVdfA?si=Vnusjr2rzGVLI4Lm',
     src: createCustomAMMsSrc,
   },
-  scaffoldBalancer: {
-    title: 'Prototype v3 on Scaffold Balancer',
+  prototypePool: {
+    title: 'Prototype a pool',
     url: 'https://youtu.be/m6q5M34ZdXw?si=FfZhc6fQRHht3JME',
-    src: scaffoldBalancerSrc,
+    src: prototypePoolSrc,
   },
   createHook: {
-    title: 'Create a Hook on Balancer v3',
+    title: 'Create a hook',
     url: 'https://youtu.be/kaz6duliRPA?si=CMTRINvkDwrR-7s-',
     src: createHookSrc,
   },
   createRouter: {
-    title: 'Create a Router on Balancer v3',
+    title: 'Create a router',
     url: 'https://youtu.be/pO1ChmSFTaY?si=6wRUk2Ff5yJyGrIn',
     src: createRouterSrc,
   },
@@ -163,16 +162,14 @@ export function Videos() {
               fontWeight="bold"
               letterSpacing="-0.04rem"
               lineHeight={1}
-              text="Balancer v3 video tutorials"
+              text="Video tutorials"
             />
             <Button
               as={Link}
-              href="https://github.com/balancer/scaffold-balancer-v3"
-              isExternal
-              rightIcon={<ArrowUpRight size="14px" />}
+              href="/create"
               variant="secondary"
             >
-              Prototype on v3
+              Create a pool
             </Button>
           </Stack>
           <Card>
@@ -191,10 +188,10 @@ export function Videos() {
               <GridItem>
                 <VideoBox
                   bgVariant={1}
-                  id="scaffoldBalancer"
+                  id="prototypePool"
                   label={
                     <Text fontSize="md" fontWeight="bold">
-                      {videos.scaffoldBalancer.title}
+                      {videos.prototypePool.title}
                     </Text>
                   }
                   minH="200px"

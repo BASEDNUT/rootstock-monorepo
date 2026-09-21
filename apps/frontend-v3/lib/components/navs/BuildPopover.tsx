@@ -12,52 +12,23 @@ import {
 const RESOURCE_LINKS = {
   'Builder resources': [
     {
-      label: 'v3 Scaffold',
-      href: 'https://github.com/balancer/scaffold-balancer-v3',
-      isExternal: true,
-    },
-    { label: 'Code & Contracts', href: 'https://github.com/balancer', isExternal: true },
-    {
-      label: 'Data & Analytics',
-      href: 'https://docs.balancer.fi/data-and-analytics/data-and-analytics/subgraph.html',
+      label: 'Code & contracts',
+      href: 'https://github.com/BASEDNUT/rootstock-monorepo',
       isExternal: true,
     },
     {
-      label: 'Partner onboarding',
-      href: 'https://docs.balancer.fi/partner-onboarding/onboarding-overview/introduction.html',
+      label: 'Audits',
+      href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',
       isExternal: true,
     },
     {
-      label: 'DAO & Partner OPs',
-      href: 'https://ops.balancer.fi/',
-      isExternal: true,
-    },
-  ],
-  'In the docs': [
-    {
-      label: 'v3 core concepts',
-      href: 'https://docs.balancer.fi/concepts/core-concepts/introduction.html',
+      label: 'Pools & data',
+      href: 'https://terminal.basednut.com',
       isExternal: true,
     },
     {
-      label: 'Build an AMM',
-      href: 'https://docs.balancer.fi/build/build-an-amm/create-custom-amm-with-novel-invariant.html',
-      isExternal: true,
-    },
-    {
-      label: 'Build a hook',
-      href: 'https://docs.balancer.fi/build/build-a-hook/extend-existing-pool-type.html',
-      isExternal: true,
-    },
-    {
-      label: 'Build a router',
-      href: 'https://docs.balancer.fi/build/build-a-router/create-custom-router.html',
-      isExternal: true,
-    },
-    {
-      label: 'Integration guides',
-      href: 'https://docs.balancer.fi/integration-guides/',
-      isExternal: true,
+      label: 'Create a pool',
+      href: '/create',
     },
   ],
 }
@@ -65,7 +36,7 @@ const RESOURCE_LINKS = {
 const CREATE_POOL_LINKS = {
   'Create a pool': [
     {
-      label: 'Balancer',
+      label: 'ROOTSTOCK',
       href: `/create?protocol=${BALANCER_PROTOCOL_ID.toLowerCase()}`,
       icon: <BalancerIconCircular size={32} />,
     },

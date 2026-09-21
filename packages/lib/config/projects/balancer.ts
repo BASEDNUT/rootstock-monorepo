@@ -12,9 +12,9 @@ const hiddenPoolTypes: PoolFilterType[] = [
 
 export const ProjectConfigBalancer: ProjectConfig = {
   projectId: 'balancer',
-  projectName: 'Balancer',
-  projectUrl: 'https://balancer.fi',
-  projectLogo: 'https://balancer.fi/images/icons/balancer.svg',
+  projectName: 'ROOTSTOCK',
+  projectUrl: 'https://rootstock.basednut.com',
+  projectLogo: '/images/icons/nut.svg',
   acceptedPoliciesVersion: undefined,
   supportedNetworks: [
     GqlChainValues.Mainnet,
@@ -39,7 +39,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
       },
     },
   },
-  corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014', // veBAL BAL8020 (Balancer 80 BAL 20 WETH) pool on Ethereum
+  corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
   defaultNetwork: GqlChainValues.Mainnet,
   ensNetwork: GqlChainValues.Mainnet,
   delegateOwner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
@@ -56,37 +56,25 @@ export const ProjectConfigBalancer: ProjectConfig = {
   },
   links: {
     appLinks: [
-      { href: '/vebal/manage', label: 'veBAL' },
+      { href: '/nutusd', label: 'nutUSD' },
       ...(isDev || isStaging ? [{ href: '/lbp/create', label: 'LBP' }] : []),
     ],
     ecosystemLinks: [
       { label: 'Pool creator', href: '/create' },
-      { label: 'Blog', href: 'https://medium.com/balancer-protocol' },
-      { label: 'Docs', href: 'https://docs.balancer.fi/' },
-      { label: 'Governance', href: 'https://vote.balancer.fi/#/' },
-      { label: 'Analytics', href: 'https://dune.com/balancer' },
-      { label: 'Forum', href: 'https://forum.balancer.fi/' },
+      { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
+      { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
+      { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
+      { label: 'Terminal (data)', href: 'https://terminal.basednut.com', isExternal: true },
+      { label: 'Forum', href: 'https://basednut.discourse.group', isExternal: true },
     ],
     socialLinks: [
       {
         iconType: 'x',
-        href: 'https://x.com/Balancer',
-      },
-      {
-        iconType: 'discord',
-        href: 'https://discord.balancer.fi/',
-      },
-      {
-        iconType: 'medium',
-        href: 'https://medium.com/balancer-protocol',
-      },
-      {
-        iconType: 'youtube',
-        href: 'https://www.youtube.com/channel/UCBRHug6Hu3nmbxwVMt8x_Ow',
+        href: 'https://x.com/BASEDNUT_',
       },
       {
         iconType: 'github',
-        href: 'https://github.com/balancer/',
+        href: 'https://github.com/BASEDNUT/rootstock-monorepo',
       },
     ],
     legalLinks: [
@@ -100,43 +88,43 @@ export const ProjectConfigBalancer: ProjectConfig = {
   footer: {
     linkSections: [
       {
-        title: 'Build on Balancer',
+        title: 'Build on ROOTSTOCK',
         links: [
           { label: 'Home', href: '/' },
-          { label: 'v3 Docs', href: 'https://docs.balancer.fi', isExternal: true },
-          {
-            label: 'Prototype on v3',
-            href: 'https://github.com/balancer/scaffold-balancer-v3',
-            isExternal: true,
-          },
-          { label: 'Code & Contracts', href: 'https://github.com/balancer/', isExternal: true },
-          { label: 'v2 Docs', href: 'https://docs-v2.balancer.fi', isExternal: true },
+          { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
+          { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
+          { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
+          { label: 'Terminal (data)', href: 'https://terminal.basednut.com', isExternal: true },
         ],
       },
       {
-        title: 'Use Balancer protocol',
+        title: 'Use ROOTSTOCK',
         links: [
-          { label: 'Explore pools', href: '/pools' },
           { label: 'Swap tokens', href: '/swap' },
-          { label: 'View portfolio', href: '/portfolio' },
-          { label: 'Get veBAL', href: '/vebal' },
+          { label: 'Create a pool', href: '/create' },
+          { label: 'nutUSD vault', href: '/nutusd' },
+          {
+            label: 'Pools & portfolio (data)',
+            href: 'https://terminal.basednut.com',
+            isExternal: true,
+          },
         ],
       },
       {
         title: 'Ecosystem',
         links: [
-          { label: 'Forum', href: 'https://forum.balancer.fi', isExternal: true },
-          { label: 'Governance', href: 'https://vote.balancer.fi', isExternal: true },
+          { label: 'Forum', href: 'https://basednut.discourse.group', isExternal: true },
           {
-            label: 'Bug bounties',
-            href: 'https://immunefi.com/bug-bounty/balancer',
+            label: 'Atlas',
+            href: 'https://orchard.basednut.com/atlas',
             isExternal: true,
           },
-          { label: 'Dune Analytics', href: 'https://dune.com/balancer', isExternal: true },
-          { label: 'Analytics', href: 'https://analytics.balancer.fi/', isExternal: true },
+          { label: 'Sunflower Grove', href: 'https://orchard.basednut.com/sunflower-grove', isExternal: true },
+          { label: 'wNUT Observatory', href: 'https://orchard.basednut.com/token/wnut', isExternal: true },
+          { label: 'Analytics', href: 'https://terminal.basednut.com', isExternal: true },
           {
             label: 'Brand assets',
-            href: 'https://github.com/balancer/brand-assets',
+            href: 'https://github.com/BASEDNUT',
             isExternal: true,
           },
         ],
@@ -187,7 +175,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
       id: 0,
       icon: 'monad',
       label: 'Monad',
-      title: 'Balancer is live on Monad',
+      title: 'Explore pools on Monad',
       description:
         'The High-Performance EVM Blockchain Built for Scale. 10,000 TPS, sub-second finality, low fees, and scalable decentralization.',
       buttonText: 'View pools',
@@ -214,8 +202,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
       buttonText: 'View pools',
       buttonLink: '/pools?poolTypes=AUTORANGE',
       linkText: 'Learn more',
-      linkURL:
-        'https://medium.com/balancer-protocol/introducing-reclamms-self-readjusting-trustless-passive-lping-for-clamms-b5528429588e',
+      linkURL: 'https://terminal.basednut.com',
       linkExternal: true,
       bgImageActive: {
         directory: '/images/promos/promo-banner/',
@@ -230,14 +217,13 @@ export const ProjectConfigBalancer: ProjectConfig = {
       id: 2,
       icon: 'boosted',
       label: 'Boosted Pools',
-      title: '100% Boosted Pools on Balancer v3',
+      title: '100% Boosted Pools',
       description:
         'A simple, capital efficient strategy for LPs to get boosted yield. Partnering with leading lending protocols like Aave and Morpho.',
       buttonText: 'View pools',
       buttonLink: '/pools?poolTags=BOOSTED',
       linkText: 'Learn more',
-      linkURL:
-        'https://docs.balancer.fi/concepts/explore-available-balancer-pools/boosted-pool.html',
+      linkURL: 'https://terminal.basednut.com',
       linkExternal: true,
       bgImageActive: {
         directory: '/images/promos/promo-banner/',
@@ -258,7 +244,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
       buttonText: 'View pools',
       buttonLink: '/pools?poolHookTags=HOOKS_STABLESURGE',
       linkText: 'Learn more',
-      linkURL: 'https://medium.com/balancer-protocol/balancers-stablesurge-hook-09d2eb20f219',
+      linkURL: 'https://terminal.basednut.com',
       linkExternal: true,
       bgImageActive: {
         directory: '/images/promos/promo-banner/',
@@ -269,23 +255,6 @@ export const ProjectConfigBalancer: ProjectConfig = {
         imgName: 'bg-inactive3',
       },
     },
-    // {
-    //   id: 0,
-    //   icon: 'plasma',
-    //   label: 'Plasma Chain',
-    //   title: 'Balancer is live on Plasma Chain',
-    //   description:
-    //     'Global Reach. Real Impact. Balancer brings stable-optimized pools to the stablecoins-focused blockchain.',
-    //   buttonText: 'View pools',
-    //   buttonLink: '/pools?networks=PLASMA',
-    //   linkText: 'Learn more',
-    //   linkURL:
-    //     'https://vote.balancer.fi/#/proposal/0x382b5f20c7e03f643df9fbf7c5981f1f9aa80ae12ba60fb1b3bf87affe42cf7c',
-    //   linkExternal: true,
-    //   bgImageActive: {
-    //     directory: '/images/promos/promo-banner/',
-    //     imgName: 'bg-active2',
-    //   },
     //   bgImageInactive: {
     //     directory: '/images/promos/promo-banner/',
     //     imgName: 'bg-inactive2',

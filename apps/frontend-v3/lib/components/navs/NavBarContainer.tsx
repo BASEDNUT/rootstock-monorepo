@@ -5,7 +5,7 @@ import { NavBar } from '@repo/lib/shared/components/navs/NavBar'
 import { NavLogo } from './NavLogo'
 import { MobileNav } from '@repo/lib/shared/components/navs/MobileNav'
 import { useNav } from '@repo/lib/shared/components/navs/useNav'
-import { BalancerLogoType } from '../imgs/BalancerLogoType'
+import { NutLogoType } from '../imgs/NutLogoType'
 import { BuildNavLink } from './BuildNavLink'
 import { MobileBuildAccordion } from './MobileBuildAccordion'
 import { PROJECT_CONFIG, isBalancer } from '@repo/lib/config/getProjectConfig'
@@ -38,7 +38,7 @@ export function NavBarContainer() {
                 isBalancer ? onClose => <MobileBuildAccordion onClose={onClose} /> : undefined
               }
               ecosystemLinks={ecosystemLinks}
-              LogoType={BalancerLogoType}
+              LogoType={NutLogoType}
               socialLinks={socialLinks}
             />
           }

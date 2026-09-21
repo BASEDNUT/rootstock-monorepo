@@ -3,12 +3,12 @@ import { Metadata } from 'next'
 import { PropsWithChildren } from 'react'
 
 export const metadata: Metadata = {
-  title: `Balancer—AMMs made easy`,
-  description: `DeFi's most extensive AMM product suite. The Balancer protocol delivers fungible and yield-bearing liquidity across Ethereum and select EVM chains.`,
+  title: `ROOTSTOCK—Custom markets made simple`,
+  description: `A programmable liquidity engine for custom markets — pools, hooks, and routing in one core.`,
   openGraph: {
-    title: `Balancer—AMMs made easy`,
+    title: `ROOTSTOCK—Custom markets made simple`,
     description: `DeFi's most extensive AMM product suite. The Balancer protocol delivers fungible and yield-bearing liquidity across Ethereum and select EVM chains.`,
-    siteName: 'Balancer',
+    siteName: 'ROOTSTOCK',
   },
 }
 

@@ -19,16 +19,8 @@ export function useNav() {
 
   const defaultAppLinks: AppLink[] = [
     {
-      href: '/pools',
-      label: 'Pools',
-    },
-    {
-      href: swapHref,
+      href: '/swap',
       label: 'Swap',
-    },
-    {
-      href: '/portfolio',
-      label: 'Portfolio',
     },
   ]
 

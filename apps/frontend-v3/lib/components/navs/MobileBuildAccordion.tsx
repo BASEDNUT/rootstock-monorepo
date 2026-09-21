@@ -24,7 +24,7 @@ import {
 
 const CREATE_POOL_LINKS = [
   {
-    label: 'Balancer',
+    label: 'ROOTSTOCK',
     href: `/create?protocol=${BALANCER_PROTOCOL_ID.toLowerCase()}`,
     icon: <BalancerIconCircular size={24} />,
   },
@@ -37,16 +37,16 @@ const CREATE_POOL_LINKS = [
 
 const RESOURCE_LINKS = [
   {
-    label: 'v3 Scaffold',
-    href: 'https://github.com/balancer/scaffold-balancer-v3',
+    label: 'Code & contracts',
+    href: 'https://github.com/BASEDNUT/rootstock-monorepo',
   },
   {
-    label: 'Code & Contracts',
-    href: 'https://github.com/balancer',
+    label: 'Audits',
+    href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',
   },
   {
-    label: 'Documentation',
-    href: 'https://docs.balancer.fi/',
+    label: 'Pools & data',
+    href: 'https://terminal.basednut.com',
   },
 ]
 

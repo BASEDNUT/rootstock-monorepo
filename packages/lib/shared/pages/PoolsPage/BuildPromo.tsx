@@ -3,7 +3,6 @@
 import { Box, Button, Center, Flex, Heading, Link, Text, HStack, Stack } from '@chakra-ui/react'
 import FadeInOnView from '@repo/lib/shared/components/containers/FadeInOnView'
 import NextLink from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
 import { RadialPattern } from '../../components/zen/RadialPattern'
 
 export function BuildPromo() {
@@ -35,7 +34,7 @@ export function BuildPromo() {
                 size="lg"
                 width="full"
               >
-                Ready to build on Balancer?
+                Build something new
               </Heading>
               <Text
                 color="font.secondary"
@@ -47,8 +46,8 @@ export function BuildPromo() {
                 textAlign="center"
                 width="full"
               >
-                Start by creating your own pool. Or prototype your own AMM with the most extensive
-                DeFi builder toolkit.
+                Start by creating your own pool — weighted, stable, or a launch pool. Or prototype
+                a custom AMM on the engine.
               </Text>
             </Stack>
             <Flex
@@ -65,33 +64,14 @@ export function BuildPromo() {
               <Button
                 as={NextLink}
                 flex={1}
-                href="https://github.com/balancer/scaffold-balancer-v3"
-                rightIcon={<ArrowUpRight size="14px" />}
+                href="https://terminal.basednut.com/pools"
                 size="lg"
                 variant="tertiary"
               >
-                Prototype on v3
+                Explore pools
               </Button>
             </Flex>
-            <Link
-              alignItems="center"
-              color="font.secondary"
-              display="inline-flex"
-              href="https://docs.balancer.fi/"
-              isExternal
-              justifyContent="center"
-              mt="sm"
-            >
-              <HStack gap="xxs">
-                <Text color="font.secondary" fontSize={{ base: 'sm', md: 'md' }}>
-                  View the docs
-                </Text>
-
-                <Box color="grayText">
-                  <ArrowUpRight size={12} />
-                </Box>
-              </HStack>
-            </Link>
+            
           </Flex>
         </FadeInOnView>
       </Center>

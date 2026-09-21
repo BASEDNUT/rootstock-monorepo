@@ -3,13 +3,12 @@
 
 import { Box, Button, Center, Heading, HStack, Stack, Text, VStack, Link } from '@chakra-ui/react'
 import Noise from '@repo/lib/shared/components/layout/Noise'
-import { AnimatePresence, motion, useInView } from 'motion/react'
-import Image from 'next/image'
+import { motion, useInView } from 'motion/react'
 import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
 import { ArrowUpRight } from 'lucide-react'
 
 // @ts-ignore
-import bgDarkSrc from './images/hero-bg-dark.png'
+import { SoilBg } from './shared/SoilBg'
 import { PlayVideoButton } from '@repo/lib/shared/components/btns/PlayVideoButton'
 import { SandBg } from './shared/SandBg'
 import { useRef } from 'react'
@@ -28,34 +27,11 @@ export function Hero() {
   return (
     <Noise position="relative">
       <Box bottom={0} h="100vh" left={0} minH="600px" position="absolute" right={0} top={0}>
-        <AnimatePresence>
-          <motion.div
-            animate={isInView ? { opacity: 0.3, willChange: 'opacity' } : {}}
-            exit={{ opacity: 0 }}
-            initial={{ opacity: 0.01 }}
-            ref={ref}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-            transition={{ duration: 3, ease: 'easeInOut' }}
-          >
-            <Image
-              alt="background"
-              fill
-              sizes="100vw"
-              src={bgDarkSrc}
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
-            />
-          </motion.div>
-        </AnimatePresence>
+              <SoilBg />
       </Box>
 
       <DefaultPageContainer flex="1" h="100vh" minH="600px" noVerticalPadding position="relative">
-        <Center h="full" justifyContent="start">
+        <Center h="full" justifyContent="start" ref={ref}>
           <VStack alignItems="start" spacing="xl">
             <MotionText
               animate={
@@ -74,7 +50,7 @@ export function Hero() {
               transition={{ delay: 0.7, duration: 0.3, delayChildren: 0.5, ease: 'easeInOut' }}
               variant="eyebrow"
             >
-              Balancer v3 is live
+              ROOTSTOCK · TESTNET LIVE
             </MotionText>
 
             <WordsPullUp
@@ -86,7 +62,7 @@ export function Hero() {
               letterSpacing="-2px"
               lineHeight={1}
               pr="2"
-              text="AMMs made easy"
+              text="Custom markets made simple"
             />
             <MotionHeading
               animate={
@@ -108,9 +84,19 @@ export function Hero() {
               transition={{ duration: 1, delay: 0.9, ease: 'easeInOut' }}
               w="full"
             >
-              The ultimate platform for custom liquidity solutions. Balancer v3 perfectly balances
-              simplicity and flexibility to reshape the future of AMMs.
+              Swap, provide liquidity, or build markets with flexible onchain infrastructure.
             </MotionHeading>
+            <MotionText
+              animate={isInView ? { opacity: 1 } : {}}
+              color="font.secondary"
+              fontSize="md"
+              initial={{ opacity: 0 }}
+              maxW="700px"
+              transition={{ duration: 1, delay: 1.1, ease: 'easeInOut' }}
+            >
+              One engine for pools, hooks, and routing — giving users and developers the tools to
+              create and interact with custom liquidity without unnecessary complexity.
+            </MotionText>
             <Stack alignItems={{ base: 'start', md: 'center' }} direction="row" mt="0" spacing="ms">
               <MotionButton
                 animate={
@@ -122,16 +108,14 @@ export function Hero() {
                     : {}
                 }
                 as={Link}
-                href="https://docs.balancer.fi"
+                href="/swap"
                 initial={{ opacity: 0 }}
-                rel="noopener"
                 rightIcon={<ArrowUpRight size="14px" />}
                 size="lg"
-                target="_blank"
                 transition={{ duration: 2, delay: 1.2 }}
                 variant="primary"
               >
-                View v3 docs
+                Launch app
               </MotionButton>
 
               <MotionButton
@@ -144,16 +128,14 @@ export function Hero() {
                     : {}
                 }
                 as={Link}
-                href="https://github.com/balancer/scaffold-balancer-v3"
+                href="/create"
                 initial={{ opacity: 0 }}
-                rel="noopener"
                 rightIcon={<ArrowUpRight size="14px" />}
                 size="lg"
-                target="_blank"
                 transition={{ duration: 2, delay: 1.2 }}
                 variant="secondary"
               >
-                Prototype v3
+                Create a pool
               </MotionButton>
             </Stack>
             <HStack alignItems="center" mt="xl" spacing="md">
@@ -183,7 +165,7 @@ export function Hero() {
                 initial={{ opacity: 0 }}
                 transition={{ duration: 2, delay: 1.4 }}
               >
-                Learn about Balancer v3
+                Learn about ROOTSTOCK
               </MotionText>
             </HStack>
           </VStack>

@@ -21,7 +21,7 @@ import { PieIcon } from '@repo/lib/shared/components/icons/PieIcon'
 import { StarsIconPlain } from '@repo/lib/shared/components/icons/StarsIconPlain'
 import { FeatureCard } from './shared/FeatureCard'
 import { RadialPattern } from './shared/RadialPattern'
-import { BalancerLogoAnimated } from '@repo/lib/shared/components/icons/BalancerIconAnimated'
+import { NutLogo } from '@bal/lib/components/imgs/NutLogo'
 import { useBreakpoints } from '@repo/lib/shared/hooks/useBreakpoints'
 import { FadeIn } from '@repo/lib/shared/components/animations/FadeIn'
 import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
@@ -36,7 +36,7 @@ const keyFeatures = [
     title: 'Custom Pools',
     subTitle: 'Streamlined custom pool creation',
     description:
-      'Design pools tailored to your vision with Balancer’s Vault-first architecture. Build smarter, faster, and with less complexity.',
+      'Design pools tailored to your vision with a vault-first architecture. Build smarter, faster, and with less complexity.',
     icon: <PieIcon size={40} />,
   },
   {
@@ -59,9 +59,9 @@ const features = [
   {
     title: 'LVR/MEV Mitigation',
     shortDescription:
-      'Balancer v3 focuses on minimizing MEV and maximizing LP profitability by collaborating with intent-centric projects like CowSwap.',
+      'The engine focuses on minimizing MEV and maximizing LP profitability through custom pool logic and a hooks framework.',
     description:
-      'Balancer v3 focuses on minimizing MEV and maximizing LP profitability by collaborating with intent-centric projects like CowSwap.\n\nv3 leverages custom AMM logic and a hooks framework to enable third-party teams easily to develop MEV mitigation strategies.\n\nSupported by Balancer DAO, this approach aims to help bolster MEV innovation for LPs, enhancing fairness and profitability in on-chain interactions for the future to come.',
+      'MEV mitigation is a first-class design concern. Custom pool logic and the hooks framework let third-party teams develop MEV strategies that bolster fairness and profitability for LPs.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
@@ -293,9 +293,9 @@ export function Features() {
               />
               <FadeIn delay={0.2} direction="up" duration={0.6}>
                 <Text color="font.secondary" fontSize="lg" sx={{ textWrap: 'pretty' }}>
-                  Balancer v3 introduces a series of technical enhancements that streamline the
+                  The engine introduces a series of technical enhancements that streamline the
                   development and deployment of custom pools, while maintaining the flexibility and
-                  interoperability that have made Balancer a leader in the DeFi space.
+                  interoperability the system is built on.
                 </Text>
               </FadeIn>
             </VStack>
@@ -311,7 +311,7 @@ export function Features() {
                   top={-10}
                   width={600}
                 >
-                  <BalancerLogoAnimated size={100} />
+                  <NutLogo width="100" />
                 </RadialPattern>
               </Center>
             )}

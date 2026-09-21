@@ -1,10 +1,10 @@
 {
-  "short_name": "Balancer",
-  "name": "Balancer",
-  "description": "Balancer is a battle-tested toolkit for true AMM experimentation and innovation.",
+  "short_name": "ROOTSTOCK",
+  "name": "ROOTSTOCK",
+  "description": "Battle-tested AMM engineering, forked and grown. Custom markets made simple.",
   "icons": [
     {
-      "src": "/images/icons/balancer.svg",
+      "src": "/images/icons/nut.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     },
@@ -16,6 +16,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#3f3731",
+  "background_color": "#3f3731"
 }

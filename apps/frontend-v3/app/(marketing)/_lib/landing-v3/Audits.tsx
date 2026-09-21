@@ -8,7 +8,6 @@ import {
   Grid,
   Box,
   Center,
-  Link,
   Stack,
   IconButton,
   Heading,
@@ -54,12 +53,10 @@ const GRADIENT_OVERLAYS = [
 ] as const
 
 const AuditCard = memo(function AuditCard({
-  href,
   logo,
   bgImageName,
   gradientIndex,
 }: {
-  href: string
   logo: ReactNode
   bgImageName: string
   gradientIndex: number
@@ -69,7 +66,7 @@ const AuditCard = memo(function AuditCard({
   const gradientOverlay = useMemo(() => GRADIENT_OVERLAYS[gradientIndex], [gradientIndex])
 
   return (
-    <Link cursor="pointer" href={href} isExternal>
+    <Box cursor="default">
       <MotionBox
         _hover={{ shadow: 'xl' }}
         data-group
@@ -171,7 +168,7 @@ const AuditCard = memo(function AuditCard({
           zIndex="2"
         />
       </MotionBox>
-    </Link>
+    </Box>
   )
 })
 
@@ -200,7 +197,7 @@ export function Audits() {
                   fontSize="sm"
                   variant="eyebrow"
                 >
-                  SAFTEY & SECURITY
+                  SAFETY & SECURITY
                 </Text>
               </BlurIn>
               <WordsPullUp
@@ -210,17 +207,15 @@ export function Audits() {
                 fontWeight="bold"
                 letterSpacing="-0.04rem"
                 lineHeight={1}
-                text="Audited by the best"
+                text="Audited lineage"
               />
+              <Text color="font.secondary" fontSize="lg" maxW="2xl">
+                The engine ships as a pristine copy of Balancer v3’s audited contracts — the full
+                upstream suite passes green, with zero modifications.
+              </Text>
             </VStack>
-            <Button
-              as={Link}
-              href="https://github.com/balancer/balancer-v3-monorepo/tree/main/audits"
-              isExternal
-              rightIcon={ARROW_ICON}
-              variant="secondary"
-            >
-              View reports
+            <Button isDisabled variant="secondary">
+              Rootstock audits (coming soon)
             </Button>
           </Stack>
           <Grid
@@ -232,7 +227,6 @@ export function Audits() {
               <AuditCard
                 bgImageName="0"
                 gradientIndex={0}
-                href="https://github.com/balancer/balancer-v3-monorepo/tree/main/audits/spearbit"
                 logo={spearbitLogo}
               />
             </GridItem>
@@ -240,7 +234,6 @@ export function Audits() {
               <AuditCard
                 bgImageName="1"
                 gradientIndex={1}
-                href="https://github.com/balancer/balancer-v3-monorepo/tree/main/audits/trail-of-bits"
                 logo={trailOfBitsLogo}
               />
             </GridItem>
@@ -248,7 +241,6 @@ export function Audits() {
               <AuditCard
                 bgImageName="2"
                 gradientIndex={2}
-                href="https://github.com/balancer/balancer-v3-monorepo/tree/main/audits/certora"
                 logo={certoraLogo}
               />
             </GridItem>
@@ -258,17 +250,7 @@ export function Audits() {
               Review the code and report vulnerabilities
             </Heading>
             <Text color="font.secondary">
-              Up to $1m is up for grabs in the bug bounty on{' '}
-              <Link
-                alignItems="center"
-                display="inline-flex"
-                gap="2px"
-                href="https://immunefi.com/bug-bounty/balancer/information/"
-                isExternal
-              >
-                Immunefi
-                {ARROW_ICON}
-              </Link>
+              The engine is open source. Review the code and report what you find.
             </Text>
           </VStack>
         </VStack>
