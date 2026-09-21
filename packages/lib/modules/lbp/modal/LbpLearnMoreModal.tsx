@@ -4,7 +4,7 @@ export function LbpLearnMoreModal({ buttonLabel }: { buttonLabel: string }) {
   return (
     <LearnMoreModal
       buttonLabel={buttonLabel}
-      docsUrl="https://docs.balancer.fi/concepts/explore-available-balancer-pools/liquidity-bootstrapping-pool.html"
+      docsUrl="https://github.com/BASEDNUT/rootstock-monorepo"
       headerText="Learn more about LBPs"
       listItems={[
         'LBPs typically start with an uneven ratio (like 90:10) heavily weighted toward the project token, with a high initial price, and gradually shift over a predetermined time period.',
