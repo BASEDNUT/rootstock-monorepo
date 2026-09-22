@@ -17,6 +17,7 @@ import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjec
 import { removeHookDataFromPoolIfNecessary } from '../pool.utils'
 import { PoolListItem } from '../pool.types'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
+import { useOnchainPoolDiscovery } from '../useOnchainPoolDiscovery'
 import { useTokens } from '../../tokens/TokensProvider'
 import { bn } from '@repo/lib/shared/utils/numbers'
 import { useWalletTokenBalances } from '../../tokens/useWalletTokenBalances'
@@ -55,7 +56,16 @@ export function usePoolListLogic({
     }
   )
 
-  const pools = loading && previousData ? previousData.pools : data?.pools || []
+  // Rootstock: onchain-only networks (BASESEP) are excluded from the API query
+  // (onchain-only law) — their pools come from onchain discovery instead.
+  const selectedChainsForDiscovery = variables.where.chainIn || []
+  const hasOnchainOnlyChain = selectedChainsForDiscovery.some(isOnchainOnlyNetwork)
+  const { data: onchainPools } = useOnchainPoolDiscovery(hasOnchainOnlyChain)
+
+  const apiPools = loading && previousData ? previousData.pools : data?.pools || []
+  const pools = hasOnchainOnlyChain
+    ? [...(onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
+    : apiPools
 
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
 

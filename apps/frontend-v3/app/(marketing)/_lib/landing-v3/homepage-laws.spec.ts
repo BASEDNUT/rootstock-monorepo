@@ -115,20 +115,10 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     }
   })
 
-  it('no hyperlinks to /pools on any surface', () => {
-    for (const surface of [
-      landingSurface,
-      buildPromo,
-      useNav,
-      navBar,
-      buildPopover,
-      mobileBuildAccordion,
-      config,
-    ]) {
-      expect(surface.match(/href="\/pools/)).toBeNull()
+  it('pools/portfolio links may exist on surfaces (restored Boss 2026-09-22); no upstream-domain links', () => {
+    for (const surface of [landingSurface, buildPromo, useNav, navBar, buildPopover, mobileBuildAccordion]) {
+      expect(surface).not.toContain('balancer.fi/')
     }
-    expect(config).not.toContain("'/pools")
-    expect(config).not.toContain('"/pools')
   })
 
   it('Test-Pools is gone from nav (Debug stays)', () => {
@@ -219,9 +209,9 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     expect(config).not.toContain('partnerCards')
   })
 
-  it('redirects: /pools, /portfolio, /vebal -> /; no external destinations', () => {
-    expect(nextConfig).toContain("source: '/pools',")
-    expect(nextConfig).toContain("source: '/portfolio',")
+  it('pools/portfolio surfaces RESTORED (Boss 2026-09-22): no redirects kill them; /vebal stays dead; no external destinations', () => {
+    expect(nextConfig).not.toContain("source: '/pools',")
+    expect(nextConfig).not.toContain("source: '/portfolio',")
     expect(nextConfig).toContain("source: '/vebal',")
     expect(nextConfig).not.toContain('legacy.balancer.fi')
     expect(nextConfig).not.toContain('terminal.basednut.com')

@@ -34,26 +34,6 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   redirects: async () => [
     {
-      source: '/pools',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/pools/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/portfolio',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/portfolio/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
       source: '/vebal',
       destination: '/',
       permanent: true,
