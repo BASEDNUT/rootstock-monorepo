@@ -43,5 +43,4 @@ Balancer's architecture is their work — we keep it, credit it, and grow on it.
 ## Based Nut
 
 - The Orchard: https://orchard.basednut.com
-- Terminal (data layer): https://terminal.basednut.com
 - X: https://x.com/BASEDNUT_

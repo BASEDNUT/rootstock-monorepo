@@ -17,7 +17,7 @@ This repo is **ROOTSTOCK** — BASED NUT's AMM ("a programmable liquidity engine
 
 ### Frontend scope (IPFS interaction surface)
 
-The frontend is the web3 interaction surface: swap, create pool, LBP, nutUSD vault. Pools listing and portfolio live at the Orchard Terminal data layer (https://terminal.basednut.com), not here.
+The frontend is the web3 interaction surface: swap, create pool, LBP, nutUSD vault. Pools listing and portfolio belong to the data layer, not this app.
 
 ## Architecture
 
