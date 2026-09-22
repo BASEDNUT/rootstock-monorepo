@@ -49,6 +49,9 @@ export const ProjectConfigBalancer: ProjectConfig = {
   },
   links: {
     appLinks: [
+      { href: '/swap', label: 'Swap' },
+      { href: '/pools', label: 'Pools' },
+      { href: '/portfolio', label: 'Portfolio' },
       { href: '/nutusd', label: 'nutUSD' },
       ...(isDev || isStaging ? [{ href: '/lbp/create', label: 'LBP' }] : []),
     ],
@@ -97,9 +100,13 @@ export const ProjectConfigBalancer: ProjectConfig = {
           { label: 'Create a pool', href: '/create' },
           { label: 'nutUSD vault', href: '/nutusd' },
           {
-            label: 'Pools & portfolio (data)',
-            href: '#',
+            label: 'Pools',
+            href: '/pools',
           },
+          {
+            label: 'Portfolio',
+            href: '/portfolio',
+          },,
         ],
       },
       {
