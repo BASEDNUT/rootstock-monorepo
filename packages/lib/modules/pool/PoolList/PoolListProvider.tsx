@@ -13,7 +13,7 @@ import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { useUserAccount } from '../../web3/UserAccountProvider'
 import { isAddress } from 'viem'
 import { PoolDisplayType } from '../pool.types'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { removeHookDataFromPoolIfNecessary } from '../pool.utils'
 import { PoolListItem } from '../pool.types'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
@@ -60,7 +60,9 @@ export function usePoolListLogic({
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
 
   const selectedChains = variables.where.chainIn || []
-  const joinableChains = selectedChains.filter(chain => chain !== GqlChainValues.Sepolia)
+  const joinableChains = selectedChains.filter(
+    chain => chain !== GqlChainValues.Sepolia && !isOnchainOnlyNetwork(chain)
+  )
 
   const {
     tokenBalancesByChain: walletTokenAddressesByChain,

@@ -204,6 +204,8 @@ export interface ProjectConfig {
   projectLogo: string
   acceptedPoliciesVersion: number | undefined
   supportedNetworks: GqlChain[]
+  /** Networks selectable in-app but never queried from the remote API. */
+  onchainOnlyNetworks?: GqlChain[]
   corePoolId: string // this prop is used to adjust the color of the SparklesIcon
   variantConfig?: VariantConfig
   defaultNetwork: GqlChain

@@ -10,7 +10,7 @@ import { isSameAddress } from '@repo/lib/shared/utils/addresses'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { bn, Numberish, isBnParseable } from '@repo/lib/shared/utils/numbers'
 import { useQuery } from '@apollo/client/react'
-import { createContext, PropsWithChildren, useCallback } from 'react'
+import { createContext, PropsWithChildren, useCallback, useMemo } from 'react'
 import { Address } from 'viem'
 import {
   getNativeAssetAddress,
@@ -22,7 +22,8 @@ import { mins } from '@repo/lib/shared/utils/time'
 import mainnetNetworkConfig from '@repo/lib/config/networks/mainnet'
 import { PoolToken } from '../pool/pool.types'
 import { ApiToken, ApiOrCustomToken } from './token.types'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { getOnchainOnlyTokens } from './onchain-tokens'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
 export const TokensContext = createContext<UseTokensResult | null>(null)
@@ -32,7 +33,7 @@ export type GetTokenFn = (address: string, chain: GqlChain) => ApiToken | undefi
 const POLL_INTERVAL = mins(3).toMs()
 
 const SUPPORTED_CHAINS = {
-  chains: PROJECT_CONFIG.supportedNetworks,
+  chains: toApiNetworks(PROJECT_CONFIG.supportedNetworks),
 }
 
 export function useTokensLogic() {
@@ -40,7 +41,10 @@ export function useTokensLogic() {
     variables: SUPPORTED_CHAINS,
   })
 
-  const tokens = tokensData?.tokens || []
+  const tokens = useMemo(
+    () => [...(tokensData?.tokens || []), ...getOnchainOnlyTokens()],
+    [tokensData]
+  )
 
   const {
     data: tokenPricesData,

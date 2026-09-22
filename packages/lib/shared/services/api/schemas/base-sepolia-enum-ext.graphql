@@ -1,0 +1,8 @@
+# Rootstock: Base Sepolia chain enum extension.
+# Upstream Balancer API schema has no BASESEP; our app runs on our own
+# Base Sepolia deployment (see rootstock/LIVE_DEPLOYMENTS.md). This local
+# schema extension adds the enum value so generated types stay valid
+# without forking the upstream schema. Remove when our own API serves it.
+extend enum GqlChain {
+  BASESEP
+}

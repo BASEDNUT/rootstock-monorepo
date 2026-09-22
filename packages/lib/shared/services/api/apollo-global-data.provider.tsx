@@ -18,7 +18,7 @@ import { PoolTagsProvider } from '@repo/lib/modules/pool/tags/PoolTagsProvider'
 import { getErc4626Metadata } from '@repo/lib/modules/pool/metadata/getErc4626Metadata'
 import { PoolsMetadataProvider } from '@repo/lib/modules/pool/metadata/PoolsMetadataProvider'
 import { getPoolsMetadata } from '@repo/lib/modules/pool/metadata/getPoolsMetadata'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 import { ProtocolStatsProvider } from '@repo/lib/modules/protocol/ProtocolStatsProvider'
 import { FeeManagersProvider } from '@repo/lib/modules/fee-managers/FeeManagersProvider'
 import { getFeeManagersMetadata } from '@repo/lib/modules/fee-managers/getFeeManagersMetadata'
@@ -33,7 +33,7 @@ export async function ApolloGlobalDataProvider({ children }: PropsWithChildren) 
   const { data: protocolData } = await client.query({
     query: GetProtocolStatsDocument,
     variables: {
-      chains: PROJECT_CONFIG.networksForProtocolStats || PROJECT_CONFIG.supportedNetworks,
+      chains: toApiNetworks(PROJECT_CONFIG.networksForProtocolStats || PROJECT_CONFIG.supportedNetworks),
     },
     context: {
       fetchOptions: {

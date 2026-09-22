@@ -11,13 +11,16 @@ const requireFromHere = createRequire(resolve(__dirname, '__fake.js'))
 const pluginLoader = async (name: string) => import(requireFromHere.resolve(name))
 
 const config: CodegenConfig = {
-  schema: {
-    [process.env.NEXT_PUBLIC_BALANCER_API_URL as string]: {
-      headers: {
-        'Accept-Encoding': 'identity', // Prevent gzip-compressed responses that the schema loader can't decompress
+  schema: [
+    {
+      [process.env.NEXT_PUBLIC_BALANCER_API_URL as string]: {
+        headers: {
+          'Accept-Encoding': 'identity', // Prevent gzip-compressed responses that the schema loader can't decompress
+        },
       },
     },
-  },
+    './shared/services/api/schemas/base-sepolia-enum-ext.graphql',
+  ],
   pluginLoader,
   generates: {
     ['./shared/services/api/generated/schema.graphql']: {

@@ -9,7 +9,7 @@ import Noise from '@repo/lib/shared/components/layout/Noise'
 import { RadialPattern } from '@repo/lib/shared/components/zen/RadialPattern'
 import { PoolPageStats } from './PoolPageStats'
 import { FeaturedPartners } from './FeaturedPartners'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 import { fNumCustom } from '../../utils/numbers'
 import { useProtocolStats } from '@repo/lib/modules/protocol/ProtocolStatsProvider'
 import { useQuery } from '@apollo/client/react'
@@ -28,7 +28,7 @@ export function PoolsPage({ children, rewardsClaimed24h }: PoolsPageProps) {
   const { data: featuredPoolsData, loading: featuredPoolsLoading } = useQuery(
     GetFeaturedPoolsDocument,
     {
-      variables: { chains: supportedNetworks },
+      variables: { chains: toApiNetworks(supportedNetworks) },
       fetchPolicy: 'cache-and-network',
     }
   )

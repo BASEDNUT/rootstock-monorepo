@@ -19,9 +19,11 @@ export const ProjectConfigBalancer: ProjectConfig = {
   supportedNetworks: [
     GqlChainValues.Base,
 
-    // testnets only in dev mode
-    ...(isProd ? [] : [GqlChainValues.Sepolia]),
+    // testnets only in dev mode — Base Sepolia is our Rootstock deployment
+    ...(isProd ? [] : [GqlChainValues.BaseSepolia]),
   ],
+  // Base Sepolia: selectable for wallet/onchain actions, never queried from the remote API
+  onchainOnlyNetworks: [GqlChainValues.BaseSepolia],
   variantConfig: {
     [PartnerVariant.cow]: {
       banners: {

@@ -34,7 +34,7 @@ import {
 import { PaginationState } from '@repo/lib/shared/components/pagination/pagination.types'
 
 import { ButtonGroupOption } from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export const PROTOCOL_VERSION_TABS: ButtonGroupOption[] = [
   {
@@ -322,7 +322,7 @@ export function usePoolListQueryState() {
         poolType => poolType !== GqlPoolTypeValues.LiquidityBootstrapping
       ),
       poolTypeNotIn: [GqlPoolTypeValues.LiquidityBootstrapping],
-      chainIn: networks.length > 0 ? networks : PROJECT_CONFIG.supportedNetworks,
+      chainIn: toApiNetworks(networks.length > 0 ? networks : PROJECT_CONFIG.supportedNetworks),
       userAddress,
       minTvl,
       tagIn:
