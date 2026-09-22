@@ -35,32 +35,32 @@ const nextConfig: NextConfig = {
   redirects: async () => [
     {
       source: '/pools',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {
       source: '/pools/:path*',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {
       source: '/portfolio',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {
       source: '/portfolio/:path*',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {
       source: '/vebal',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {
       source: '/vebal/:path*',
-      destination: 'https://terminal.basednut.com',
+      destination: '/',
       permanent: true,
     },
     {

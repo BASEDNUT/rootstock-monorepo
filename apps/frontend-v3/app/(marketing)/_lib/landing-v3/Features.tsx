@@ -33,24 +33,24 @@ const MotionGridItem = motion(GridItem)
 
 const keyFeatures = [
   {
-    title: 'Custom Pools',
-    subTitle: 'Streamlined custom pool creation',
+    title: 'Custom pools',
+    subTitle: 'Build the market you want',
     description:
-      'Design pools tailored to your vision with a vault-first architecture. Build smarter, faster, and with less complexity.',
+      'Pick weighted, stable, boosted, or write your own math. The pool holds only its curve — the vault handles the rest.',
     icon: <PieIcon size={40} />,
   },
   {
-    title: 'Hooks Framework',
-    subTitle: 'Limitless pool customizability',
+    title: 'Hooks',
+    subTitle: 'Behavior at the edges',
     description:
-      'Extend pool functionality with modular hooks. Customize pool behavior, implement advanced strategies, and unlock entirely new AMM design spaces with ease.',
+      'Attach custom logic before and after any operation — dynamic fees, guards, custom accounting — without touching the core.',
     icon: <HookIcon size={70} />,
   },
   {
-    title: '100% Boosted Pools',
-    subTitle: 'Boosted earnings, simplified strategy.',
+    title: 'Boosted pools',
+    subTitle: 'Liquidity that stays busy',
     description:
-      'Put your liquidity to work 100% of the time. Seamless integration with Aave and Morpho delivers passive, diversified yield in a single click.',
+      'Idle balances lend out through Aave and Morpho, so LPs earn market fees and lending yield at the same time.',
     icon: <StarsIconPlain size={32} />,
   },
 ]
@@ -67,49 +67,49 @@ const features = [
   {
     title: 'Decimal Scaling',
     shortDescription:
-      'To alleviate the challenges of managing tokens with variable decimals, the Vault provides the pool with token balances and input values scaled to 18 decimals.',
+      'Tokens arrive with different decimals. The vault normalizes every balance to 18, so pool math never trips on precision.',
     imageSrc: '/images/graphics/stone-1.png',
   },
   {
     title: 'Rate Scaling',
     shortDescription:
-      'The Vault abstracts the complexity of managing LSTs by moving all rate scaling into itself, providing pools with uniform rate-scaled balances and input values by default, ensuring that yield from yield-bearing tokens is not captured by arbitrage traders.',
+      'Rate-bearing tokens like LSTs change value on their own. The vault scales every rate into the balance, so pools price them correctly by default.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
     title: 'Liquidity Invariant Approximation',
     shortDescription:
-      'Supports unbalanced add/remove liquidity operations across all pool types, drastically enhancing user experience, as users are not forced to add liquidity in proportional amounts.',
+      'Add or remove liquidity in any ratio. The engine approximates the invariant, so users are never forced into proportional deposits.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
     title: 'Transient Accounting',
     shortDescription:
-      "EIP-1153's transient op-codes unlock a new, expressive design, the “Till” pattern. This allows the Vault to efficiently enforce contract-level invariants in the scope of a callback, supporting design patterns that were previously not possible.",
+      'EIP-1153 transient storage lets the vault enforce invariants inside a single callback — patterns that were impossible before.',
     imageSrc: '/images/graphics/stone-1.png',
   },
   {
     title: 'ERC20MultiToken',
     shortDescription:
-      'Ensures atomic updates to pool token balances and total supply within the Vault, reducing risks of read-only reentrancy attack vectors.',
+      'One contract tracks every pool token balance and supply. Updates are atomic, closing read-only reentrancy vectors.',
     imageSrc: '/images/graphics/stone-1.png',
   },
   {
     title: 'Swap Fee Management',
     shortDescription:
-      'Standardizes swap fee implementation within the Vault for consistent interfaces across pools, while allowing flexibility at the hook level.',
+      'The vault owns fee accounting. Every pool type gets the same interface, and hooks can still shape fees when needed.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
     title: 'Pool Creator Fee',
     shortDescription:
-      'Introduces a permissionless mechanism for external pool developers to earn a share of swap fees and yield, incentivizing innovative AMM creation.',
+      'Anyone who builds a pool can earn a share of its fees — permissionless, set at creation.',
     imageSrc: '/images/graphics/stone-2.png',
   },
   {
     title: 'Pool Pause Manager',
     shortDescription:
-      'The pool can define its pause window on registration, relying on the Vault to enforce the time window and manage authentication.',
+      'A pool declares its own pause window at registration. The vault enforces it — no trusted operator required.',
     imageSrc: '/images/graphics/stone-1.png',
   },
 ]
@@ -248,11 +248,10 @@ export function Features() {
       >
         <FadeIn delay={0.2} direction="up" duration={0.6}>
           <Heading as="h4" mx="auto" size="lg">
-            <chakra.span color="font.primary">Custom liquidity solutions.</chakra.span>
+            <chakra.span color="font.primary">Built for builders.</chakra.span>
             <chakra.span color="font.primary" style={{ opacity: 0.6 }}>
               {' '}
-              Developers harness a tech stack that automates low-level development tasks,
-              enabling them to focus exclusively on innovation.
+              Core mechanics come standard — your market ships with only its own math.
             </chakra.span>
           </Heading>
         </FadeIn>
@@ -293,9 +292,8 @@ export function Features() {
               />
               <FadeIn delay={0.2} direction="up" duration={0.6}>
                 <Text color="font.secondary" fontSize="lg" sx={{ textWrap: 'pretty' }}>
-                  The engine introduces a series of technical enhancements that streamline the
-                  development and deployment of custom pools, while maintaining the flexibility and
-                  interoperability the system is built on.
+                  The engine ships a set of technical choices that simplify
+                  development and building custom pools, without giving up the flexibility the system is built on.
                 </Text>
               </FadeIn>
             </VStack>

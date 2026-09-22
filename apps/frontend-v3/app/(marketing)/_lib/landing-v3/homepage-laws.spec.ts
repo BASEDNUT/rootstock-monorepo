@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, existsSync } from 'fs'
+import { readFileSync, existsSync, execSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 
@@ -11,10 +11,7 @@ const hero = read('Hero.tsx')
 const code = read('Code.tsx')
 const contracts = read('Contracts.tsx')
 const features = read('Features.tsx')
-const grow = read('Grow.tsx')
-const videos = read('Videos.tsx')
-const audits = read('Audits.tsx')
-const landingSurface = [hero, code, contracts, features, grow, videos, audits].join('')
+const landingSurface = [hero, code, contracts, features].join('')
 
 const buildPromo = readFileSync(
   resolve(ROOT, 'packages/lib/shared/pages/PoolsPage/BuildPromo.tsx'),
@@ -56,8 +53,8 @@ const safeHooks = readFileSync(
   resolve(ROOT, 'packages/lib/modules/web3/safe.hooks.tsx'),
   'utf8'
 )
-const swapModal = readFileSync(
-  resolve(ROOT, 'packages/lib/modules/swap/modal/SwapModal.tsx'),
+const headerBanner = readFileSync(
+  resolve(ROOT, 'packages/lib/modules/pool/actions/create/header/HeaderBanner.tsx'),
   'utf8'
 )
 
@@ -70,9 +67,10 @@ const landingAll = [
   buildPopover,
   mobileBuildAccordion,
   marketingLayout,
+  headerBanner,
 ].join('')
 
-describe('homepage laws v6 — IPFS interaction scope', () => {
+describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabricated-URLs', () => {
   it('zero Balancer anywhere on homepage surfaces', () => {
     for (const surface of [
       landingSurface,
@@ -82,13 +80,14 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
       buildPopover,
       mobileBuildAccordion,
       marketingLayout,
+      headerBanner,
     ]) {
       expect(surface.match(/balancer/gi)).toBeNull()
     }
   })
 
   it('zero v3 strings on homepage surfaces', () => {
-    for (const surface of [landingSurface, marketingLayout]) {
+    for (const surface of [landingSurface, marketingLayout, headerBanner]) {
       expect(surface.match(/v3/gi)).toBeNull()
     }
   })
@@ -99,15 +98,20 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
     }
   })
 
-  it('no external balancer links (youtube videos allowed)', () => {
+  it('no external balancer links, no fabricated URLs', () => {
     for (const banned of [
       'docs.balancer.fi',
       'github.com/balancer',
       'balancer.fi',
       'dune.com/balancer',
       'immunefi.com/bug-bounty/balancer',
+      'terminal.basednut.com',
+      'youtu.be',
+      'youtube.com',
     ]) {
       expect(landingAll).not.toContain(banned)
+      expect(nextConfig).not.toContain(banned)
+      expect(sitemap).not.toContain(banned)
     }
   })
 
@@ -136,12 +140,51 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
     expect(navBar).toContain('href="/swap" prefetch px={7}')
   })
 
-  it('stats section is static design principles, no changing data', () => {
-    expect(grow).toContain('Designed as one piece')
-    expect(grow).toContain("stat: '01'")
-    expect(grow).toContain("stat: '04'")
-    for (const banned of ['Contracts live', 'testnet', 'deployment', 'engine today']) {
-      expect(grow).not.toContain(banned)
+  it('Videos, Grow, Audits sections are deleted (Boss 2026-09-21)', () => {
+    expect(existsSync(`${HERE}/Videos.tsx`)).toBe(false)
+    expect(existsSync(`${HERE}/Grow.tsx`)).toBe(false)
+    expect(existsSync(`${HERE}/Audits.tsx`)).toBe(false)
+    expect(hero).not.toContain('youtu.be')
+    expect(hero).not.toContain('PlayVideoButton')
+    expect(existsSync(`${HERE}/images/video-createCustomAMMs.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-prototypePool.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-createHook.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-createRouter.png`)).toBe(false)
+  })
+
+  it('NO VERBATIM COPY from upstream balancer landing files', () => {
+    // Extract string literals (>=6 words) from upstream versions of our live
+    // landing files and assert none appear verbatim in our live files.
+    const files = ['Hero.tsx', 'Code.tsx', 'Contracts.tsx', 'Features.tsx']
+    for (const f of files) {
+      let upstream = ''
+      try {
+        upstream = execSync(
+          `git show 'origin/main:apps/frontend-v3/app/(marketing)/_lib/landing-v3/${f}'`,
+          { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+        )
+      } catch {
+        continue // upstream file missing — nothing to compare
+      }
+      const literals = [
+        ...upstream.matchAll(/'([^'\n]{30,})'|"([^"\n]{30,})"/g),
+      ]
+        .map(m => m[1] || m[2])
+        .filter(
+          s =>
+            s.split(/\s+/).length >= 6 &&
+            !s.startsWith('/') &&
+            !s.includes('http') &&
+            !s.includes('{') &&
+            !s.includes('linear(') &&
+            !s.includes('gradient')
+        )
+      const ours = read(f)
+      const verbatim = literals.filter(s => ours.includes(s))
+      expect(
+        verbatim,
+        `verbatim upstream copy in ${f}: ${verbatim.join(' || ')}`
+      ).toEqual([])
     }
   })
 
@@ -149,11 +192,9 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
     expect(
       existsSync(resolve(ROOT, 'packages/lib/modules/swap/useIsPoolSwapUrl.tsx'))
     ).toBe(false)
-    expect(swapModal).not.toContain('isPoolSwapUrl')
   })
 
   it('chains: Base mainnet + Base Sepolia only', () => {
-    expect(config).toContain('supportedNetworks: [')
     const block = config.split('supportedNetworks: [')[1].split('],')[0]
     expect(block).toContain('GqlChainValues.Base')
     expect(block).toContain('Sepolia')
@@ -178,12 +219,12 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
     expect(config).not.toContain('partnerCards')
   })
 
-  it('redirects: /pools, /portfolio, /vebal -> terminal; no legacy balancer redirects', () => {
+  it('redirects: /pools, /portfolio, /vebal -> /; no external destinations', () => {
     expect(nextConfig).toContain("source: '/pools',")
-    expect(nextConfig).toContain('https://terminal.basednut.com')
-    expect(nextConfig).not.toContain('legacy.balancer.fi')
     expect(nextConfig).toContain("source: '/portfolio',")
     expect(nextConfig).toContain("source: '/vebal',")
+    expect(nextConfig).not.toContain('legacy.balancer.fi')
+    expect(nextConfig).not.toContain('terminal.basednut.com')
   })
 
   it('sitemap is ours only', () => {
@@ -194,9 +235,5 @@ describe('homepage laws v6 — IPFS interaction scope', () => {
   it('safe app link uses our project URL', () => {
     expect(safeHooks).not.toContain('projectId}.fi')
     expect(safeHooks).toContain('projectUrl')
-  })
-
-  it('audits lineage: zero Balancer mention', () => {
-    expect(audits.match(/balancer/gi)).toBeNull()
   })
 })

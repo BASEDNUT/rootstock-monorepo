@@ -55,7 +55,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
       { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
       { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
       { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
-      { label: 'Terminal (data)', href: 'https://terminal.basednut.com', isExternal: true },
+      { label: 'Terminal (data)', href: '#' },
       { label: 'Forum', href: 'https://basednut.discourse.group', isExternal: true },
     ],
     socialLinks: [
@@ -85,7 +85,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
           { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
           { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
           { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
-          { label: 'Terminal (data)', href: 'https://terminal.basednut.com', isExternal: true },
+          { label: 'Terminal (data)', href: '#' },
         ],
       },
       {
@@ -96,8 +96,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
           { label: 'nutUSD vault', href: '/nutusd' },
           {
             label: 'Pools & portfolio (data)',
-            href: 'https://terminal.basednut.com',
-            isExternal: true,
+            href: '#',
           },
         ],
       },
@@ -112,7 +111,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
           },
           { label: 'Sunflower Grove', href: 'https://orchard.basednut.com/sunflower-grove', isExternal: true },
           { label: 'wNUT Observatory', href: 'https://orchard.basednut.com/token/wnut', isExternal: true },
-          { label: 'Analytics', href: 'https://terminal.basednut.com', isExternal: true },
+          { label: 'Analytics', href: '#' },
           {
             label: 'Brand assets',
             href: 'https://github.com/BASEDNUT',

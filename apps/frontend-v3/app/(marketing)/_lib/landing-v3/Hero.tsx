@@ -9,8 +9,6 @@ import { ArrowUpRight } from 'lucide-react'
 
 // @ts-ignore
 import { SoilBg } from './shared/SoilBg'
-import { PlayVideoButton } from '@repo/lib/shared/components/btns/PlayVideoButton'
-import { SandBg } from './shared/SandBg'
 import { useRef } from 'react'
 import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
 import { MotionButtonProps, MotionBoxProps } from './types'
@@ -138,36 +136,7 @@ export function Hero() {
                 Create a pool
               </MotionButton>
             </Stack>
-            <HStack alignItems="center" mt="xl" spacing="md">
-              <MotionBox
-                animate={isInView ? { opacity: 1 } : {}}
-                as={Link}
-                h="56px"
-                href="https://youtu.be/vjB2cogaO-c?si=E3q4o82JfPz-Hwkk"
-                initial={{ opacity: 0 }}
-                overflow="hidden"
-                position="relative"
-                rel="noopener"
-                rounded="lg"
-                shadow="md"
-                target="_blank"
-                transition={{ duration: 2, delay: 1.4 }}
-                w="90px"
-              >
-                <SandBg variant={1} />
-
-                <Center h="full" position="relative" w="full">
-                  <PlayVideoButton size={10} />
-                </Center>
-              </MotionBox>
-              <MotionText
-                animate={isInView ? { opacity: 1 } : {}}
-                initial={{ opacity: 0 }}
-                transition={{ duration: 2, delay: 1.4 }}
-              >
-                Learn about ROOTSTOCK
-              </MotionText>
-            </HStack>
+            
           </VStack>
         </Center>
       </DefaultPageContainer>
