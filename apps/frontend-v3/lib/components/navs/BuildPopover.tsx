@@ -18,7 +18,7 @@ const RESOURCE_LINKS = {
     },
     {
       label: 'Pools & data',
-      href: 'https://terminal.basednut.com',
+      href: '#',
       isExternal: true,
     },
     {
