@@ -1,10 +1,8 @@
 import { createPublicClient, http, erc20Abi, type Address, type PublicClient } from 'viem'
 import { baseSepolia } from 'viem/chains'
+import { balancerV3Contracts } from '@balancer/sdk'
 import { BaseDefaultSwapHandler } from './BaseDefaultSwap.handler'
-import {
-  buildOnchainSwapPaths,
-  findOnchainPoolForPair,
-} from './onchain-swap-path'
+import { buildOnchainSwapPaths, findOnchainPoolForPair } from './onchain-swap-path'
 import {
   getOnchainDiscoveryRpcUrl,
   type OnchainPoolListItem,
@@ -22,6 +20,22 @@ import { ProtocolVersion } from '../../pool/pool.types'
  *
  * Single-pool scope. Multi-hop routing stays backend-side (S94 law).
  */
+/**
+ * Rootstock: SDK 6.2.0 AddressProvider table lacks Base Sepolia (84532).
+ * Patch our verified deploy addresses (LIVE_DEPLOYMENTS.md, S95) into the
+ * exported table so swap.query() can resolve Router/Vault. Runtime patch,
+ * no node_modules edits. Verified live 2026-09-22.
+ */
+export function patchSdkAddressTableForBaseSepolia(): void {
+  if (balancerV3Contracts.Router[84532]) return // already patched
+  balancerV3Contracts.Router[84532] = '0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759'
+  balancerV3Contracts.BatchRouter[84532] = '0x41978EB90477d4D971dF22111B2d09679f4DadA6'
+  balancerV3Contracts.CompositeLiquidityRouter[84532] = '0x5808B214B66C70e6c0759803AbF3498c2c78F437'
+  balancerV3Contracts.Vault[84532] = '0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9'
+}
+
+patchSdkAddressTableForBaseSepolia()
+
 export class OnchainSwapHandler extends BaseDefaultSwapHandler {
   name = 'OnchainSwapHandler'
   private client: PublicClient
@@ -29,6 +43,7 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
 
   constructor() {
     super()
+
     this.client = createPublicClient({
       chain: baseSepolia,
       transport: http(getOnchainDiscoveryRpcUrl()),
@@ -39,11 +54,13 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
     if (!this.poolsCache) {
       this.poolsCache = await fetchDiscoveredPools()
     }
+
     return this.poolsCache
   }
 
   private async getTokenDecimals(address: Address): Promise<number> {
     if (address === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') return 18 // native ETH
+
     try {
       return await this.client.readContract({
         address,
@@ -61,10 +78,9 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
 
     const pools = await this.getPools()
     const pool = findOnchainPoolForPair(pools, tokenIn, tokenOut)
+
     if (!pool) {
-      throw new Error(
-        `No onchain pool found for pair ${tokenIn}/${tokenOut} on Base Sepolia`
-      )
+      throw new Error(`No onchain pool found for pair ${tokenIn}/${tokenOut} on Base Sepolia`)
     }
 
     const [inDecimals, outDecimals] = await Promise.all([

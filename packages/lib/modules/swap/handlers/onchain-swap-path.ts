@@ -12,6 +12,17 @@ import type { OnchainPoolListItem } from '../../pool/onchain-pool-discovery'
  * verified law: no client-side SOR exists in the SDK).
  */
 
+// Native ETH marker + BASESEP wrapped native. Pools hold WETH; users may
+// select native ETH — equivalent for pair matching (SDK wethIsEth handles
+// the tx side). Verified live 2026-09-22: mock pool tokens = [WETH, BAL].
+export const NATIVE_ETH_MARKER = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+export const WETH_BASESEP = '0x4200000000000000000000000000000000000006'
+
+function normalizeForPoolLookup(address: string): string {
+  if (address.toLowerCase() === NATIVE_ETH_MARKER) return WETH_BASESEP
+  return address
+}
+
 export interface OnchainPathToken {
   index: number
   address: string
@@ -33,11 +44,11 @@ export function findOnchainPoolForPair(
   tokenIn: string,
   tokenOut: string
 ): OnchainPoolListItem | undefined {
-  const inLower = tokenIn.toLowerCase()
-  const outLower = tokenOut.toLowerCase()
+  const inNorm = normalizeForPoolLookup(tokenIn).toLowerCase()
+  const outNorm = normalizeForPoolLookup(tokenOut).toLowerCase()
   return pools.find(pool => {
     const addresses = pool.poolTokens.map(t => t.address.toLowerCase())
-    return addresses.includes(inLower) && addresses.includes(outLower)
+    return addresses.includes(inNorm) && addresses.includes(outNorm)
   })
 }
 
@@ -55,8 +66,8 @@ export function buildOnchainSwapPaths({
   swapType: 'EXACT_IN' | 'EXACT_OUT'
 }): OnchainSwapPath[] {
   const tokens: OnchainPathToken[] = [
-    { index: 0, ...tokenIn },
-    { index: 1, ...tokenOut },
+    { index: 0, ...tokenIn, address: normalizeForPoolLookup(tokenIn.address) },
+    { index: 1, ...tokenOut, address: normalizeForPoolLookup(tokenOut.address) },
   ]
 
   // outputAmountRaw is a placeholder estimate — the inherited onchain

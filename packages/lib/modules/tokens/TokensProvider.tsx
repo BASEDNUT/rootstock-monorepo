@@ -10,6 +10,7 @@ import { isSameAddress } from '@repo/lib/shared/utils/addresses'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { bn, Numberish, isBnParseable } from '@repo/lib/shared/utils/numbers'
 import { useQuery } from '@apollo/client/react'
+import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { createContext, PropsWithChildren, useCallback, useMemo } from 'react'
 import { Address } from 'viem'
 import {
@@ -23,6 +24,7 @@ import mainnetNetworkConfig from '@repo/lib/config/networks/mainnet'
 import { PoolToken } from '../pool/pool.types'
 import { ApiToken, ApiOrCustomToken } from './token.types'
 import { getOnchainOnlyTokens } from './onchain-tokens'
+import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
 import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
@@ -41,9 +43,17 @@ export function useTokensLogic() {
     variables: SUPPORTED_CHAINS,
   })
 
+  // Rootstock: tokens of onchain-discovered pools (BASESEP) — onchain metadata only
+  const { data: onchainPoolTokens } = useReactQuery({
+    queryKey: ['onchain-pool-tokens', 'basesep'],
+    queryFn: fetchOnchainPoolTokens,
+    enabled: (PROJECT_CONFIG.onchainOnlyNetworks || []).length > 0,
+    staleTime: 60_000,
+  })
+
   const tokens = useMemo(
-    () => [...(tokensData?.tokens || []), ...getOnchainOnlyTokens()],
-    [tokensData]
+    () => [...(tokensData?.tokens || []), ...getOnchainOnlyTokens(), ...(onchainPoolTokens || [])],
+    [tokensData, onchainPoolTokens]
   )
 
   const {

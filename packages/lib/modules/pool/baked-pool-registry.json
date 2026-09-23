@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "chain": "BASESEP",
+  "chainId": 84532,
+  "generatedAt": "2026-09-23T01:52:25.301Z",
+  "fromBlock": 46984000,
+  "pools": [
+    {
+      "address": "0xbec8de18d5fe6277670d989d12aeffed8000f1d6",
+      "factory": "0x277d7dde3c6762c31cfb438c9331376fe8887a7c",
+      "blockNumber": 46985225,
+      "type": "WEIGHTED",
+      "name": "DO NOT USE - Mock Weighted Pool",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "1001133148290370"
+    },
+    {
+      "address": "0x4f3e554aac01f10a27605d7e08a46caa089a272e",
+      "factory": "0x24ab9fba48e54b05c24a02122c4c40fd2018ba10",
+      "blockNumber": 46985229,
+      "type": "STABLE",
+      "name": "DO NOT USE - Mock Stable Pool",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    },
+    {
+      "address": "0x9da0d473321369ae78d30ecda405964d820dee9c",
+      "factory": "0x6cd1150ccc00e0d00cd3f671a8bdf00d38f5be6e",
+      "blockNumber": 46985233,
+      "type": "STABLE"
+    },
+    {
+      "address": "0x50b017864bc0ecb829488bfa48e6f2616c40fd0c",
+      "factory": "0x458d984f6216daffc9da4577fc949bcab0e52b6d",
+      "blockNumber": 46985237,
+      "type": "GYRO",
+      "name": "DO NOT USE - Mock Gyro Pool",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    },
+    {
+      "address": "0xce0a0dc4a986c08b973b97a47f5f96e3760a0817",
+      "factory": "0x6057859cc86aa62c54860e1a342f60ab42098efe",
+      "blockNumber": 46985241,
+      "type": "GYROE"
+    },
+    {
+      "address": "0xdd6df9314d05d1439425e8992474e637d7dedfe5",
+      "factory": "0x928e433f50fa579c9be5f7e1273f1db46d630ee1",
+      "blockNumber": 46985245,
+      "type": "RECLAMM",
+      "name": "DO NOT USE - Mock ReClamm Pool",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    },
+    {
+      "address": "0x1eb7926bf614c322f0e96c62633e7123f677a9a3",
+      "factory": "0xdfdddd87dc49756dd93598123879ae3d67b531a3",
+      "blockNumber": 46985480,
+      "type": "LIQUIDITY_BOOTSTRAPPING",
+      "name": "DO NOT USE - Mock LBP",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    },
+    {
+      "address": "0x04f30aead26f1a74edd9d1ea70fa82efcbfff4d6",
+      "factory": "0x9a30757385012495a21d64c5efac335b1a6fe48d",
+      "blockNumber": 46985524,
+      "type": "LIQUIDITY_BOOTSTRAPPING",
+      "name": "DO NOT USE - Mock Fixed Price LBP",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    },
+    {
+      "address": "0x132940836b6e818bc6fe66a379c4fb6e02058a8a",
+      "factory": "0x1620c4d8ade3490ed96ff4c8133b3ba54ffc3a61",
+      "blockNumber": 46984936,
+      "type": "WEIGHTED",
+      "name": "DO NOT USE - Mock Stable Pool",
+      "symbol": "TEST",
+      "tokens": [
+        "0x4200000000000000000000000000000000000006",
+        "0x8c6487b86A73554431d514371184916B0B61B876"
+      ],
+      "totalSupply": "0"
+    }
+  ]
+}

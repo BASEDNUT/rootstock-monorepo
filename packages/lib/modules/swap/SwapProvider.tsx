@@ -713,11 +713,15 @@ export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapPro
     if (!swapTxHash) replaceUrlPath()
   }, [selectedChain, swapState.tokenIn, swapState.tokenOut, swapState.tokenIn.amount])
 
-  // Update selectable tokens when the chain changes
+  // Update selectable tokens when the chain changes — or when the onchain
+  // discovery fetch lands (Rootstock: BASESEP pool tokens arrive async ~17s
+  // after mount; without this dep the token list stays stale at mount-time)
+  const tokensForChain = getTokensByChain(selectedChain)
+
   useEffect(() => {
     if (isPoolSwap) return
     setTokens(getTokensByChain(selectedChain))
-  }, [selectedChain])
+  }, [selectedChain, tokensForChain?.length])
 
   // Open the preview modal when a swap tx hash is present
   useEffect(() => {
