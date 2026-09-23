@@ -9,14 +9,19 @@ import Noise from '@repo/lib/shared/components/layout/Noise'
 import { RadialPattern } from '@repo/lib/shared/components/zen/RadialPattern'
 import { PoolPageStats } from './PoolPageStats'
 import { FeaturedPartners } from './FeaturedPartners'
-import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, isOnchainOnlyNetwork, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 import { fNumCustom } from '../../utils/numbers'
 import { useProtocolStats } from '@repo/lib/modules/protocol/ProtocolStatsProvider'
 import { useQuery } from '@apollo/client/react'
+import { useQueryState, parseAsArrayOf, parseAsString } from 'nuqs'
 import { GetFeaturedPoolsDocument } from '@repo/lib/shared/services/api/generated/graphql'
 import { FeaturedPools } from '@repo/lib/modules/featured-pools/FeaturedPools'
 import { isBalancer } from '@repo/lib/config/getProjectConfig'
 import { BuildPromo } from './BuildPromo'
+
+// Rootstock S100: mirrors the pool-list networks parser so the hero/stats
+// section knows which networks the user selected (source of truth = URL).
+const networksParser = parseAsArrayOf(parseAsString).withDefault([])
 
 type PoolsPageProps = PropsWithChildren & {
   rewardsClaimed24h?: string
@@ -25,11 +30,20 @@ type PoolsPageProps = PropsWithChildren & {
 export function PoolsPage({ children, rewardsClaimed24h }: PoolsPageProps) {
   const { supportedNetworks } = PROJECT_CONFIG
 
+  // Rootstock S100: when every selected network is onchain-only (BASESEP),
+  // the hero stats + LP copy are upstream-API data and MUST NOT render —
+  // they would misrepresent ROOTSTOCK with liquidity that is not ours.
+  // Verified live: BASESEP view showed upstream '$1.7m TVL / 11k+ LPs'.
+  const [networks] = useQueryState('networks', networksParser)
+  const selectedNetworks = (networks.length > 0 ? networks : supportedNetworks) as never[]
+  const allOnchainOnly = selectedNetworks.every(isOnchainOnlyNetwork)
+
   const { data: featuredPoolsData, loading: featuredPoolsLoading } = useQuery(
     GetFeaturedPoolsDocument,
     {
       variables: { chains: toApiNetworks(supportedNetworks) },
       fetchPolicy: 'cache-and-network',
+      skip: allOnchainOnly,
     }
   )
 
@@ -108,10 +122,12 @@ export function PoolsPage({ children, rewardsClaimed24h }: PoolsPageProps) {
                     Earn passively on {PROJECT_CONFIG.projectName}
                   </Heading>
                   <Text sx={{ textWrap: 'balance' }} variant="secondary">
-                    {`Join ${fNumCustom(protocolData?.protocolMetricsAggregated.numLiquidityProviders || '0', '0a')}+ Liquidity Providers in yield-bearing pools`}
+                    {allOnchainOnly
+                      ? 'Liquidity lives onchain — pool data read directly from the network'
+                      : `Join ${fNumCustom(protocolData?.protocolMetricsAggregated.numLiquidityProviders || '0', '0a')}+ Liquidity Providers in yield-bearing pools`}
                   </Text>
                 </Box>
-                <PoolPageStats rewardsClaimed24h={rewardsClaimed24h} />
+                {!allOnchainOnly && <PoolPageStats rewardsClaimed24h={rewardsClaimed24h} />}
               </Flex>
             </FadeInOnView>
             <FadeInOnView animateOnce={false}>

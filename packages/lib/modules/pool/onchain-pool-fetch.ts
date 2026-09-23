@@ -55,6 +55,12 @@ export function getBakedPools(): OnchainPoolListItem[] {
     factory: p.factory,
     createTime: p.blockNumber,
     poolTokens: (p.tokens || []).map((address: string) => ({ address })),
+    dynamicData: {
+      totalLiquidity: '0',
+      volume24h: '0',
+      fees24h: '0',
+      aprItems: [],
+    },
   }))
 }
 
@@ -120,6 +126,12 @@ export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
         factory,
         createTime: Number(blockNumber),
         poolTokens: [],
+        dynamicData: {
+          totalLiquidity: '0',
+          volume24h: '0',
+          fees24h: '0',
+          aprItems: [],
+        },
       }
 
       try {

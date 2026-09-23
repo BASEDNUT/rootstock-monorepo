@@ -63,6 +63,15 @@ export interface OnchainPoolListItem {
   factory: string
   createTime: number
   poolTokens: { address: string; weight?: string }[]
+  /** Table rows require dynamicData (PoolListTableRow reads totalLiquidity,
+   * volume24h, aprItems). Onchain pools carry a zero-stub — the IPFS app is
+   * code-not-data; live analytics stay backend-side (S94 law). */
+  dynamicData: {
+    totalLiquidity: string
+    volume24h: string
+    fees24h: string
+    aprItems: never[]
+  }
 }
 
 export function mapDiscoveredPoolToListItem(dp: DiscoveredPool): OnchainPoolListItem {
@@ -78,6 +87,12 @@ export function mapDiscoveredPoolToListItem(dp: DiscoveredPool): OnchainPoolList
     factory: dp.factory,
     createTime: dp.blockNumber,
     poolTokens: (dp.tokens ?? []).map(address => ({ address })),
+    dynamicData: {
+      totalLiquidity: '0',
+      volume24h: '0',
+      fees24h: '0',
+      aprItems: [],
+    },
   }
 }
 
