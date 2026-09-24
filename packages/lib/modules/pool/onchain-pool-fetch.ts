@@ -1,4 +1,4 @@
-import { createPublicClient, http, type PublicClient } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { baseSepolia } from 'viem/chains'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
@@ -29,14 +29,22 @@ import bakedRegistry from './baked-pool-registry.json'
 const DISCOVERY_FROM_BLOCK = 46_984_000
 const CHUNK = 1_000
 
-let cachedClient: PublicClient | undefined
+// Non-generic factory: pins the exact client instantiation so TS2719
+// (two unrelated PublicClient instantiations of the generic) cannot occur.
+function createDiscoveryClient() {
+  return createPublicClient({
+    chain: baseSepolia,
+    transport: http(getOnchainDiscoveryRpcUrl()),
+  })
+}
 
-export function discoveryClient(): PublicClient {
+type DiscoveryClient = ReturnType<typeof createDiscoveryClient>
+
+let cachedClient: DiscoveryClient | undefined
+
+export function discoveryClient(): DiscoveryClient {
   if (!cachedClient) {
-    cachedClient = createPublicClient({
-      chain: baseSepolia,
-      transport: http(getOnchainDiscoveryRpcUrl()),
-    })
+    cachedClient = createDiscoveryClient()
   }
 
   return cachedClient
@@ -98,17 +106,20 @@ export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
         {
           address: BASESEP_VAULT,
           topics: [POOL_REGISTERED_TOPIC0],
-          fromBlock: '0x' + from.toString(16),
-          toBlock: '0x' + to.toString(16),
+          fromBlock: ('0x' + from.toString(16)) as `0x${string}`,
+          toBlock: ('0x' + to.toString(16)) as `0x${string}`,
         },
       ],
     })) as { blockNumber: `0x${string}`; topics: `0x${string}`[] }[]
 
     for (const l of raw) {
+      const poolTopic = l.topics[1]
+      const factoryTopic = l.topics[2]
+      if (!poolTopic || !factoryTopic) continue // malformed log — skip
       logs.push({
         blockNumber: BigInt(l.blockNumber),
-        pool: ('0x' + l.topics[1].slice(-40)) as `0x${string}`,
-        factory: ('0x' + l.topics[2].slice(-40)) as `0x${string}`,
+        pool: ('0x' + poolTopic.slice(-40)) as `0x${string}`,
+        factory: ('0x' + factoryTopic.slice(-40)) as `0x${string}`,
       })
     }
   }

@@ -1,18 +1,17 @@
-'use client'
+import EnableRecoveryModeClient from './EnableRecoveryModeClient'
 
-import { PoolActionsLayout } from '@repo/lib/modules/pool/actions/PoolActionsLayout'
-import { RecoveryMode } from '@repo/lib/modules/pool/actions/recovery-mode/RecoveryMode'
-import { TransactionStateProvider } from '@repo/lib/modules/transactions/transaction-steps/TransactionStateProvider'
-import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
+// Rootstock S100 (IPFS export): mirror the pool-detail static params.
+import bakedPoolRegistry from '@repo/lib/modules/pool/baked-pool-registry.json'
+
+export function generateStaticParams() {
+  const chains = ['base-sepolia']
+  const variants = ['v3']
+  const pools = (bakedPoolRegistry as { pools: { address: string }[] }).pools
+  return chains.flatMap(chain =>
+    variants.flatMap(variant => pools.map(pool => ({ chain, variant, id: pool.address, txHash: [] })))
+  )
+}
 
 export default function EnableRecoveryModePage() {
-  return (
-    <DefaultPageContainer>
-      <PoolActionsLayout>
-        <TransactionStateProvider>
-          <RecoveryMode />
-        </TransactionStateProvider>
-      </PoolActionsLayout>
-    </DefaultPageContainer>
-  )
+  return <EnableRecoveryModeClient />
 }

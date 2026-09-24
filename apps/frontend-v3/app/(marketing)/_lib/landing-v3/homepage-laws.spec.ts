@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, existsSync, execSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
+import { execSync } from 'child_process'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 
@@ -159,7 +160,7 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
       const literals = [
         ...upstream.matchAll(/'([^'\n]{30,})'|"([^"\n]{30,})"/g),
       ]
-        .map(m => m[1] || m[2])
+        .map(m => m[1] || m[2] || '')
         .filter(
           s =>
             s.split(/\s+/).length >= 6 &&
@@ -170,7 +171,7 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
             !s.includes('gradient')
         )
       const ours = read(f)
-      const verbatim = literals.filter(s => ours.includes(s))
+      const verbatim = literals.filter(s => s !== undefined && ours.includes(s))
       expect(
         verbatim,
         `verbatim upstream copy in ${f}: ${verbatim.join(' || ')}`
@@ -185,7 +186,7 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
   })
 
   it('chains: Base mainnet + Base Sepolia only', () => {
-    const block = config.split('supportedNetworks: [')[1].split('],')[0]
+    const block = config.split('supportedNetworks: [')[1]?.split('],')[0] ?? ''
     expect(block).toContain('GqlChainValues.Base')
     expect(block).toContain('Sepolia')
     for (const banned of [

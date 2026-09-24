@@ -2,8 +2,21 @@ import { withSentryConfig } from '@sentry/nextjs'
 import { sentryOptions } from './sentry.config'
 import type { NextConfig } from 'next'
 
+/**
+ * Rootstock S100 (TODO 5.10): IPFS static-export mode.
+ * ROOTSTOCK_EXPORT=1 → output:'export' (full static site for IPFS freeze).
+ * - images.unoptimized: no server-side image optimizer exists on IPFS
+ * - redirects/headers dropped: server features, unsupported in export mode
+ * - app/api routes are moved aside by scripts/build-ipfs.sh during export
+ * - subdomain-gateway doctrine: root-relative asset paths work at
+ *   https://<CID>.ipfs.<gateway>/ (S100 research: subdomain gateways only)
+ * Dev server (next dev) is unaffected — mode only activates at build time.
+ */
+const isIpfsExport = process.env.ROOTSTOCK_EXPORT === '1'
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  ...(isIpfsExport ? { output: 'export' as const, images: { unoptimized: true } } : {}),
   serverExternalPackages: ['thread-stream', 'real-require', 'encoding'],
   logging: {
     fetches: {
@@ -29,10 +42,12 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ['@repo/lib'],
 
-  // Safe App setup
-  headers: manifestHeaders,
+  // Safe App setup (server features — skipped in IPFS export mode)
+  ...(!isIpfsExport ? { headers: manifestHeaders } : {}),
   reactCompiler: true,
-  redirects: async () => [
+  ...(!isIpfsExport
+    ? {
+        redirects: async () => [
     {
       source: '/vebal',
       destination: '/',
@@ -49,11 +64,12 @@ const nextConfig: NextConfig = {
       permanent: false,
     },
     {
-      source: '/components',
-      destination: '/',
-      permanent: false,
-    },
-  ],
+          source: '/components',
+          destination: '/',
+          permanent: false,
+        },
+      ],
+      } : {}),
 }
 
 // Avoid sentry setup in CI

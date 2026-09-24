@@ -1,4 +1,4 @@
-import { createPublicClient, http, erc20Abi, type Address, type PublicClient } from 'viem'
+import { createPublicClient, http, erc20Abi, type Address } from 'viem'
 import { baseSepolia } from 'viem/chains'
 import { balancerV3Contracts } from '@balancer/sdk'
 import { BaseDefaultSwapHandler } from './BaseDefaultSwap.handler'
@@ -27,18 +27,26 @@ import { ProtocolVersion } from '../../pool/pool.types'
  * no node_modules edits. Verified live 2026-09-22.
  */
 export function patchSdkAddressTableForBaseSepolia(): void {
-  if (balancerV3Contracts.Router[84532]) return // already patched
-  balancerV3Contracts.Router[84532] = '0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759'
-  balancerV3Contracts.BatchRouter[84532] = '0x41978EB90477d4D971dF22111B2d09679f4DadA6'
-  balancerV3Contracts.CompositeLiquidityRouter[84532] = '0x5808B214B66C70e6c0759803AbF3498c2c78F437'
-  balancerV3Contracts.Vault[84532] = '0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9'
+  // SDK 6.2.0 ships the table as a readonly literal (no 84532 key) — cast to
+  // a mutable record for the runtime patch. Addresses: LIVE_DEPLOYMENTS.md.
+  const table = balancerV3Contracts as unknown as {
+    Router: Record<number, string>
+    BatchRouter: Record<number, string>
+    CompositeLiquidityRouter: Record<number, string>
+    Vault: Record<number, string>
+  }
+  if (table.Router[84532]) return // already patched
+  table.Router[84532] = '0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759'
+  table.BatchRouter[84532] = '0x41978EB90477d4D971dF22111B2d09679f4DadA6'
+  table.CompositeLiquidityRouter[84532] = '0x5808B214B66C70e6c0759803AbF3498c2c78F437'
+  table.Vault[84532] = '0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9'
 }
 
 patchSdkAddressTableForBaseSepolia()
 
 export class OnchainSwapHandler extends BaseDefaultSwapHandler {
   name = 'OnchainSwapHandler'
-  private client: PublicClient
+  private client
   private poolsCache: OnchainPoolListItem[] | undefined
 
   constructor() {

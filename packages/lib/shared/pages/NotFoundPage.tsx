@@ -1,29 +1,11 @@
 import { NotFoundPageClient } from './NotFoundPageClient'
-import { headers } from 'next/headers'
 
-export async function NotFoundPage() {
-  const headersList = await headers()
-  const referer = headersList.get('referer')
-
-  const poolIdSegment = 6
-  const maybePoolId = referer?.split('/')[poolIdSegment]
-  const isPoolPageNotFound = maybePoolId?.startsWith('0x')
-
-  const title = isPoolPageNotFound ? 'Pool Not Found' : 'Page Not Found'
-
-  const description = isPoolPageNotFound
-    ? `The pool you are looking for does not exist: ${maybePoolId}`
-    : 'The page you are looking for does not exist'
-
-  const redirectUrl = isPoolPageNotFound ? `/pools` : '/'
-  const redirectText = isPoolPageNotFound ? 'View All Pools' : 'Return Home'
-
-  return (
-    <NotFoundPageClient
-      description={description}
-      redirectText={redirectText}
-      redirectUrl={redirectUrl}
-      title={title}
-    />
-  )
+/**
+ * Rootstock S100 (IPFS export): fully static — the upstream version read the
+ * referer via next/headers (dynamic API), which breaks output:'export' when a
+ * pool page calls notFound() at build time. Pool-id detection moved into the
+ * client component via usePathname/useSearchParams (same UX, zero dynamic).
+ */
+export function NotFoundPage() {
+  return <NotFoundPageClient description="" redirectText="" redirectUrl="/" title="" />
 }

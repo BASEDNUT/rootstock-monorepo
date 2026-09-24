@@ -106,7 +106,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
           {
             label: 'Portfolio',
             href: '/portfolio',
-          },,
+          },
         ],
       },
       {

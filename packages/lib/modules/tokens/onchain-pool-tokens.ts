@@ -58,16 +58,26 @@ export async function fetchOnchainPoolTokens(): Promise<GqlToken[]> {
     const symbol = results[i * 3 + 1]
     const decimals = results[i * 3 + 2]
 
-    if (name.status !== 'success' || symbol.status !== 'success' || decimals.status !== 'success') {
+    if (
+      !name ||
+      !symbol ||
+      !decimals ||
+      name.status !== 'success' ||
+      symbol.status !== 'success' ||
+      decimals.status !== 'success' ||
+      typeof name.result !== 'string' ||
+      typeof symbol.result !== 'string' ||
+      typeof decimals.result !== 'number'
+    ) {
       continue // unreadable token — skip
     }
 
     tokens.push({
       ...base,
-      address: list[i],
-      name: name.result as string,
-      symbol: symbol.result as string,
-      decimals: decimals.result as number,
+      address: list[i] as string,
+      name: name.result,
+      symbol: symbol.result,
+      decimals: decimals.result,
     })
   }
 

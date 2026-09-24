@@ -1,5 +1,8 @@
 import { MetadataRoute } from 'next'
 
+// Rootstock S100 (IPFS export): metadata routes must be force-static for output:export
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://rootstock.basednut.com'
   return [
