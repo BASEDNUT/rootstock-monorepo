@@ -33,14 +33,22 @@ describe('graphql-enums', () => {
     const deprecatedValuesByEnum: Record<string, string[]> = {
       GqlChain: ['ZKEVM', 'MODE', 'FRAXTAL', 'XLAYER'],
     }
+    // Rootstock additions: values intentionally added beyond the upstream schema.
+    // BASE_SEPOLIA is our onchain-only deployment network (S100) — the upstream
+    // Balancer API schema does not know it, and it must never be sent to the API
+    // (onchain-only law); the runtime enum still needs it for chain routing.
+    const additionsByEnum: Record<string, string[]> = {
+      GqlChain: ['BASESEP'],
+    }
 
     for (const exported of exportedValues) {
       const schemaValues = schemaEnums.get(exported.enumName)
       expect(schemaValues, `schema should define ${exported.enumName}`).toBeDefined()
 
       const deprecatedValues = deprecatedValuesByEnum[exported.enumName] || []
+      const additions = additionsByEnum[exported.enumName] || []
       const sortedExported = [...exported.values].sort()
-      const sortedSchema = [...schemaValues!.filter(v => !deprecatedValues.includes(v))].sort()
+      const sortedSchema = [...schemaValues!.filter(v => !deprecatedValues.includes(v)), ...additions].sort()
 
       expect(sortedExported, `${exported.name} values mismatch`).toEqual(sortedSchema)
     }
