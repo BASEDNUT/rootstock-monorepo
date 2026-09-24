@@ -5,6 +5,21 @@ import { defaultTestUserAccount } from '@repo/test/anvil/anvil-setup'
 import { waitFor } from '@testing-library/react'
 import { encodeFunctionData, parseAbi } from 'viem'
 
+// S100 audit repair: GlobalProviders renders TokensProvider, which resolves
+// the native asset via getNetworkConfig(chain).tokens — the upstream mock's
+// bare vi.fn() returned undefined and crashed every test in this file
+// (bisect-proven pre-existing failure). vi.hoisted keeps shared consts
+// available to the hoisted vi.mock factory.
+const h = vi.hoisted(() => {
+  const bCowFactory = '0x1234567890123456789012345678901234567890'
+  const wethBase = { address: '0x4200000000000000000000000000000000000006', decimals: 18 }
+  const baseNetworkConfig = {
+    tokens: { nativeAsset: wethBase, addresses: [] },
+    contracts: { balancer: { bCowFactory } },
+  }
+  return { bCowFactory, baseNetworkConfig }
+})
+
 vi.mock('@balancer/sdk', async () => {
   const actual = await vi.importActual<typeof import('@balancer/sdk')>('@balancer/sdk')
   return {
@@ -42,9 +57,12 @@ vi.mock('@repo/lib/config/app.config', async () => {
   return {
     ...actual,
     getGqlChain: vi.fn(),
-    getNetworkConfig: vi.fn(),
+    getNetworkConfig: vi.fn().mockImplementation(() => ({ ...h.baseNetworkConfig })),
   }
 })
+
+const bCowFactory = h.bCowFactory
+const baseNetworkConfig = h.baseNetworkConfig
 
 describe('useCreatePoolBuildCall', () => {
   beforeEach(() => {
@@ -53,7 +71,6 @@ describe('useCreatePoolBuildCall', () => {
 
   const v3Input = { protocolVersion: 3 as const, chainId: 1 }
   const v1Input = { protocolVersion: 1 as const, chainId: 1, name: 'CoW Pool', symbol: 'COW' }
-  const bCowFactory = '0x1234567890123456789012345678901234567890'
 
   async function setupV3Mocks() {
     const { CreatePool } = await import('@balancer/sdk')
@@ -119,9 +136,10 @@ describe('useCreatePoolBuildCall', () => {
 
     const { getNetworkConfig } = await import('@repo/lib/config/app.config')
 
-    ;(getNetworkConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+    ;(getNetworkConfig as ReturnType<typeof vi.fn>).mockImplementation(() => ({
+      ...baseNetworkConfig,
       contracts: { balancer: { bCoWFactory: bCowFactory } },
-    })
+    }))
 
     const { result } = testHook(() =>
       useCreatePoolBuildCall({
@@ -216,9 +234,10 @@ describe('useCreatePoolBuildCall', () => {
 
     const { getNetworkConfig } = await import('@repo/lib/config/app.config')
 
-    ;(getNetworkConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+    ;(getNetworkConfig as ReturnType<typeof vi.fn>).mockImplementation(() => ({
+      ...baseNetworkConfig,
       contracts: { balancer: { bCoWFactory: undefined } },
-    })
+    }))
 
     const { result } = testHook(() =>
       useCreatePoolBuildCall({
