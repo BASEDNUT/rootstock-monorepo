@@ -133,6 +133,10 @@ interface BakedPoolEntry {
   symbol?: string
   // S100b audit fix F6: tokens may be legacy strings or enriched objects
   tokens?: (string | BakedPoolTokenEntry)[]
+  // S101 (D1/D3 fix): blockTimestamp = unix seconds of the pool-creation
+  // block; swapFee = decimal-fraction string ('0.003' = 0.3%).
+  blockTimestamp?: number
+  swapFee?: string
 }
 
 function buildOnchainPoolData(
@@ -144,7 +148,7 @@ function buildOnchainPoolData(
       __typename: 'GqlPool',
       address: baked.address,
       chain,
-      createTime: baked.blockNumber,
+      createTime: baked.blockTimestamp ?? baked.blockNumber,
       decimals: 18,
       dynamicData: {
         aprItems: [],
@@ -155,7 +159,10 @@ function buildOnchainPoolData(
         poolId: baked.address,
         surplus24h: '0',
         swapEnabled: true,
-        swapFee: '0',
+        // S101 (D3 fix): bake the real static swap fee (decimal-fraction
+        // string, '0.003' = 0.3%); '0' was a hardcoded placeholder that
+        // rendered '0% (undefined)' while chain truth is 0.3%.
+        swapFee: baked.swapFee ?? '0',
         totalLiquidity: '0',
         totalShares: '0',
         volume24h: '0',

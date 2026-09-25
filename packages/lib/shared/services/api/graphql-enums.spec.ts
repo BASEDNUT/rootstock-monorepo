@@ -50,10 +50,13 @@ describe('graphql-enums', () => {
       const additions = additionsByEnum[exported.enumName] || []
       const sortedExported = [...exported.values].sort()
 
-      const sortedSchema = [
-        ...schemaValues!.filter(v => !deprecatedValues.includes(v)),
-        ...additions,
-      ].sort()
+      // Union semantics: the generated schema already merges our enum-ext
+      // (base-sepolia-enum-ext.graphql), so an addition may already exist in
+      // the local schema artifact. Count each value exactly once — idempotent
+      // whether or not codegen has re-run with the merge.
+      const schemaFiltered = schemaValues!.filter(v => !deprecatedValues.includes(v))
+      const additionsBeyond = additions.filter(v => !schemaFiltered.includes(v))
+      const sortedSchema = [...schemaFiltered, ...additionsBeyond].sort()
 
       expect(sortedExported, `${exported.name} values mismatch`).toEqual(sortedSchema)
     }

@@ -56,12 +56,28 @@ const pools = []
 for (const { pool, factory, block } of logs) {
   const entry = { address: pool, factory, blockNumber: block, type: FACTORY_TYPES[factory] || 'WEIGHTED' }
   try {
-    const [name, symbol, tokens, totalSupply] = await Promise.all([
+    const [name, symbol, tokens, totalSupply, staticSwapFee, blockData] = await Promise.all([
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'name' }),
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'symbol' }),
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'getTokens' }),
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'totalSupply' }),
+      readRetry({
+        address: pool,
+        abi: [{ name: 'getStaticSwapFeePercentage', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] }],
+        functionName: 'getStaticSwapFeePercentage',
+      }),
+      client.getBlock({ blockNumber: BigInt(block) }).catch(() => null),
     ])
+    // S101 (D1/D3 fix): bake blockTimestamp (unix seconds, real creation
+    // time — blockNumber is NOT a timestamp; UI multiplied it by 1000ms and
+    // rendered '01 July 1971') and swapFee as a decimal-fraction string
+    // ('0.003' = 0.3%), matching upstream GqlPool dynamicData.swapFee format.
+    const blockTimestamp = blockData ? Number(blockData.timestamp) : undefined
+    const swapFee =
+      staticSwapFee !== undefined && staticSwapFee !== null
+        ? String(Number(staticSwapFee) / 1e18)
+        : undefined
+    Object.assign(entry, { blockTimestamp, swapFee })
     // S100b audit fix F6: bake ERC20 token metadata (symbol/name/decimals) so
     // pool list pills + detail pages render token symbols, not icon-only.
     const tokenMeta = []
