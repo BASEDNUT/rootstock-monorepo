@@ -62,7 +62,15 @@ export interface OnchainPoolListItem {
   name: string
   factory: string
   createTime: number
-  poolTokens: { address: string; weight?: string }[]
+  // S100b F6: tokens carry optional ERC20 metadata (symbol/name/decimals)
+  // from the enriched baked registry — pills render symbol text, not icons.
+  poolTokens: {
+    address: string
+    weight?: string
+    symbol?: string
+    name?: string
+    decimals?: number
+  }[]
   /** Table rows require dynamicData (PoolListTableRow reads totalLiquidity,
    * volume24h, aprItems). Onchain pools carry a zero-stub — the IPFS app is
    * code-not-data; live analytics stay backend-side (S94 law). */

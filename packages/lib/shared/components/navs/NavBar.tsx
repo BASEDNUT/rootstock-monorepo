@@ -85,24 +85,11 @@ function NavLinks({
       })}
       {customLinks}
       {(isDev || isStaging) && (
-        <>
-          <Box as={motion.div} variants={fadeIn}>
-            <Link
-              as={NextLink}
-              color={linkColorFor('/create')}
-              href="/create"
-              prefetch
-              variant="nav"
-            >
-              Create
-            </Link>
-          </Box>
-          <Box as={motion.div} variants={fadeIn}>
-            <Link as={NextLink} color={linkColorFor('/debug')} href="/debug" prefetch variant="nav">
-              Debug
-            </Link>
-          </Box>
-        </>
+        <Box as={motion.div} variants={fadeIn}>
+          <Link as={NextLink} color={linkColorFor('/debug')} href="/debug" prefetch variant="nav">
+            Debug
+          </Link>
+        </Box>
       )}
     </HStack>
   )

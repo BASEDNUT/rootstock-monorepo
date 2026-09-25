@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, type PublicClient } from 'viem'
 import { baseSepolia } from 'viem/chains'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
@@ -31,11 +31,13 @@ const CHUNK = 1_000
 
 // Non-generic factory: pins the exact client instantiation so TS2719
 // (two unrelated PublicClient instantiations of the generic) cannot occur.
-function createDiscoveryClient() {
+// S100b: explicit return type — TS7056 (inferred type exceeds serialization
+// length) triggered by e2e-tests buildinfo once the registry JSON import grew.
+function createDiscoveryClient(): PublicClient {
   return createPublicClient({
     chain: baseSepolia,
     transport: http(getOnchainDiscoveryRpcUrl()),
-  })
+  }) as PublicClient
 }
 
 type DiscoveryClient = ReturnType<typeof createDiscoveryClient>
@@ -50,26 +52,53 @@ export function discoveryClient(): DiscoveryClient {
   return cachedClient
 }
 
+/**
+ * S100b Boss law (2026-09-24): pools page showed E2E mock junk ('DO NOT USE
+ * - Mock ...') from Phase-1 battery scripts. Mock-named pools NEVER display.
+ * Real named pools (e.g. 'Rootstock WETH/BAL Pool') always pass.
+ */
+export function isMockPoolName(name: string | undefined | null): boolean {
+  if (!name) return false
+  return /do\s*not\s*use/i.test(name)
+}
+
 /** Baked registry → OnchainPoolListItem[] (instant, no RPC). */
 export function getBakedPools(): OnchainPoolListItem[] {
-  return (bakedRegistry as { pools: BakedPool[] }).pools.map(p => ({
-    id: p.address,
-    address: p.address,
-    chain: GqlChainValues.BaseSepolia,
-    type: p.type as OnchainPoolListItem['type'],
-    protocolVersion: 3,
-    symbol: p.symbol || '',
-    name: p.name || p.symbol || p.address,
-    factory: p.factory,
-    createTime: p.blockNumber,
-    poolTokens: (p.tokens || []).map((address: string) => ({ address })),
-    dynamicData: {
-      totalLiquidity: '0',
-      volume24h: '0',
-      fees24h: '0',
-      aprItems: [],
-    },
-  }))
+  return (bakedRegistry as { pools: BakedPool[] }).pools
+    .filter(p => !isMockPoolName(p.name) && !isMockPoolName(p.symbol))
+    .map(p => ({
+      id: p.address,
+      address: p.address,
+      chain: GqlChainValues.BaseSepolia,
+      type: p.type as OnchainPoolListItem['type'],
+      protocolVersion: 3,
+      symbol: p.symbol || '',
+      name: p.name || p.symbol || p.address,
+      factory: p.factory,
+      createTime: p.blockNumber,
+      // S100b audit fix F6: registry tokens may carry ERC20 metadata
+      // (symbol/name/decimals) — pass it through so pool list pills render
+      // token symbols, not icon-only (browser-verified defect).
+      poolTokens: (p.tokens || []).map((t: string | BakedPoolToken) =>
+        typeof t === 'string'
+          ? { address: t }
+          : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
+      ),
+      dynamicData: {
+        totalLiquidity: '0',
+        volume24h: '0',
+        fees24h: '0',
+        aprItems: [],
+      },
+    }))
+}
+
+/** S100b F6: enriched token entry in the baked registry. */
+export interface BakedPoolToken {
+  address: string
+  symbol?: string
+  name?: string
+  decimals?: number
 }
 
 interface BakedPool {
@@ -79,7 +108,7 @@ interface BakedPool {
   type: string
   name?: string
   symbol?: string
-  tokens?: string[]
+  tokens?: (string | BakedPoolToken)[]
 }
 
 interface DiscoveredRaw {
@@ -116,6 +145,7 @@ export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
       const poolTopic = l.topics[1]
       const factoryTopic = l.topics[2]
       if (!poolTopic || !factoryTopic) continue // malformed log — skip
+
       logs.push({
         blockNumber: BigInt(l.blockNumber),
         pool: ('0x' + poolTopic.slice(-40)) as `0x${string}`,
@@ -167,7 +197,9 @@ export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
     })
   )
 
-  return items
+  // S100b Boss law (2026-09-24): mock-named pools NEVER display — filter at
+  // the live-scan source so pool list AND swap handler only see real pools.
+  return items.filter(item => !isMockPoolName(item.name) && !isMockPoolName(item.symbol))
 }
 
 /** Merge helper: baked + live-discovered (live wins on address conflict). */
@@ -177,7 +209,29 @@ export function mergePools(
 ): OnchainPoolListItem[] {
   const byAddress = new Map<string, OnchainPoolListItem>()
   for (const p of baked) byAddress.set(p.address.toLowerCase(), p)
-  for (const p of live) byAddress.set(p.address.toLowerCase(), p) // live overrides baked
+
+  for (const p of live) {
+    const key = p.address.toLowerCase()
+    const prev = byAddress.get(key)
+
+    // S100b audit fix F6: live scan tokens are address-only (browser RPC
+    // budget). When live overrides baked, inherit baked token metadata
+    // (symbol/name/decimals) so pills never lose their symbol text.
+    if (prev) {
+      const mergedTokens = p.poolTokens.map(t => {
+        const bakedToken = prev.poolTokens.find(
+          bt => bt.address.toLowerCase() === t.address.toLowerCase()
+        )
+
+        return bakedToken && (t as { symbol?: string }).symbol ? t : bakedToken || t
+      })
+
+      byAddress.set(key, { ...p, poolTokens: mergedTokens })
+    } else {
+      byAddress.set(key, p) // live-only pool — new pool created after bake
+    }
+  }
+
   return [...byAddress.values()]
 }
 

@@ -35,6 +35,7 @@ export function patchSdkAddressTableForBaseSepolia(): void {
     CompositeLiquidityRouter: Record<number, string>
     Vault: Record<number, string>
   }
+
   if (table.Router[84532]) return // already patched
   table.Router[84532] = '0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759'
   table.BatchRouter[84532] = '0x41978EB90477d4D971dF22111B2d09679f4DadA6'

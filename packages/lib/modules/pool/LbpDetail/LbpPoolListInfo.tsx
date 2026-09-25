@@ -11,6 +11,11 @@ type Props = {
 export function LbpPoolListInfo({ pool }: Props) {
   const startTime = secondsToMilliseconds(pool.lbpParams?.startTime || 0)
   const endTime = secondsToMilliseconds(pool.lbpParams?.endTime || 0)
+  // S100b audit fix F3 (2026-09-23): baked/onchain pools carry no lbpParams.
+  // Guard against epoch-0 math that rendered 'Starts: -497283h' on LBP rows
+  // in the static export (browser-verified defect). No real start time →
+  // render nothing rather than a garbage countdown.
+  if (!startTime) return null
   const hasStarted = startTime && isAfter(now(), startTime)
   const hasEnded = endTime && isAfter(now(), endTime)
 

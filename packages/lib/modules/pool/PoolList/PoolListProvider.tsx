@@ -73,6 +73,7 @@ export function usePoolListLogic({
   )
 
   const apiPools = loading && previousData ? previousData.pools : data?.pools || []
+
   const pools = hasOnchainOnlyChain
     ? [...(onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
     : apiPools
@@ -80,6 +81,7 @@ export function usePoolListLogic({
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
 
   const selectedChains = variables.where.chainIn || []
+
   const joinableChains = selectedChains.filter(
     chain => chain !== GqlChainValues.Sepolia && !isOnchainOnlyNetwork(chain)
   )

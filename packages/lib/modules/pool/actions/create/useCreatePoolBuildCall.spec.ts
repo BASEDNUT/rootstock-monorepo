@@ -13,10 +13,12 @@ import { encodeFunctionData, parseAbi } from 'viem'
 const h = vi.hoisted(() => {
   const bCowFactory = '0x1234567890123456789012345678901234567890'
   const wethBase = { address: '0x4200000000000000000000000000000000000006', decimals: 18 }
+
   const baseNetworkConfig = {
     tokens: { nativeAsset: wethBase, addresses: [] },
     contracts: { balancer: { bCowFactory } },
   }
+
   return { bCowFactory, baseNetworkConfig }
 })
 

@@ -24,6 +24,7 @@ describe('getOnchainOnlyTokens', () => {
   it('covers every declared onchain-only network', () => {
     const declared = ProjectConfigBalancer.onchainOnlyNetworks || []
     const chains = new Set(getOnchainOnlyTokens().map(t => t.chain))
+
     for (const chain of declared) {
       expect(chains.has(chain)).toBe(true)
     }

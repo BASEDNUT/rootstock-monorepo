@@ -48,19 +48,31 @@ export const ProjectConfigBalancer: ProjectConfig = {
     isOnSafeAppList: true,
   },
   links: {
+    // S100b Boss nav laws (2026-09-24): top menu = in-app actions incl. pool
+    // creation (/create). Config is the sole nav source (useNav defaults
+    // emptied — duplicate Swap root cause).
     appLinks: [
       { href: '/swap', label: 'Swap' },
+      { href: '/create', label: 'Create pool' },
       { href: '/pools', label: 'Pools' },
       { href: '/portfolio', label: 'Portfolio' },
       { href: '/nutusd', label: 'nutUSD' },
       ...(isDev || isStaging ? [{ href: '/lbp/create', label: 'LBP' }] : []),
     ],
+    // Ecosystem = everything OUTSIDE the IPFS site (Boss law 2026-09-24).
+    // External links only — no internal routes, no '#' placeholders.
     ecosystemLinks: [
-      { label: 'Pool creator', href: '/create' },
-      { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
-      { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
+      {
+        label: 'Audits',
+        href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',
+        isExternal: true,
+      },
+      {
+        label: 'Code & contracts',
+        href: 'https://github.com/BASEDNUT/rootstock-monorepo',
+        isExternal: true,
+      },
       { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
-      { label: 'Terminal (data)', href: '#' },
       { label: 'Forum', href: 'https://basednut.discourse.group', isExternal: true },
     ],
     socialLinks: [
@@ -87,8 +99,16 @@ export const ProjectConfigBalancer: ProjectConfig = {
         title: 'Build on ROOTSTOCK',
         links: [
           { label: 'Home', href: '/' },
-          { label: 'Audits', href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits', isExternal: true },
-          { label: 'Code & contracts', href: 'https://github.com/BASEDNUT/rootstock-monorepo', isExternal: true },
+          {
+            label: 'Audits',
+            href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',
+            isExternal: true,
+          },
+          {
+            label: 'Code & contracts',
+            href: 'https://github.com/BASEDNUT/rootstock-monorepo',
+            isExternal: true,
+          },
           { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
           { label: 'Terminal (data)', href: '#' },
         ],
@@ -118,8 +138,16 @@ export const ProjectConfigBalancer: ProjectConfig = {
             href: 'https://orchard.basednut.com/atlas',
             isExternal: true,
           },
-          { label: 'Sunflower Grove', href: 'https://orchard.basednut.com/sunflower-grove', isExternal: true },
-          { label: 'wNUT Observatory', href: 'https://orchard.basednut.com/token/wnut', isExternal: true },
+          {
+            label: 'Sunflower Grove',
+            href: 'https://orchard.basednut.com/sunflower-grove',
+            isExternal: true,
+          },
+          {
+            label: 'wNUT Observatory',
+            href: 'https://orchard.basednut.com/token/wnut',
+            isExternal: true,
+          },
           { label: 'Analytics', href: '#' },
           {
             label: 'Brand assets',
@@ -130,8 +158,5 @@ export const ProjectConfigBalancer: ProjectConfig = {
       },
     ],
   },
-  cowSupportedNetworks: [
-    GqlChainValues.Base,
-    ...(isProd ? [] : [GqlChainValues.Sepolia]),
-  ],
+  cowSupportedNetworks: [GqlChainValues.Base, ...(isProd ? [] : [GqlChainValues.Sepolia])],
 }

@@ -4,6 +4,7 @@
 import { writeFileSync } from 'fs'
 import { createPublicClient, http } from 'viem'
 import { baseSepolia } from 'viem/chains'
+import { erc20Abi } from 'viem'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
 
 const VAULT = '0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9'
@@ -24,6 +25,21 @@ const FACTORY_TYPES = {
 }
 
 const client = createPublicClient({ chain: baseSepolia, transport: http(RPC) })
+
+// S100b F6 fix: parallel reads across 9 pools × ~10 calls throttled
+// sepolia.base.org — 7 pools regressed to minimal entries (no tokens).
+// Retry with backoff + sequential pool processing instead of one burst.
+async function readRetry(args, tries = 4) {
+  for (let i = 0; i < tries; i++) {
+    try {
+      return await client.readContract(args)
+    } catch (e) {
+      if (i === tries - 1) throw e
+      await new Promise(r => setTimeout(r, 1500 * (i + 1)))
+    }
+  }
+}
+
 const latest = await client.getBlockNumber()
 const logs = []
 for (let to = latest; to > BigInt(FROM); to -= BigInt(CHUNK)) {
@@ -35,19 +51,37 @@ for (let to = latest; to > BigInt(FROM); to -= BigInt(CHUNK)) {
   for (const l of raw) logs.push({ pool: '0x' + l.topics[1].slice(-40), factory: '0x' + l.topics[2].slice(-40), block: parseInt(l.blockNumber, 16) })
 }
 
-const pools = await Promise.all(logs.map(async ({ pool, factory, block }) => {
+// Sequential pool processing — no parallel RPC bursts (F6 regen lesson)
+const pools = []
+for (const { pool, factory, block } of logs) {
   const entry = { address: pool, factory, blockNumber: block, type: FACTORY_TYPES[factory] || 'WEIGHTED' }
   try {
     const [name, symbol, tokens, totalSupply] = await Promise.all([
-      client.readContract({ address: pool, abi: weightedPoolAbi_V3, functionName: 'name' }),
-      client.readContract({ address: pool, abi: weightedPoolAbi_V3, functionName: 'symbol' }),
-      client.readContract({ address: pool, abi: weightedPoolAbi_V3, functionName: 'getTokens' }),
-      client.readContract({ address: pool, abi: weightedPoolAbi_V3, functionName: 'totalSupply' }),
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'name' }),
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'symbol' }),
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'getTokens' }),
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'totalSupply' }),
     ])
-    Object.assign(entry, { name, symbol, tokens, totalSupply: totalSupply.toString() })
+    // S100b audit fix F6: bake ERC20 token metadata (symbol/name/decimals) so
+    // pool list pills + detail pages render token symbols, not icon-only.
+    const tokenMeta = []
+    for (const address of tokens) {
+      try {
+        const [tSymbol, tName, tDecimals] = await Promise.all([
+          readRetry({ address, abi: erc20Abi, functionName: 'symbol' }),
+          readRetry({ address, abi: erc20Abi, functionName: 'name' }),
+          readRetry({ address, abi: erc20Abi, functionName: 'decimals' }),
+        ])
+        tokenMeta.push({ address, symbol: tSymbol, name: tName, decimals: tDecimals })
+      } catch {
+        // WETH-style contracts or non-ERC20 — keep address-only entry
+        tokenMeta.push({ address })
+      }
+    }
+    Object.assign(entry, { name, symbol, tokens: tokenMeta, totalSupply: totalSupply.toString() })
   } catch { /* keep minimal entry */ }
-  return entry
-}))
+  pools.push(entry)
+}
 
 const registry = {
   version: 1,
@@ -55,7 +89,10 @@ const registry = {
   chainId: 84532,
   generatedAt: new Date().toISOString(),
   fromBlock: FROM,
-  pools,
+  // S100b Boss law (2026-09-24): mock-named pools ('DO NOT USE - Mock ...'
+  // from Phase-1 E2E battery) NEVER bake into the artifact — no list rows,
+  // no static detail pages, no deep links. Only real named pools bake.
+  pools: pools.filter(p => !/do\s*not\s*use/i.test(p.name || '') && !/do\s*not\s*use/i.test(p.symbol || '')),
 }
 const out = new URL('./baked-pool-registry.json', import.meta.url).pathname
 writeFileSync(out, JSON.stringify(registry, null, 2))

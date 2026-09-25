@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { 
-  FACTORY_TO_POOL_TYPE, 
+import {
+  FACTORY_TO_POOL_TYPE,
   POOL_REGISTERED_TOPIC0,
   getOnchainDiscoveryRpcUrl,
   mapDiscoveredPoolToListItem,
@@ -17,7 +17,10 @@ describe('onchain pool discovery', () => {
     expect(FACTORY_TO_POOL_TYPE.get('0x24ab9fba48e54b05c24a02122c4c40fd2018ba10')).toBe('STABLE')
     expect(FACTORY_TO_POOL_TYPE.get('0x6cd1150ccc00e0d00cd3f671a8bdf00d38f5be6e')).toBe('STABLE')
     expect(FACTORY_TO_POOL_TYPE.get('0x928e433f50fa579c9be5f7e1273f1db46d630ee1')).toBe('RECLAMM')
-    expect(FACTORY_TO_POOL_TYPE.get('0xdfdddd87dc49756dd93598123879ae3d67b531a3')).toBe('LIQUIDITY_BOOTSTRAPPING')
+
+    expect(FACTORY_TO_POOL_TYPE.get('0xdfdddd87dc49756dd93598123879ae3d67b531a3')).toBe(
+      'LIQUIDITY_BOOTSTRAPPING'
+    )
   })
 
   it('uses the correct PoolRegistered topic0', () => {
@@ -39,9 +42,13 @@ describe('onchain pool discovery', () => {
       blockNumber: 46985225,
       name: 'DO NOT USE - Mock Weighted Pool',
       symbol: 'TEST',
-      tokens: ['0x4200000000000000000000000000000000000006', '0x8c6487b86a73554431d514371184916b0b61b876'],
+      tokens: [
+        '0x4200000000000000000000000000000000000006',
+        '0x8c6487b86a73554431d514371184916b0b61b876',
+      ],
       totalSupply: 1001133148290370n,
     }
+
     const item = mapDiscoveredPoolToListItem(dp)
     expect(item.address).toBe(dp.address)
     expect(item.chain).toBe('BASESEP')

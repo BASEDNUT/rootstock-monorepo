@@ -16,7 +16,12 @@ const isIpfsExport = process.env.ROOTSTOCK_EXPORT === '1'
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  ...(isIpfsExport ? { output: 'export' as const, images: { unoptimized: true } } : {}),
+  // S100b audit fix (2026-09-23): trailingSlash:true so export emits <route>/index.html.
+  // Without it, static servers and IPFS path-gateways resolve /pools to a raw directory
+  // listing (route.html + route/ dir, no index) — directory-listing bug, verified live.
+  ...(isIpfsExport
+    ? { output: 'export' as const, trailingSlash: true, images: { unoptimized: true } }
+    : {}),
   serverExternalPackages: ['thread-stream', 'real-require', 'encoding'],
   logging: {
     fetches: {
@@ -48,28 +53,29 @@ const nextConfig: NextConfig = {
   ...(!isIpfsExport
     ? {
         redirects: async () => [
-    {
-      source: '/vebal',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/vebal/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/testooors',
-      destination: '/debug',
-      permanent: false,
-    },
-    {
-          source: '/components',
-          destination: '/',
-          permanent: false,
-        },
-      ],
-      } : {}),
+          {
+            source: '/vebal',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/vebal/:path*',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/testooors',
+            destination: '/debug',
+            permanent: false,
+          },
+          {
+            source: '/components',
+            destination: '/',
+            permanent: false,
+          },
+        ],
+      }
+    : {}),
 }
 
 // Avoid sentry setup in CI

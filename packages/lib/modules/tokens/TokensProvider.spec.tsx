@@ -23,6 +23,7 @@ import { getOnchainOnlyTokens } from './onchain-tokens'
 
 beforeEach(() => {
   ;(fetchOnchainPoolTokens as unknown as Mock).mockResolvedValue([])
+
   ;(getOnchainOnlyTokens as unknown as Mock).mockReturnValue([])
 })
 
@@ -53,7 +54,8 @@ test('merges onchain pool tokens with API tokens', async () => {
     priority: 0,
     excludedFromWallet: false,
     nativeAsset: false,
-  } as ApiToken
+  } as unknown as ApiToken
+
   ;(fetchOnchainPoolTokens as unknown as Mock).mockResolvedValue([onchainToken])
 
   const result = testUseTokens()
@@ -61,10 +63,12 @@ test('merges onchain pool tokens with API tokens', async () => {
   await waitFor(() => expect(result.current.tokens.length).toBeGreaterThan(0))
 
   const addresses = result.current.tokens.map(t => `${t.chain}:${t.address}`)
+
   // every API mock token present
   for (const t of defaultTokenListMock) {
     expect(addresses).toContain(`${t.chain}:${t.address}`)
   }
+
   // onchain BASESEP token present
   expect(addresses).toContain('BASESEP:0x8c6487b86A73554431d514371184916B0B61B876')
 })

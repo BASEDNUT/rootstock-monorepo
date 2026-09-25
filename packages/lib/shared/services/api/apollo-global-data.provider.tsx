@@ -27,20 +27,35 @@ import { PoolMigrationsProvider } from '@repo/lib/modules/pool/migrations/PoolMi
 
 export const revalidate = 60
 
+/** Rootstock S100b (F8, 2026-09-23): export-mode API gate. */
+const isIpfsExport = process.env.ROOTSTOCK_EXPORT === '1'
+
 export async function ApolloGlobalDataProvider({ children }: PropsWithChildren) {
   const client = getApolloServerClient()
 
-  const { data: protocolData } = await client.query({
-    query: GetProtocolStatsDocument,
-    variables: {
-      chains: toApiNetworks(PROJECT_CONFIG.networksForProtocolStats || PROJECT_CONFIG.supportedNetworks),
-    },
-    context: {
-      fetchOptions: {
-        next: { revalidate: mins(10).toSecs() },
+  // Rootstock S100b (F8): NEVER query api-v3.balancer.fi during static
+  // export prerender. Every page render fired this query — 135 pages × 48
+  // workers burst-triggered Cloudflare 429 rate-limits that killed builds
+  // at random pool pages (three builds in a row). All consumers are
+  // optional-chained; undefined protocolData degrades gracefully (stats
+  // sections hide). Onchain-only law: the export never needs remote stats.
+  let protocolData: Awaited<ReturnType<typeof client.query>>['data'] | undefined
+
+  if (!isIpfsExport) {
+    ;({ data: protocolData } = await client.query({
+      query: GetProtocolStatsDocument,
+      variables: {
+        chains: toApiNetworks(
+          PROJECT_CONFIG.networksForProtocolStats || PROJECT_CONFIG.supportedNetworks
+        ),
       },
-    },
-  })
+      context: {
+        fetchOptions: {
+          next: { revalidate: mins(10).toSecs() },
+        },
+      },
+    }))
+  }
 
   const [
     exchangeRates,

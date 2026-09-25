@@ -20,6 +20,7 @@ describe('onchain swap path building', () => {
       { address: '0x4200000000000000000000000000000000000006' }, // WETH
       { address: '0x8c6487b86a73554431d514371184916b0b61b876' }, // BAL-mock
     ],
+    dynamicData: { totalLiquidity: '0', volume24h: '0', fees24h: '0', aprItems: [] },
   }
 
   it('finds the pool containing a token pair', () => {
@@ -75,11 +76,12 @@ describe('onchain swap path building', () => {
 
     expect(paths.length).toBe(1)
     const p = paths[0]
-    expect(p.pools).toEqual([mockPool.address])
-    expect(p.protocolVersion).toBe(3)
-    expect(p.inputAmountRaw).toBe(1000000000000000000n)
-    expect(p.tokens.length).toBe(2)
-    expect(p.isBuffer).toBeUndefined()
+    expect(p).toBeDefined()
+    expect(p!.pools).toEqual([mockPool.address])
+    expect(p!.protocolVersion).toBe(3)
+    expect(p!.inputAmountRaw).toBe(1000000000000000000n)
+    expect(p!.tokens.length).toBe(2)
+    expect(p!.isBuffer).toBeUndefined()
   })
 
   it('reverses token order when pair is reversed (EXACT_IN path token order = in→out)', () => {
@@ -94,7 +96,9 @@ describe('onchain swap path building', () => {
       swapType: 'EXACT_IN',
     })
 
-    expect(paths[0].tokens[0].address).toBe(tokenIn.address)
-    expect(paths[0].tokens[1].address).toBe(tokenOut.address)
+    const p2 = paths[0]
+    expect(p2).toBeDefined()
+    expect(p2!.tokens[0]!.address).toBe(tokenIn.address)
+    expect(p2!.tokens[1]!.address).toBe(tokenOut.address)
   })
 })

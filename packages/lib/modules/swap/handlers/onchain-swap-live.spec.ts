@@ -7,6 +7,7 @@ describe('OnchainSwapHandler live', () => {
   it('simulates a real single-pool swap onchain (no API)', async () => {
     const handler = new OnchainSwapHandler()
     let result
+
     try {
       result = await handler.simulate({
         chain: 'BASESEP',
@@ -20,6 +21,7 @@ describe('OnchainSwapHandler live', () => {
       console.warn('RPC unreachable — skip:', (e as Error).message.slice(0, 80))
       return
     }
+
     expect(result.returnAmount).toBeTruthy()
     expect(result.swap).toBeTruthy()
     expect(result.protocolVersion).toBe(3)
