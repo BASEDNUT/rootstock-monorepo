@@ -15,6 +15,9 @@ overrides:
   '@types/react-dom': '19.2'
   zod: 3.25.76
 
+patchedDependencies:
+  '@balancer/sdk@6.2.0': 356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0
+
 importers:
 
   .:
@@ -172,7 +175,7 @@ importers:
         version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@chakra-ui/hooks':
         specifier: 2.4.2
         version: 2.4.2(react@19.2.8)
@@ -299,7 +302,7 @@ importers:
         version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@chakra-ui/clickable':
         specifier: ^2.1.0
         version: 2.1.0(react@19.2.8)
@@ -453,7 +456,7 @@ importers:
     devDependencies:
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -534,7 +537,7 @@ importers:
         version: 0.0.41
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@chakra-ui/anatomy':
         specifier: ^2.2.2
         version: 2.3.4
@@ -810,7 +813,7 @@ importers:
         version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -9406,7 +9409,7 @@ snapshots:
 
   '@balancer-labs/balancer-maths@0.0.41': {}
 
-  '@balancer/sdk@6.2.0(typescript@5.9.3)(zod@3.25.76)':
+  '@balancer/sdk@6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)':
     dependencies:
       '@balancer-labs/balancer-maths': 0.0.40
       viem: 2.56.0(typescript@5.9.3)(zod@3.25.76)

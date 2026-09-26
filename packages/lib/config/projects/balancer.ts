@@ -1,7 +1,7 @@
 import { ProjectConfig } from '@repo/lib/config/config.types'
 import { PartnerVariant, PoolDisplayType, PoolFilterType } from '@repo/lib/modules/pool/pool.types'
 import { GqlChainValues, GqlPoolTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
-import { isProd, isDev, isStaging } from '@repo/lib/config/app.config'
+import { isProd } from '@repo/lib/config/app.config'
 
 const prodHiddenPoolTypes = [GqlPoolTypeValues.LiquidityBootstrapping] satisfies PoolFilterType[]
 
@@ -60,7 +60,9 @@ export const ProjectConfigBalancer: ProjectConfig = {
       { href: '/pools', label: 'Pools' },
       { href: '/portfolio', label: 'Portfolio' },
       { href: '/nutusd', label: 'nutUSD' },
-      ...(isDev || isStaging ? [{ href: '/lbp/create', label: 'LBP' }] : []),
+      // S101c fix (Boss GO 2026-09-25): LBP launchpad = core Rootstock
+      // product surface (user tested it live); no dev gate.
+      { href: '/lbp/create', label: 'LBP' },
     ],
     // Ecosystem = everything OUTSIDE the IPFS site (Boss law 2026-09-24).
     // External links only — no internal routes, no '#' placeholders.

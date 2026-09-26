@@ -18,42 +18,34 @@ const buildPromo = readFileSync(
   resolve(ROOT, 'packages/lib/shared/pages/PoolsPage/BuildPromo.tsx'),
   'utf8'
 )
-const useNav = readFileSync(
-  resolve(ROOT, 'packages/lib/shared/components/navs/useNav.tsx'),
-  'utf8'
-)
-const navBar = readFileSync(
-  resolve(ROOT, 'packages/lib/shared/components/navs/NavBar.tsx'),
-  'utf8'
-)
-const config = readFileSync(
-  resolve(ROOT, 'packages/lib/config/projects/balancer.ts'),
-  'utf8'
-)
+
+const useNav = readFileSync(resolve(ROOT, 'packages/lib/shared/components/navs/useNav.tsx'), 'utf8')
+
+const navBar = readFileSync(resolve(ROOT, 'packages/lib/shared/components/navs/NavBar.tsx'), 'utf8')
+
+const config = readFileSync(resolve(ROOT, 'packages/lib/config/projects/balancer.ts'), 'utf8')
+
 const buildPopover = readFileSync(
   resolve(ROOT, 'apps/frontend-v3/lib/components/navs/BuildPopover.tsx'),
   'utf8'
 )
+
 const mobileBuildAccordion = readFileSync(
   resolve(ROOT, 'apps/frontend-v3/lib/components/navs/MobileBuildAccordion.tsx'),
   'utf8'
 )
-const nextConfig = readFileSync(
-  resolve(ROOT, 'apps/frontend-v3/next.config.ts'),
-  'utf8'
-)
-const sitemap = readFileSync(
-  resolve(ROOT, 'apps/frontend-v3/app/sitemap.ts'),
-  'utf8'
-)
+
+const nextConfig = readFileSync(resolve(ROOT, 'apps/frontend-v3/next.config.ts'), 'utf8')
+
+const sitemap = readFileSync(resolve(ROOT, 'apps/frontend-v3/app/sitemap.ts'), 'utf8')
+
 const marketingLayout = readFileSync(
   resolve(ROOT, 'apps/frontend-v3/app/(marketing)/layout.tsx'),
   'utf8'
 )
-const safeHooks = readFileSync(
-  resolve(ROOT, 'packages/lib/modules/web3/safe.hooks.tsx'),
-  'utf8'
-)
+
+const safeHooks = readFileSync(resolve(ROOT, 'packages/lib/modules/web3/safe.hooks.tsx'), 'utf8')
+
 const headerBanner = readFileSync(
   resolve(ROOT, 'packages/lib/modules/pool/actions/create/header/HeaderBanner.tsx'),
   'utf8'
@@ -117,14 +109,23 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
   })
 
   it('pools/portfolio links may exist on surfaces (restored Boss 2026-09-22); no upstream-domain links', () => {
-    for (const surface of [landingSurface, buildPromo, useNav, navBar, buildPopover, mobileBuildAccordion]) {
+    for (const surface of [
+      landingSurface,
+      buildPromo,
+      useNav,
+      navBar,
+      buildPopover,
+      mobileBuildAccordion,
+    ]) {
       expect(surface).not.toContain('balancer.fi/')
     }
   })
 
-  it('Test-Pools is gone from nav (Debug stays)', () => {
+  it('Test-Pools is gone from nav (Debug gone too — Boss 2026-09-25)', () => {
     expect(navBar).not.toContain('Test-Pools')
-    expect(navBar).toContain('"/debug"')
+    // S101c: Debug page is NOT necessary (Boss 2026-09-25) and the hardcoded
+    // NavBar block violated the nav law (config = sole nav source). Removed.
+    expect(navBar).not.toContain('"/debug"')
   })
 
   it('Launch app points at /swap', () => {
@@ -143,23 +144,31 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     expect(existsSync(`${HERE}/images/video-createRouter.png`)).toBe(false)
   })
 
+  // S101c lint fix (no-useless-assignment): read upstream blob via helper
+  // so no dead initializer exists.
+  function readUpstreamOrNull(f: string): string | null {
+    try {
+      return execSync(
+        `git show 'origin/main:apps/frontend-v3/app/(marketing)/_lib/landing-v3/${f}'`,
+        { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+      )
+    } catch {
+      return null // upstream file missing — nothing to compare
+    }
+  }
+
   it('NO VERBATIM COPY from upstream balancer landing files', () => {
     // Extract string literals (>=6 words) from upstream versions of our live
     // landing files and assert none appear verbatim in our live files.
     const files = ['Hero.tsx', 'Code.tsx', 'Contracts.tsx', 'Features.tsx']
+
     for (const f of files) {
-      let upstream = ''
-      try {
-        upstream = execSync(
-          `git show 'origin/main:apps/frontend-v3/app/(marketing)/_lib/landing-v3/${f}'`,
-          { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
-        )
-      } catch {
-        continue // upstream file missing — nothing to compare
-      }
-      const literals = [
-        ...upstream.matchAll(/'([^'\n]{30,})'|"([^"\n]{30,})"/g),
-      ]
+      // eslint no-useless-assignment: read via helper, no dead initializer
+      const upstreamOrNull = readUpstreamOrNull(f)
+      if (upstreamOrNull === null) continue // upstream file missing
+      const upstream = upstreamOrNull
+
+      const literals = [...upstream.matchAll(/'([^'\n]{30,})'|"([^"\n]{30,})"/g)]
         .map(m => m[1] || m[2] || '')
         .filter(
           s =>
@@ -170,25 +179,23 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
             !s.includes('linear(') &&
             !s.includes('gradient')
         )
+
       const ours = read(f)
       const verbatim = literals.filter(s => s !== undefined && ours.includes(s))
-      expect(
-        verbatim,
-        `verbatim upstream copy in ${f}: ${verbatim.join(' || ')}`
-      ).toEqual([])
+
+      expect(verbatim, `verbatim upstream copy in ${f}: ${verbatim.join(' || ')}`).toEqual([])
     }
   })
 
   it('pool-swap URL hook is purged', () => {
-    expect(
-      existsSync(resolve(ROOT, 'packages/lib/modules/swap/useIsPoolSwapUrl.tsx'))
-    ).toBe(false)
+    expect(existsSync(resolve(ROOT, 'packages/lib/modules/swap/useIsPoolSwapUrl.tsx'))).toBe(false)
   })
 
   it('chains: Base mainnet + Base Sepolia only', () => {
     const block = config.split('supportedNetworks: [')[1]?.split('],')[0] ?? ''
     expect(block).toContain('GqlChainValues.Base')
     expect(block).toContain('Sepolia')
+
     for (const banned of [
       'Mainnet',
       'Arbitrum',
@@ -202,6 +209,7 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     ]) {
       expect(block).not.toContain(banned)
     }
+
     expect(config).toContain('defaultNetwork: GqlChainValues.Base,')
   })
 

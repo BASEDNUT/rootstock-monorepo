@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, BoxProps, Button, HStack, Link } from '@chakra-ui/react'
-import { isDev, isStaging, shouldUseAnvilFork } from '@repo/lib/config/app.config'
+import { shouldUseAnvilFork } from '@repo/lib/config/app.config'
 import { UserSettings } from '@repo/lib/modules/user/settings/UserSettings'
 import { ConnectWallet } from '@repo/lib/modules/web3/ConnectWallet'
 import { useUserAccount } from '@repo/lib/modules/web3/UserAccountProvider'
@@ -84,13 +84,6 @@ function NavLinks({
         )
       })}
       {customLinks}
-      {(isDev || isStaging) && (
-        <Box as={motion.div} variants={fadeIn}>
-          <Link as={NextLink} color={linkColorFor('/debug')} href="/debug" prefetch variant="nav">
-            Debug
-          </Link>
-        </Box>
-      )}
     </HStack>
   )
 }

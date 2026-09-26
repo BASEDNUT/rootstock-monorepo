@@ -11,10 +11,12 @@ export function generateStaticParams() {
     { slug: ['base-sepolia', 'ETH'] },
     { slug: ['base', '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] },
     { slug: ['base-sepolia', '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] },
+    // S101c fix: LBP wizard redirects to step URLs; prerender them.
+    { slug: ['step-1-sale-structure'] },
+    { slug: ['step-2-project-info'] },
+    { slug: ['step-3-review'] },
   ]
 }
-
-
 
 export default function LBPCreatePageWrapper() {
   return <LbpCreationPage />
