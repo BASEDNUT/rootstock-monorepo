@@ -601,6 +601,10 @@ export function poolHasRateProviderExternalOracle(pool: Pool): boolean {
  * - 2+ days ago → 'in last N days'
  */
 export function getPoolActivityDateCaption(minTimestampSeconds: number): string {
+  // S101 D4 fix (2026-09-25): pools without indexed events pass minDate = 0,
+  // which rendered 'in last 20722 days' (days since epoch). Guard it.
+  if (!minTimestampSeconds || minTimestampSeconds <= 0) return 'yet'
+
   const diffInDays = differenceInCalendarDays(
     new Date(),
     new Date(secondsToMilliseconds(minTimestampSeconds))

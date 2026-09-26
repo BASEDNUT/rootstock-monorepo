@@ -137,6 +137,8 @@ interface BakedPoolEntry {
   // block; swapFee = decimal-fraction string ('0.003' = 0.3%).
   blockTimestamp?: number
   swapFee?: string
+  // S101 (D5 fix): balance-verified holder count baked from Transfer scan.
+  holdersCount?: number
 }
 
 function buildOnchainPoolData(
@@ -153,7 +155,9 @@ function buildOnchainPoolData(
       dynamicData: {
         aprItems: [],
         fees24h: '0',
-        holdersCount: '0',
+        // S101 (D5 fix, Boss-approved 2026-09-25): pass through the baked
+        // balance-verified holder count ('From N Liquidity Providers').
+        holdersCount: String(baked.holdersCount ?? 0),
         isInRecoveryMode: false,
         isPaused: false,
         poolId: baked.address,

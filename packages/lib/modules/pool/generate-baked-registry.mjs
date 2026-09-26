@@ -2,7 +2,7 @@
 // Run at freeze time (ARD-03): the registry is baked into the IPFS artifact.
 // Usage: node generate-baked-registry.mjs
 import { writeFileSync } from 'fs'
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, pad } from 'viem'
 import { baseSepolia } from 'viem/chains'
 import { erc20Abi } from 'viem'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
@@ -77,7 +77,60 @@ for (const { pool, factory, block } of logs) {
       staticSwapFee !== undefined && staticSwapFee !== null
         ? String(Number(staticSwapFee) / 1e18)
         : undefined
-    Object.assign(entry, { blockTimestamp, swapFee })
+    // S101 (D5 fix, Boss-approved 2026-09-25): bake real LP holder count via
+    // chunked Transfer event scan (public RPC range limits: full-range and
+    // multi-topic filters fail — same chunk pattern as PoolRegistered scan
+    // above). Topic0-only, client-side mint (from==0) + burn (to==0) filter.
+    let holdersCount
+    try {
+      const T0_TRANSFER =
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+      const transferLogs = []
+      for (let to = latest; to > BigInt(block); to -= BigInt(CHUNK)) {
+        const from = to - BigInt(CHUNK) >= BigInt(block) ? to - BigInt(CHUNK) : BigInt(block)
+        const raw = (await client.request({
+          method: 'eth_getLogs',
+          params: [
+            {
+              address: pool,
+              topics: [T0_TRANSFER],
+              fromBlock: '0x' + from.toString(16),
+              toBlock: '0x' + to.toString(16),
+            },
+          ],
+        })) || []
+        transferLogs.push(...raw)
+      }
+      // S101 (D5 fix, balance-verified): naive mint/burn event math is WRONG —
+      // removeLiquidity burns BPT but the LP may still hold a balance (live
+      // proof: HOT minted 0.447+0.0105, burned 0.01, still holds 0.4477).
+      // Correct holder = address with current balanceOf > 0. Collect every
+      // address seen in Transfer logs, then verify current balance.
+      const ZERO_ADDR = '0x' + '0'.repeat(40)
+      const seenAddresses = new Set()
+      for (const l of transferLogs) {
+        const from = '0x' + l.topics[1].slice(-40).toLowerCase()
+        const to = '0x' + l.topics[2].slice(-40).toLowerCase()
+        if (from !== ZERO_ADDR) seenAddresses.add(from)
+        if (to !== ZERO_ADDR) seenAddresses.add(to)
+      }
+      const balanceOfAbi = [
+        { name: 'balanceOf', type: 'function', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'uint256' }] },
+      ]
+      let holders = 0
+      for (const addr of seenAddresses) {
+        try {
+          const bal = await readRetry({ address: pool, abi: balanceOfAbi, functionName: 'balanceOf', args: [addr] })
+          if (bal > 0n) holders += 1
+        } catch {
+          // skip unverifiable address
+        }
+      }
+      holdersCount = holders
+    } catch {
+      holdersCount = undefined
+    }
+    Object.assign(entry, { blockTimestamp, swapFee, holdersCount })
     // S100b audit fix F6: bake ERC20 token metadata (symbol/name/decimals) so
     // pool list pills + detail pages render token symbols, not icon-only.
     const tokenMeta = []

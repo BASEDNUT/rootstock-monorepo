@@ -2,7 +2,7 @@
   "version": 1,
   "chain": "BASESEP",
   "chainId": 84532,
-  "generatedAt": "2026-09-25T16:43:59.745Z",
+  "generatedAt": "2026-09-26T00:44:08.786Z",
   "fromBlock": 46984000,
   "pools": [
     {
@@ -12,6 +12,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1790298352,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Rootstock WETH/BAL Pool",
       "symbol": "rks-WETH-BAL",
       "tokens": [

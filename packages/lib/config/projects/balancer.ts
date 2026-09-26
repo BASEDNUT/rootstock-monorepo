@@ -34,6 +34,9 @@ export const ProjectConfigBalancer: ProjectConfig = {
   },
   corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
   defaultNetwork: GqlChainValues.Base,
+  // S101 D6 (Boss 2026-09-25): this deployment is Base Sepolia only —
+  // pools list preselects BASESEP so no upstream all-chains query runs.
+  defaultPoolListNetworks: [GqlChainValues.BaseSepolia],
   ensNetwork: GqlChainValues.Base,
   delegateOwner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
   merklRewardsChains: [GqlChainValues.Base],

@@ -69,8 +69,13 @@ const poolListQueryStateParsers = {
   poolTypes: parseAsArrayOf(
     parseAsStringEnum<PoolFilterType>(poolTypeFilters as unknown as PoolFilterType[])
   ).withDefault([]),
+  // S101 D6 fix (Boss decision 2026-09-25): this deployment is Base Sepolia
+  // only. Default comes from PROJECT_CONFIG.defaultPoolListNetworks (plain
+  // config value, bundled client + server — env gates fail in the client
+  // bundle, browser-proven: env-gated default reverted to [] at runtime and
+  // re-fetched 919 upstream pools).
   networks: parseAsArrayOf(parseAsStringEnum<GqlChain>(Object.values(GqlChainValues))).withDefault(
-    []
+    (PROJECT_CONFIG.defaultPoolListNetworks as GqlChain[]) || []
   ),
   protocolVersion: parseAsInteger,
   textSearch: parseAsString,
