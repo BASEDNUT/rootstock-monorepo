@@ -11,6 +11,9 @@ const ROUTES: Array<{ route: string; priority: number }> = [
   { route: '/portfolio', priority: 0.8 },
   { route: '/nutusd', priority: 0.8 },
   { route: '/lbp/create', priority: 0.8 },
+  // S106 (PRD-07): primitive factory pages.
+  { route: '/mint', priority: 0.8 },
+  { route: '/wrap', priority: 0.8 },
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

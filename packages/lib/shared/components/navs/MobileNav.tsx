@@ -88,14 +88,16 @@ function EcosystemLinks({ ecosystemLinks }: EcosystemLinkProps) {
           display="flex"
           gap="xs"
           href={link.href}
-          isExternal
+          isExternal={link.isExternal}
           key={link.href}
           variant="nav"
         >
           {link.label}
-          <Box color="grayText">
-            <ArrowUpRight size={14} />
-          </Box>
+          {link.isExternal ? (
+            <Box color="grayText">
+              <ArrowUpRight size={14} />
+            </Box>
+          ) : null}
         </Link>
       ))}
     </VStack>

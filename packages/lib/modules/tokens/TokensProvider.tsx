@@ -25,6 +25,9 @@ import { PoolToken } from '../pool/pool.types'
 import { ApiToken, ApiOrCustomToken } from './token.types'
 import { getOnchainOnlyTokens } from './onchain-tokens'
 import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
+// S106 (PRD-07 pickers law): factory-deployed tokens + wrappers discovered
+// from TokenCreated / WrapperCreated events — appear in every picker.
+import { fetchOnchainFactoryTokens } from '../primitives/onchain-factory-tokens'
 import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
@@ -51,9 +54,23 @@ export function useTokensLogic() {
     staleTime: 60_000,
   })
 
+  // S106 (PRD-07 pickers law): factory-deployed tokens + wrappers
+  // (TokenCreated / WrapperCreated events) — onchain metadata only.
+  const { data: factoryTokens } = useReactQuery({
+    queryKey: ['onchain-factory-tokens', 'basesep'],
+    queryFn: fetchOnchainFactoryTokens,
+    enabled: (PROJECT_CONFIG.onchainOnlyNetworks || []).length > 0,
+    staleTime: 60_000,
+  })
+
   const tokens = useMemo(
-    () => [...(tokensData?.tokens || []), ...getOnchainOnlyTokens(), ...(onchainPoolTokens || [])],
-    [tokensData, onchainPoolTokens]
+    () => [
+      ...(tokensData?.tokens || []),
+      ...getOnchainOnlyTokens(),
+      ...(onchainPoolTokens || []),
+      ...(factoryTokens || []),
+    ],
+    [tokensData, onchainPoolTokens, factoryTokens]
   )
 
   const {

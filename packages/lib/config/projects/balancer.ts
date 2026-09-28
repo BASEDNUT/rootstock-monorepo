@@ -54,18 +54,24 @@ export const ProjectConfigBalancer: ProjectConfig = {
     // S100b Boss nav laws (2026-09-24): top menu = in-app actions incl. pool
     // creation (/create). Config is the sole nav source (useNav defaults
     // emptied — duplicate Swap root cause).
+    // S106 Boss nav laws v2 final (GO 2026-09-28) — progressive disclosure:
+    // possess → observe → trade → create → launch-last (endgame narrative).
+    // Launchpad label (Boss pick from my recommendation). Config = sole source.
     appLinks: [
+      { href: '/portfolio', label: 'Portfolio' },
+      { href: '/pools', label: 'Pools' },
       { href: '/swap', label: 'Swap' },
       { href: '/create', label: 'Create pool' },
-      { href: '/pools', label: 'Pools' },
-      { href: '/portfolio', label: 'Portfolio' },
-      { href: '/nutusd', label: 'nutUSD' },
-      // S101c fix (Boss GO 2026-09-25): LBP launchpad = core Rootstock
-      // product surface (user tested it live); no dev gate.
-      { href: '/lbp/create', label: 'LBP' },
+      // S106 (PRD-07): the two sibling primitive factories, adjacent.
+      { href: '/mint', label: 'Mint token' },
+      { href: '/wrap', label: 'Wrap token' },
+      // The journey ends at the moment a token goes public.
+      { href: '/lbp/create', label: 'Launchpad' },
     ],
     // Ecosystem = everything OUTSIDE the IPFS site (Boss law 2026-09-24).
-    // External links only — no internal routes, no '#' placeholders.
+    // External links only. nutUSD demoted here (S106): Base-mainnet Morpho
+    // credit vault — outside the AMM stack. /nutusd page stays alive for
+    // deep links only.
     ecosystemLinks: [
       {
         label: 'Audits',
@@ -79,6 +85,13 @@ export const ProjectConfigBalancer: ProjectConfig = {
       },
       { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
       { label: 'Forum', href: 'https://basednut.discourse.group', isExternal: true },
+      {
+        // S106 Boss order (2026-09-28): the ecosystem menu entry goes to OUR
+        // /nutusd page (the doorway) — the page itself carries the real user
+        // vault link (app.morpho.org). Never the outside source directly.
+        label: 'nutUSD vault',
+        href: '/nutusd',
+      },
     ],
     socialLinks: [
       {
