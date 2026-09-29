@@ -1,38 +1,56 @@
-# ROOTSTOCK monorepo
+# ROOTSTOCK
 
-**BASED NUT's Rootstock** — a programmable liquidity engine for custom markets.
-One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer v3's audited architecture and grown for Based Nut.
+**BASED NUT's programmable liquidity engine for custom markets.**
 
-## What's here
+One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer v3's audited architecture and grown for Based Nut — custom pools, token primitives (mint + wrap), and liquidity bootstrapping, served as a static app over IPFS.
 
-| Path | Content |
-|---|---|
-| `apps/frontend-v3` | The ROOTSTOCK frontend (Base Sepolia testnet) — swap, create pool, LBP, mint + wrap primitives |
-| `packages/lib` | Shared frontend library (Chakra theme, modules, config) |
-| `audits/reclamm` | reCLAMM pool math audit reports (Cantina, Certora) |
-| `audits/balv3-core` | Upstream Balancer v3 core audit reports (Spearbit, Trail of Bits, Certora, Cantina) |
+## Quick map
+
+| Want                         | Go                                                                                                              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Run the app locally          | [INIT.md](./INIT.md) — setup from zero                                                                          |
+| Build the IPFS artifact      | [INIT.md](./INIT.md) → Build static export                                                                      |
+| Contribute code              | [AGENTS.md](./AGENTS.md) — rules, architecture, law specs                                                       |
+| Verify our contracts         | [deployments/PROVENANCE.md](./deployments/PROVENANCE.md) — byte-exact proof, 69/69 GREEN                        |
+| Study the inherited security | [audits/](./audits/AGENTS.md) — Balancer's audit reports (lineage)                                              |
+| Understand a workspace       | [apps/frontend-v3/AGENTS.md](./apps/frontend-v3/AGENTS.md) · [packages/lib/AGENTS.md](./packages/lib/AGENTS.md) |
+
+## For development
+
+```bash
+pnpm install
+cp apps/frontend-v3/.env.template apps/frontend-v3/.env.local
+pnpm dev:bal        # http://localhost:3000
+pnpm test:unit      # law specs enforce brand/scope — keep green
+```
+
+Full setup including the static export path: [INIT.md](./INIT.md).
+
+## For research
+
+- **Is this really Balancer's audited code?** Yes — every deployed contract is proven byte-identical to Balancer's officially-committed build artifacts. The proof is machine-checkable and rerunnable: [deployments/PROVENANCE.md](./deployments/PROVENANCE.md).
+- **What was audited, when, by whom?** The inherited architecture's audit reports (Spearbit, Trail of Bits, Certora, Cantina) are preserved verbatim in [audits/](./audits/AGENTS.md).
+- **What did Rootstock add?** Exactly two contracts: TokenFactory + WrapperFactory (permissionless primitives, audited 2026-09-27, 0 Critical/High/Medium), plus this frontend and the [patches/](./patches) SDK adaptation. Everything else is upstream.
+- **Hosting:** static export published to IPFS under a content-addressed CID. No DNS host exists.
 
 ## The engine
 
-- **Root Vault** — one contract holds every asset and keeps one ledger for every pool
+- **Root Vault** — one contract holds every asset, one ledger for every pool
 - **Root Pools** — the market math: weighted, stable, boosted, reCLAMM, custom
 - **Root Hooks** — policies that run before and after every market operation
 - **Root Routers** — the entry point for swaps and liquidity, users and solvers
 
 ## Testnet
 
-65 contracts deployed on Base Sepolia, end-to-end verified (initialize, add, swap, remove).
-
+65 contracts live on Base Sepolia (84532), end-to-end verified: initialize → add liquidity → swap → remove liquidity, receipts on record. Registry: [deployments/base-sepolia.json](./deployments/base-sepolia.json).
 
 ## Lineage and licenses
 
-This project is a fork of Balancer's open-source architecture:
+- Contracts: forked from GPL-3.0 `balancer-v3-monorepo` (pristine copy, full upstream test suite passing)
+- Frontend: forked from MIT `frontend-monorepo` (this tree)
+- reCLAMM math: forked from GPL-3.0 `balancer/reclamm`
 
-- Contracts: forked from the GPL-3.0 licensed `balancer-v3-monorepo` (pristine copy, full upstream test suite passing)
-- Frontend: forked from the MIT licensed `frontend-monorepo` (this tree)
-- reCLAMM pool math: forked from the GPL-3.0 licensed `balancer/reclamm`
-
-Balancer's architecture is their work — we keep it, credit it, and grow on it. Full audit reports for the inherited architecture live in `audits/`.
+Balancer's architecture is their work — we keep it, credit it, and grow on it.
 
 ## Based Nut
 
