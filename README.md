@@ -7,10 +7,10 @@ One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer
 
 | Path | Content |
 |---|---|
-| `apps/frontend-v3` | The ROOTSTOCK frontend (Base Sepolia testnet) — swap, create pool, LBP, nutUSD vault |
+| `apps/frontend-v3` | The ROOTSTOCK frontend (Base Sepolia testnet) — swap, create pool, LBP, mint + wrap primitives |
 | `packages/lib` | Shared frontend library (Chakra theme, modules, config) |
 | `audits/reclamm` | reCLAMM pool math audit reports (Cantina, Certora) |
-| `audits/v3-core` | Upstream Balancer v3 core audit reports (Spearbit, Trail of Bits, Certora, Cantina) |
+| `audits/balv3-core` | Upstream Balancer v3 core audit reports (Spearbit, Trail of Bits, Certora, Cantina) |
 
 ## The engine
 
@@ -23,12 +23,6 @@ One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer
 
 65 contracts deployed on Base Sepolia, end-to-end verified (initialize, add, swap, remove).
 
-## nutUSD
-
-USDC lending vault on Morpho Blue, live on Base mainnet: `0x846E88618A15766940277471509511bf69443CC1`
-
-- App (deposit/withdraw): https://app.morpho.org/base/vault/0x846E88618A15766940277471509511bf69443CC1/based-nut-usd
-- Curator (admin): https://curator.morpho.org/vaults/8453/0x846E88618A15766940277471509511bf69443CC1
 
 ## Lineage and licenses
 
