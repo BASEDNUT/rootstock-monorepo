@@ -1,0 +1,165 @@
+{
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "deployedAt": "2026-09-18",
+  "updatedAt": "2026-09-27T13:47",
+  "deployer": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+  "tasks_with_output": 42,
+  "contracts_total": 67,
+  "tasks": {
+    "v2/tasks/00000000-tokens": {
+      "BAL": "0x0000000000000000000000000000000000000000",
+      "WETH": "0x4200000000000000000000000000000000000006"
+    },
+    "v2/tasks/20210418-authorizer": {
+      "Authorizer": "0x1F4ac219924F04d3300638BA67Fbe400836E1017"
+    },
+    "v2/tasks/20220325-test-balancer-token": {
+      "TestBalancerToken": "0x8c6487b86A73554431d514371184916B0B61B876"
+    },
+    "v3/tasks/00000000-permit2": {
+      "Permit2": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+    },
+    "v3/tasks/20241204-v3-vault": {
+      "VaultFactory": "0xdC4dF9829441d8fE0B0d03e0FE86592E0042F642",
+      "ProtocolFeeController": "0xA89A455B868d3632327be92317E6689Fa5De0366",
+      "Vault": "0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9",
+      "VaultAdmin": "0xC67111C130b1380E5ba027733315DE82bB5A6837",
+      "VaultExtension": "0x8e86fDf21a578cDB01F1A58c71a2ef21dBBE2A8E"
+    },
+    "v3/tasks/20241205-v3-batch-router": {
+      "BatchRouter": "0x41978EB90477d4D971dF22111B2d09679f4DadA6"
+    },
+    "v3/tasks/20241205-v3-buffer-router": {
+      "BufferRouter": "0xe1c7A291D4eBa814f36Ec96fD10F343A53BFa1D7"
+    },
+    "v3/tasks/20250117-v3-contract-registry": {
+      "BalancerContractRegistry": "0x915922C8e26a43cD8908b4CeCd85f76aBa7499e0"
+    },
+    "v3/tasks/20250123-v3-composite-liquidity-router-v2": {
+      "CompositeLiquidityRouter": "0x5808B214B66C70e6c0759803AbF3498c2c78F437"
+    },
+    "v3/tasks/20250212-v3-mev-capture-hook": {
+      "MevCaptureHook": "0x7E50a9dB8252414AAD240E08b9ed4176C4D64888"
+    },
+    "v3/tasks/20250214-v3-protocol-fee-controller-v2": {
+      "ProtocolFeeController": "0xA89A455B868d3632327be92317E6689Fa5De0366"
+    },
+    "v3/tasks/20250218-v3-aggregator-router": {
+      "AggregatorRouter": "0x58Ef0450318ed5d176E9CCeF15A25Ee0878B5203"
+    },
+    "v3/tasks/20250307-v3-router-v2": {
+      "Router": "0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759"
+    },
+    "v3/tasks/20250321-v3-vault-factory-v2": {
+      "VaultFactory": "0xdC4dF9829441d8fE0B0d03e0FE86592E0042F642",
+      "ProtocolFeeController": "0xA89A455B868d3632327be92317E6689Fa5De0366",
+      "Vault": "0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9",
+      "VaultAdmin": "0xC67111C130b1380E5ba027733315DE82bB5A6837",
+      "VaultExtension": "0x8e86fDf21a578cDB01F1A58c71a2ef21dBBE2A8E"
+    },
+    "v3/tasks/20250403-v3-stable-surge-hook-v2": {
+      "StableSurgeHook": "0x581e1dE0C136134AF479d09619b5f950420A427D"
+    },
+    "v3/tasks/20250407-v3-vault-explorer-v2": {
+      "VaultExplorer": "0x0b00bF7B66611bDAb33ba22D0D1e358Ad5854DFA"
+    },
+    "v3/tasks/20250418-v3-wrapped-bpt": {
+      "WrappedBalancerPoolTokenFactory": "0x45Da17e3853AEf625f05BD036E0E3Ce73e6E7559",
+      "MockWrappedBalancerPoolToken": "0x1D1BA43DffC0479e6d0efE15A06771e520Ff4E5c"
+    },
+    "v3/tasks/20250502-v3-fee-percentages-provider": {
+      "ProtocolFeePercentagesProvider": "0xF5e3FEE4cdc0DFC25Ca813025F34511ab0745abE"
+    },
+    "v3/tasks/20250503-v3-protocol-fee-sweeper-v2": {
+      "ProtocolFeeSweeper": "0xb155B28851D68b2F50feDb76678664F03bA1De09"
+    },
+    "v3/tasks/20250507-v3-aggregator-batch-router": {
+      "AggregatorBatchRouter": "0xfC60096188e04Ab37983BcB2e19584197D1D0D1A"
+    },
+    "v3/tasks/20250530-v3-cow-swap-fee-burner-v2": {
+      "CowSwapFeeBurner": "0xF51Efd4762d5EbdCBa49472C266A5c37dC4ddD5a"
+    },
+    "v3/tasks/20250530-v3-erc4626-cow-swap-fee-burner-v2": {
+      "ERC4626CowSwapFeeBurner": "0xE9Fcba7BF13Dce9a146d02adFB2ad5ec036f0b35"
+    },
+    "v3/tasks/20250806-v3-token-pair-registry": {
+      "TokenPairRegistry": "0x43DBB8F3bb9f6277e350f37Adf240518c0964f06"
+    },
+    "v3/tasks/20250813-v3-constant-price-feed": {
+      "ConstantPriceFeed": "0xB4C94D9b150A69DdDDDCd7AD1f2D4CB3AE47D4a8"
+    },
+    "v3/tasks/20250919-v3-pool-pause-helper-v2": {
+      "PoolPauseHelper": "0xe69706092fc884f57b6B462dC422B3aA4F5609A7"
+    },
+    "v3/tasks/20250919-v3-pool-swap-fee-helper-v2": {
+      "PoolSwapFeeHelper": "0x660ce67227076c1d14D201A7Df558C75cBD8d86b"
+    },
+    "v3/tasks/20250919-v3-protocol-fee-helper-v2": {
+      "ProtocolFeeHelper": "0x855920566Ca4461b672b2122c6CE48805B4A5E00"
+    },
+    "v3/tasks/20251010-v3-unbalanced-add-via-swap-router": {
+      "UnbalancedAddViaSwapRouter": "0xbbEc9F2c69037852A86aB3F97326172649E82337"
+    },
+    "v3/tasks/20251205-v3-fixed-price-lbp": {
+      "FixedPriceLBPoolFactory": "0x9A30757385012495A21D64c5EfAC335B1A6fE48D",
+      "MockFixedPriceLBPool": "0x04f30AEAd26F1A74EDD9D1ea70fA82eFCbfFf4d6"
+    },
+    "v3/tasks/20251219-v3-balancer-fee-burner-v2": {
+      "BalancerFeeBurner": "0x67Cf3D0223e191Ac2c423ca1b27C0b688b1A1e35"
+    },
+    "v3/tasks/20260115-v3-weighted-pool-v2": {
+      "WeightedPoolFactory": "0x277D7dDe3C6762C31CfB438c9331376fE8887A7c",
+      "MockWeightedPool": "0xBeC8dE18d5Fe6277670D989d12aEffed8000F1d6"
+    },
+    "v3/tasks/20260116-v3-stable-pool-v3": {
+      "StablePoolFactory": "0x24Ab9fBA48E54b05c24a02122C4c40fD2018bA10",
+      "MockStablePool": "0x4f3e554aaC01F10A27605D7E08a46CaA089A272e"
+    },
+    "v3/tasks/20260117-v3-stable-surge-pool-factory-v3": {
+      "StableSurgePoolFactory": "0x6cD1150ccc00e0D00Cd3f671a8bdf00d38f5BE6e",
+      "MockStablePool": "0x9da0D473321369aE78d30Ecda405964d820DeE9C"
+    },
+    "v3/tasks/20260123-v3-gyro-2clp-v2": {
+      "Gyro2CLPPoolFactory": "0x458d984F6216DAffC9dA4577Fc949BcAb0e52b6D",
+      "MockGyro2CLPPool": "0x50b017864bc0ecb829488bfa48E6F2616C40fD0c"
+    },
+    "v3/tasks/20260126-v3-gyro-eclp-v2": {
+      "GyroECLPPoolFactory": "0x6057859CC86AA62c54860e1A342f60ab42098Efe",
+      "MockGyroECLPPool": "0xcE0A0dC4a986C08B973b97A47F5F96e3760a0817"
+    },
+    "v3/tasks/20260202-v3-weighted-pool-oracle-v2": {
+      "WeightedLPOracleFactory": "0xFd8Da1F158afF89178BE254D010d5549051C7017",
+      "MockWeightedLPOracle": "0x801d4102e91B80A6592F3828A4724321713263E1"
+    },
+    "v3/tasks/20260203-v3-stable-pool-oracle-v2": {
+      "StableLPOracleFactory": "0xe56f2Daf9681B185Cd50F669Aab654CAbA3A3BE4",
+      "MockStableLPOracle": "0x7CF8b2b469Da59A46403ebf07f1b9eeCac9ad4a4"
+    },
+    "v3/tasks/20260209-v3-gyro-eclp-oracle": {
+      "EclpLPOracleFactory": "0xd529d0e2D27Ea2CceA71dE1f3Aa7deb380Ff55ee",
+      "MockEclpLPOracle": "0x66cB42a5a0850bF2BBF2B03e42cf4B6A26628014"
+    },
+    "v3/tasks/20260428-v3-reclamm-pool-v3": {
+      "ReClammPoolHelper": "0x1a1bC6ce8f8CDF8AD9e2a545BF36d4252a317013",
+      "ReClammPoolFactory": "0x928E433f50fa579c9be5f7e1273F1db46D630EE1",
+      "MockReClammPool": "0xDD6df9314D05D1439425E8992474E637D7dEdFe5"
+    },
+    "v3/tasks/20260501-v3-liquidity-bootstrapping-pool-v4": {
+      "LBPoolFactory": "0xDfDddD87dC49756DD93598123879AE3D67B531a3",
+      "MockLBPool": "0x1EB7926bf614C322F0E96C62633E7123f677a9A3"
+    },
+    "v3/deprecated/20250228-v3-protocol-fee-sweeper": {
+      "ProtocolFeeSweeper": "0x31e04A9Bb266353b5D74A6f9617beE387C6c9008"
+    },
+    "v3/deprecated/20250324-v3-stable-pool-v2": {
+      "StablePoolFactory": "0x1620c4D8AdE3490Ed96fF4c8133b3bA54ffC3A61",
+      "MockStablePool": "0x132940836b6e818bc6Fe66a379c4fB6E02058A8A"
+    },
+    "v3/tasks/20260927-primitives-factories": {
+      "TokenFactory": "0xB27D38F0968C334C8B7D3496D5D8E7afB80f4b13",
+      "WrapperFactory": "0x678a8F6AD8887De4323CA49Bc261043E67850dC7"
+    }
+  },
+  "provenance_note": "All contracts deployed via upstream balancer-deployments task system. Bytecode provenance: deployments/provenance-sweep-20260928.json"
+}
