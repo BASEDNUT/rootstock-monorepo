@@ -13,10 +13,11 @@ import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { useUserAccount } from '../../web3/UserAccountProvider'
 import { isAddress } from 'viem'
 import { PoolDisplayType } from '../pool.types'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { removeHookDataFromPoolIfNecessary } from '../pool.utils'
 import { PoolListItem } from '../pool.types'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
+import { useOnchainPoolDiscovery } from '../useOnchainPoolDiscovery'
 import { useTokens } from '../../tokens/TokensProvider'
 import { bn } from '@repo/lib/shared/utils/numbers'
 import { useWalletTokenBalances } from '../../tokens/useWalletTokenBalances'
@@ -48,19 +49,42 @@ export function usePoolListLogic({
     },
   }
 
+  // Rootstock: onchain-only networks (BASESEP) are excluded from the API query
+  // (onchain-only law) — their pools come from onchain discovery instead.
+  // S100 fix: detect onchain-only selection from the RAW networks state. The
+  // API chainIn is stripped by toApiNetworks and can NEVER contain them, so the
+  // old check (chainIn.some(isOnchainOnlyNetwork)) was always false and the
+  // merge never ran (browser-proven: BASESEP filter → 'No pools found').
+  const selectedNetworksForDiscovery: GqlChain[] = queryState.networks || []
+  const hasOnchainOnlyChain = selectedNetworksForDiscovery.some(isOnchainOnlyNetwork)
+  // All selected networks are onchain-only → chainIn empty → skip the API
+  // query entirely (never send BASESEP-shaped queries to the remote API).
+  const skipApiQuery = (variables.where.chainIn || []).length === 0
+  const { data: onchainPools } = useOnchainPoolDiscovery(hasOnchainOnlyChain)
+
   const { data, loading, previousData, refetch, networkStatus, error } = useQuery(
     GetPoolsDocument,
     {
       variables,
+      // Rootstock S100: onchain-only selection (BASESEP) → chainIn empty →
+      // never query the remote API for our pools (it doesn't know them).
+      skip: skipApiQuery,
     }
   )
 
-  const pools = loading && previousData ? previousData.pools : data?.pools || []
+  const apiPools = loading && previousData ? previousData.pools : data?.pools || []
+
+  const pools = hasOnchainOnlyChain
+    ? [...(onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
+    : apiPools
 
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
 
   const selectedChains = variables.where.chainIn || []
-  const joinableChains = selectedChains.filter(chain => chain !== GqlChainValues.Sepolia)
+
+  const joinableChains = selectedChains.filter(
+    chain => chain !== GqlChainValues.Sepolia && !isOnchainOnlyNetwork(chain)
+  )
 
   const {
     tokenBalancesByChain: walletTokenAddressesByChain,
@@ -180,7 +204,14 @@ export function usePoolListLogic({
 
   return {
     pools: filteredPools,
-    count: joinablePools ? filteredPools.length : data?.count || previousData?.count,
+    // Rootstock S100: when only onchain-only networks are selected (API
+    // skipped), count reflects the merged onchain pools — not the API's
+    // global pool count (browser-proven: badge showed 919 on BASESEP).
+    count: skipApiQuery
+      ? filteredPools.length
+      : joinablePools
+        ? filteredPools.length
+        : data?.count || previousData?.count,
     queryState,
     loading: loading || isJoinableBalanceLoading,
     error,

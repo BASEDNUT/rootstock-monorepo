@@ -2,8 +2,26 @@ import { withSentryConfig } from '@sentry/nextjs'
 import { sentryOptions } from './sentry.config'
 import type { NextConfig } from 'next'
 
+/**
+ * Rootstock S100 (TODO 5.10): IPFS static-export mode.
+ * ROOTSTOCK_EXPORT=1 → output:'export' (full static site for IPFS freeze).
+ * - images.unoptimized: no server-side image optimizer exists on IPFS
+ * - redirects/headers dropped: server features, unsupported in export mode
+ * - app/api routes are moved aside by scripts/build-ipfs.sh during export
+ * - subdomain-gateway doctrine: root-relative asset paths work at
+ *   https://<CID>.ipfs.<gateway>/ (S100 research: subdomain gateways only)
+ * Dev server (next dev) is unaffected — mode only activates at build time.
+ */
+const isIpfsExport = process.env.ROOTSTOCK_EXPORT === '1'
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  // S100b audit fix (2026-09-23): trailingSlash:true so export emits <route>/index.html.
+  // Without it, static servers and IPFS path-gateways resolve /pools to a raw directory
+  // listing (route.html + route/ dir, no index) — directory-listing bug, verified live.
+  ...(isIpfsExport
+    ? { output: 'export' as const, trailingSlash: true, images: { unoptimized: true } }
+    : {}),
   serverExternalPackages: ['thread-stream', 'real-require', 'encoding'],
   logging: {
     fetches: {
@@ -29,51 +47,35 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ['@repo/lib'],
 
-  // Safe App setup
-  headers: manifestHeaders,
+  // Safe App setup (server features — skipped in IPFS export mode)
+  ...(!isIpfsExport ? { headers: manifestHeaders } : {}),
   reactCompiler: true,
-  redirects: async () => [
-    {
-      source: '/pools',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/pools/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/portfolio',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/portfolio/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/vebal',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/vebal/:path*',
-      destination: '/',
-      permanent: true,
-    },
-    {
-      source: '/testooors',
-      destination: '/debug',
-      permanent: false,
-    },
-    {
-      source: '/components',
-      destination: '/',
-      permanent: false,
-    },
-  ],
+  ...(!isIpfsExport
+    ? {
+        redirects: async () => [
+          {
+            source: '/vebal',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/vebal/:path*',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/testooors',
+            destination: '/debug',
+            permanent: false,
+          },
+          {
+            source: '/components',
+            destination: '/',
+            permanent: false,
+          },
+        ],
+      }
+    : {}),
 }
 
 // Avoid sentry setup in CI

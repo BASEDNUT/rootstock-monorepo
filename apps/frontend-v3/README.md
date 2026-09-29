@@ -1,74 +1,44 @@
-# Balancer frontend V3
+# ROOTSTOCK frontend
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/balancer/frontend-monorepo)
+The Rootstock web app — BASED NUT's programmable liquidity engine for custom markets.
 
-## Getting Started
+- Trade: swap any pooled asset
+- Build: create custom pools, mint tokens, wrap tokens, launch LBPs
+- Track: portfolio, positions, activity — all onchain, no account needed
 
-_This project uses `pnpm`, if you haven't already installed it you can find the documentation here:
-https://pnpm.io/installation_
+Stack: Next.js (App Router, static export), viem + wagmi + RainbowKit, Apollo for market data.
 
-To setup the development environment, first clone the repo:
+## Hosting
 
-```bash
-git clone https://github.com/balancer/frontend-monorepo.git && cd frontend-monorepo/apps/frontend-v3
-```
+This app is built as a **static site and published to IPFS**. There is no DNS host — content lives
+at IPFS gateways under a content-addressed CID. See `scripts/build-ipfs.sh`.
 
-Copy the `.env.template` file to `.env.local`:
-
-```bash
-cp .env.template .env.local
-```
-
-Copy the `.env.local` file to `../../packages/lib`:
+## Getting started
 
 ```bash
-cp .env.local ../../packages/lib
-```
-
-Next, install dependencies:
-
-```bash
-cd ../..
 pnpm install
+pnpm dev:bal          # dev server on localhost:3000
 ```
 
-Then, run the development server:
+## Environment
+
+Copy `.env.template` to `.env.local`. Core keys: `NEXT_PUBLIC_WALLET_CONNECT_ID` and
+`NEXT_PUBLIC_PROJECT_ID`.
+
+## Static export
 
 ```bash
-pnpm dev:bal
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Developing on a local fork
-
-1. Create a `.env.local` file in the root of project:
-
-```
-ETHEREUM_RPC_URL=xxx
-BASE_RPC_URL=xxx
-GNOSIS_RPC_URL=xxx
-```
-
-2. Start local anvil fork
-
-```
-make fork-ethereum
-```
-
-3. Run the development server in fork mode:
-
-```
-pnpm dev:bal:fork
+ROOTSTOCK_EXPORT=1 pnpm build
+node scripts/serve-static.mjs   # serve out/ locally (default :8091)
 ```
 
 ## Testing
 
-See [Testing instructions](../../README.md#testing).
+```bash
+pnpm test:unit
+```
 
-## Developing in Windows
+## Contracts
 
-To develop in Windows you need to use WSL2. Learn more about it
-[here](https://learn.microsoft.com/en-us/windows/wsl/about).
-
-With WSL2 all environment variables will be correctly set without having to use `cross-env`.
+Deployed contracts and byte-exact provenance proofs live in
+[`deployments/`](../../deployments/PROVENANCE.md) at the repo root.

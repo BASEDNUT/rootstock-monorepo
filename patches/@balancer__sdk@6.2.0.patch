@@ -1,0 +1,280 @@
+diff --git a/dist/index.js b/dist/index.js
+index cc2186313cdec32fc1ec8cb7ec1a07bb06ab0b39..757bc83a900429516aad1e74128d98e0e5df83da 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -35627,6 +35627,7 @@ var balancerV2Contracts = {
+ // src/utils/balancerV3Contracts.ts
+ var balancerV3Contracts = {
+   BatchRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x41978EB90477d4D971dF22111B2d09679f4DadA6",
+     [42161 /* ARBITRUM_ONE */]: "0xaD89051bEd8d96f045E8912aE1672c6C0bF8a85E",
+     [43114 /* AVALANCHE */]: "0xc9b36096f5201ea332Db35d6D195774ea0D5988f",
+     [8453 /* BASE */]: "0x85a80afee867aDf27B50BdB7b76DA70f1E853062",
+@@ -35641,6 +35642,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x36caC20dd805d128c1a6Dd16eeA845C574b5A17C"
+   },
+   BufferRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xe1c7A291D4eBa814f36Ec96fD10F343A53BFa1D7",
+     [42161 /* ARBITRUM_ONE */]: "0x311334883921Fb1b813826E585dF1C2be4358615",
+     [43114 /* AVALANCHE */]: "0x22625eEDd92c81a219A83e1dc48f88d54786B017",
+     [8453 /* BASE */]: "0x4132f7AcC9dB7A6cF7BE2Dd3A9DC8b30C7E6E6c8",
+@@ -35655,6 +35657,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x85a80afee867aDf27B50BdB7b76DA70f1E853062"
+   },
+   CompositeLiquidityRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x5808B214B66C70e6c0759803AbF3498c2c78F437",
+     [42161 /* ARBITRUM_ONE */]: "0xC1A64500E035D9159C8826E982dFb802003227f0",
+     [43114 /* AVALANCHE */]: "0x0C8f71D19f87c0bD1b9baD2484EcC3388D5DbB98",
+     [8453 /* BASE */]: "0x9dA18982a33FD0c7051B19F0d7C76F2d5E7e017c",
+@@ -35669,6 +35672,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x9805dcfD25e6De36bad8fe9D3Fe2c9b44B764102"
+   },
+   FixedPriceLBPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x9A30757385012495A21D64c5EfAC335B1A6fE48D",
+     [42161 /* ARBITRUM_ONE */]: "0x7f246E7Bab4CdC8C7AB41EaDA8290009a5b26E0D",
+     [8453 /* BASE */]: "0xb96524227c4B5Ab908FC3d42005FE3B07abA40E9",
+     [100 /* GNOSIS_CHAIN */]: "0xD9E91f7aD501929b089992842a3f193795E6479e",
+@@ -35681,6 +35685,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xC1A64500E035D9159C8826E982dFb802003227f0"
+   },
+   GyroECLPPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x6057859CC86AA62c54860e1A342f60ab42098Efe",
+     [42161 /* ARBITRUM_ONE */]: "0xe31715e75207acC8bfadd96902FF522058928479",
+     [43114 /* AVALANCHE */]: "0x86a0E97eC0D5dB8DAE106D3067358d41968fD12c",
+     [8453 /* BASE */]: "0x86a0E97eC0D5dB8DAE106D3067358d41968fD12c",
+@@ -35695,6 +35700,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x3BEb058DE1A25dd24223fd9e1796df8589429AcE"
+   },
+   LBPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xDfDddD87dC49756DD93598123879AE3D67B531a3",
+     [42161 /* ARBITRUM_ONE */]: "0x6b7DEd11F15D6AB9959c29cEd3Cd101D69A14c35",
+     [43114 /* AVALANCHE */]: "0x6642863979e66d995717A2B836A121700595069A",
+     [8453 /* BASE */]: "0x6642863979e66d995717A2B836A121700595069A",
+@@ -35709,6 +35715,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xDE3d3d70Cc85a456f2D2569Ddec1ba38fA144837"
+   },
+   MevCaptureHook: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x7E50a9dB8252414AAD240E08b9ed4176C4D64888",
+     [42161 /* ARBITRUM_ONE */]: "0x5B42eC6D40f7B7965BE5308c70e2603c0281C1E9",
+     [43114 /* AVALANCHE */]: "0x6eaD84Af26E997D27998Fc9f8614e8a19BB93938",
+     [8453 /* BASE */]: "0x7A2535f5fB47b8e44c02Ef5D9990588313fe8F05",
+@@ -35719,6 +35726,7 @@ var balancerV3Contracts = {
+     [11155111 /* SEPOLIA */]: "0xEC9578e79d412537095501584284B092D2F6b9F7"
+   },
+   ReClammPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x928E433f50fa579c9be5f7e1273F1db46D630EE1",
+     [42161 /* ARBITRUM_ONE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+     [43114 /* AVALANCHE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+     [8453 /* BASE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+@@ -35733,6 +35741,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF"
+   },
+   Router: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759",
+     [42161 /* ARBITRUM_ONE */]: "0xEAedc32a51c510d35ebC11088fD5fF2b47aACF2E",
+     [43114 /* AVALANCHE */]: "0xF39CA6ede9BF7820a952b52f3c94af526bAB9015",
+     [8453 /* BASE */]: "0x3f170631ed9821Ca51A59D996aB095162438DC10",
+@@ -35747,6 +35756,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xc3ccacE87f6d3A81724075ADcb5ddd85a8A1bB68"
+   },
+   StablePoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x24Ab9fBA48E54b05c24a02122C4c40fD2018bA10",
+     [42161 /* ARBITRUM_ONE */]: "0x1FC7F1F84CFE61a04224AC8D3F87f56214FeC08c",
+     [43114 /* AVALANCHE */]: "0x16B50F6bF8C8Ca73C07e17762188c5DEEe7aE5Db",
+     [8453 /* BASE */]: "0xFc2986feAB34713E659da84F3B1FA32c1da95832",
+@@ -35761,6 +35771,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x1702067424096F07A60e62cceE3dE9420068492D"
+   },
+   StableSurgeHook: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x581e1dE0C136134AF479d09619b5f950420A427D",
+     [42161 /* ARBITRUM_ONE */]: "0x7c1b7A97BfAcD39975dE53e989A16c7BC4C78275",
+     [43114 /* AVALANCHE */]: "0x86705Ee19c0509Ff68F1118C55ee2ebdE383D122",
+     [8453 /* BASE */]: "0xDB8d758BCb971e482B2C45f7F8a7740283A1bd3A",
+@@ -35775,6 +35786,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xa523f47A933D5020b23629dDf689695AA94612Dc"
+   },
+   StableSurgePoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x6cD1150ccc00e0D00Cd3f671a8bdf00d38f5BE6e",
+     [42161 /* ARBITRUM_ONE */]: "0x8A8B9f35765899B3a0291700141470D79EA2eA88",
+     [43114 /* AVALANCHE */]: "0x8D217CB74f675B46cC2767C8cF0aAB53BE1c4818",
+     [8453 /* BASE */]: "0x6623d1CEEaB236ae93aCAfB285dDFB77336B6981",
+@@ -35789,6 +35801,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x8e3fEaAB11b7B351e3EA1E01247Ab6ccc847dD52"
+   },
+   UnbalancedAddViaSwapRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xbbEc9F2c69037852A86aB3F97326172649E82337",
+     [42161 /* ARBITRUM_ONE */]: "0xbF94192c652183c0f50056417f4D04810329f12c",
+     [43114 /* AVALANCHE */]: "0x6623d1CEEaB236ae93aCAfB285dDFB77336B6981",
+     [8453 /* BASE */]: "0x7fA49Df302a98223d98D115fc4FCD275576f6faA",
+@@ -35803,6 +35816,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xaD89051bEd8d96f045E8912aE1672c6C0bF8a85E"
+   },
+   Vault: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9",
+     [42161 /* ARBITRUM_ONE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+     [43114 /* AVALANCHE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+     [8453 /* BASE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+@@ -35817,6 +35831,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9"
+   },
+   VaultAdmin: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xC67111C130b1380E5ba027733315DE82bB5A6837",
+     [42161 /* ARBITRUM_ONE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+     [43114 /* AVALANCHE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+     [8453 /* BASE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+@@ -35831,6 +35846,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864"
+   },
+   VaultExtension: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x8e86fDf21a578cDB01F1A58c71a2ef21dBBE2A8E",
+     [42161 /* ARBITRUM_ONE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+     [43114 /* AVALANCHE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+     [8453 /* BASE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+@@ -35845,6 +35861,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9"
+   },
+   WeightedPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x277D7dDe3C6762C31CfB438c9331376fE8887A7c",
+     [42161 /* ARBITRUM_ONE */]: "0x83bf399FA3DC49Af8fb5c34031a50c7C93F56129",
+     [43114 /* AVALANCHE */]: "0xBDbADc891BB95DEE80eBC491699228EF0f7D6fF1",
+     [8453 /* BASE */]: "0xBDbADc891BB95DEE80eBC491699228EF0f7D6fF1",
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 3441fb65e5384e321250011d28fca62a3b0164e3..b72027e4944b4d4d24f05f6def37b30c6a78791d 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -35627,6 +35627,7 @@ var balancerV2Contracts = {
+ // src/utils/balancerV3Contracts.ts
+ var balancerV3Contracts = {
+   BatchRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x41978EB90477d4D971dF22111B2d09679f4DadA6",
+     [42161 /* ARBITRUM_ONE */]: "0xaD89051bEd8d96f045E8912aE1672c6C0bF8a85E",
+     [43114 /* AVALANCHE */]: "0xc9b36096f5201ea332Db35d6D195774ea0D5988f",
+     [8453 /* BASE */]: "0x85a80afee867aDf27B50BdB7b76DA70f1E853062",
+@@ -35641,6 +35642,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x36caC20dd805d128c1a6Dd16eeA845C574b5A17C"
+   },
+   BufferRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xe1c7A291D4eBa814f36Ec96fD10F343A53BFa1D7",
+     [42161 /* ARBITRUM_ONE */]: "0x311334883921Fb1b813826E585dF1C2be4358615",
+     [43114 /* AVALANCHE */]: "0x22625eEDd92c81a219A83e1dc48f88d54786B017",
+     [8453 /* BASE */]: "0x4132f7AcC9dB7A6cF7BE2Dd3A9DC8b30C7E6E6c8",
+@@ -35655,6 +35657,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x85a80afee867aDf27B50BdB7b76DA70f1E853062"
+   },
+   CompositeLiquidityRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x5808B214B66C70e6c0759803AbF3498c2c78F437",
+     [42161 /* ARBITRUM_ONE */]: "0xC1A64500E035D9159C8826E982dFb802003227f0",
+     [43114 /* AVALANCHE */]: "0x0C8f71D19f87c0bD1b9baD2484EcC3388D5DbB98",
+     [8453 /* BASE */]: "0x9dA18982a33FD0c7051B19F0d7C76F2d5E7e017c",
+@@ -35669,6 +35672,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x9805dcfD25e6De36bad8fe9D3Fe2c9b44B764102"
+   },
+   FixedPriceLBPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x9A30757385012495A21D64c5EfAC335B1A6fE48D",
+     [42161 /* ARBITRUM_ONE */]: "0x7f246E7Bab4CdC8C7AB41EaDA8290009a5b26E0D",
+     [8453 /* BASE */]: "0xb96524227c4B5Ab908FC3d42005FE3B07abA40E9",
+     [100 /* GNOSIS_CHAIN */]: "0xD9E91f7aD501929b089992842a3f193795E6479e",
+@@ -35681,6 +35685,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xC1A64500E035D9159C8826E982dFb802003227f0"
+   },
+   GyroECLPPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x6057859CC86AA62c54860e1A342f60ab42098Efe",
+     [42161 /* ARBITRUM_ONE */]: "0xe31715e75207acC8bfadd96902FF522058928479",
+     [43114 /* AVALANCHE */]: "0x86a0E97eC0D5dB8DAE106D3067358d41968fD12c",
+     [8453 /* BASE */]: "0x86a0E97eC0D5dB8DAE106D3067358d41968fD12c",
+@@ -35695,6 +35700,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x3BEb058DE1A25dd24223fd9e1796df8589429AcE"
+   },
+   LBPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xDfDddD87dC49756DD93598123879AE3D67B531a3",
+     [42161 /* ARBITRUM_ONE */]: "0x6b7DEd11F15D6AB9959c29cEd3Cd101D69A14c35",
+     [43114 /* AVALANCHE */]: "0x6642863979e66d995717A2B836A121700595069A",
+     [8453 /* BASE */]: "0x6642863979e66d995717A2B836A121700595069A",
+@@ -35709,6 +35715,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xDE3d3d70Cc85a456f2D2569Ddec1ba38fA144837"
+   },
+   MevCaptureHook: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x7E50a9dB8252414AAD240E08b9ed4176C4D64888",
+     [42161 /* ARBITRUM_ONE */]: "0x5B42eC6D40f7B7965BE5308c70e2603c0281C1E9",
+     [43114 /* AVALANCHE */]: "0x6eaD84Af26E997D27998Fc9f8614e8a19BB93938",
+     [8453 /* BASE */]: "0x7A2535f5fB47b8e44c02Ef5D9990588313fe8F05",
+@@ -35719,6 +35726,7 @@ var balancerV3Contracts = {
+     [11155111 /* SEPOLIA */]: "0xEC9578e79d412537095501584284B092D2F6b9F7"
+   },
+   ReClammPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x928E433f50fa579c9be5f7e1273F1db46D630EE1",
+     [42161 /* ARBITRUM_ONE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+     [43114 /* AVALANCHE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+     [8453 /* BASE */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF",
+@@ -35733,6 +35741,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x3ccD78683efFffdDc1A16f5553C896ac6D3ab7FF"
+   },
+   Router: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xDD9793Cd4B79a8bd65D690C64A3074D023Dfa759",
+     [42161 /* ARBITRUM_ONE */]: "0xEAedc32a51c510d35ebC11088fD5fF2b47aACF2E",
+     [43114 /* AVALANCHE */]: "0xF39CA6ede9BF7820a952b52f3c94af526bAB9015",
+     [8453 /* BASE */]: "0x3f170631ed9821Ca51A59D996aB095162438DC10",
+@@ -35747,6 +35756,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xc3ccacE87f6d3A81724075ADcb5ddd85a8A1bB68"
+   },
+   StablePoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x24Ab9fBA48E54b05c24a02122C4c40fD2018bA10",
+     [42161 /* ARBITRUM_ONE */]: "0x1FC7F1F84CFE61a04224AC8D3F87f56214FeC08c",
+     [43114 /* AVALANCHE */]: "0x16B50F6bF8C8Ca73C07e17762188c5DEEe7aE5Db",
+     [8453 /* BASE */]: "0xFc2986feAB34713E659da84F3B1FA32c1da95832",
+@@ -35761,6 +35771,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x1702067424096F07A60e62cceE3dE9420068492D"
+   },
+   StableSurgeHook: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x581e1dE0C136134AF479d09619b5f950420A427D",
+     [42161 /* ARBITRUM_ONE */]: "0x7c1b7A97BfAcD39975dE53e989A16c7BC4C78275",
+     [43114 /* AVALANCHE */]: "0x86705Ee19c0509Ff68F1118C55ee2ebdE383D122",
+     [8453 /* BASE */]: "0xDB8d758BCb971e482B2C45f7F8a7740283A1bd3A",
+@@ -35775,6 +35786,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xa523f47A933D5020b23629dDf689695AA94612Dc"
+   },
+   StableSurgePoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x6cD1150ccc00e0D00Cd3f671a8bdf00d38f5BE6e",
+     [42161 /* ARBITRUM_ONE */]: "0x8A8B9f35765899B3a0291700141470D79EA2eA88",
+     [43114 /* AVALANCHE */]: "0x8D217CB74f675B46cC2767C8cF0aAB53BE1c4818",
+     [8453 /* BASE */]: "0x6623d1CEEaB236ae93aCAfB285dDFB77336B6981",
+@@ -35789,6 +35801,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x8e3fEaAB11b7B351e3EA1E01247Ab6ccc847dD52"
+   },
+   UnbalancedAddViaSwapRouter: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xbbEc9F2c69037852A86aB3F97326172649E82337",
+     [42161 /* ARBITRUM_ONE */]: "0xbF94192c652183c0f50056417f4D04810329f12c",
+     [43114 /* AVALANCHE */]: "0x6623d1CEEaB236ae93aCAfB285dDFB77336B6981",
+     [8453 /* BASE */]: "0x7fA49Df302a98223d98D115fc4FCD275576f6faA",
+@@ -35803,6 +35816,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xaD89051bEd8d96f045E8912aE1672c6C0bF8a85E"
+   },
+   Vault: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9",
+     [42161 /* ARBITRUM_ONE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+     [43114 /* AVALANCHE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+     [8453 /* BASE */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+@@ -35817,6 +35831,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0xbA1333333333a1BA1108E8412f11850A5C319bA9"
+   },
+   VaultAdmin: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0xC67111C130b1380E5ba027733315DE82bB5A6837",
+     [42161 /* ARBITRUM_ONE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+     [43114 /* AVALANCHE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+     [8453 /* BASE */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864",
+@@ -35831,6 +35846,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x35fFB749B273bEb20F40f35EdeB805012C539864"
+   },
+   VaultExtension: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x8e86fDf21a578cDB01F1A58c71a2ef21dBBE2A8E",
+     [42161 /* ARBITRUM_ONE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+     [43114 /* AVALANCHE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+     [8453 /* BASE */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9",
+@@ -35845,6 +35861,7 @@ var balancerV3Contracts = {
+     [196 /* X_LAYER */]: "0x0E8B07657D719B86e06bF0806D6729e3D528C9A9"
+   },
+   WeightedPoolFactory: {
++    [84532 /* BASE_SEPOLIA (Rootstock S101c — verified live deployments) */]: "0x277D7dDe3C6762C31CfB438c9331376fE8887A7c",
+     [42161 /* ARBITRUM_ONE */]: "0x83bf399FA3DC49Af8fb5c34031a50c7C93F56129",
+     [43114 /* AVALANCHE */]: "0xBDbADc891BB95DEE80eBC491699228EF0f7D6fF1",
+     [8453 /* BASE */]: "0xBDbADc891BB95DEE80eBC491699228EF0f7D6fF1",

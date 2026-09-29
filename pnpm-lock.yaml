@@ -15,6 +15,9 @@ overrides:
   '@types/react-dom': '19.2'
   zod: 3.25.76
 
+patchedDependencies:
+  '@balancer/sdk@6.2.0': 356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0
+
 importers:
 
   .:
@@ -62,16 +65,14 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(typescript@5.9.3)(vitest@3.2.7(@types/debug@4.1.13)(@types/node@24.13.4)(happy-dom@20.14.5)(jiti@2.7.0)(msw@2.15.0(@types/node@24.13.4)(typescript@5.9.3))(supports-color@10.2.2)(terser@5.51.2)(yaml@2.9.0))
 
-
-
   apps/frontend-v3:
     dependencies:
       '@apollo/client':
         specifier: 'catalog:'
-        version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
+        version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.0))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@chakra-ui/clickable':
         specifier: ^2.1.0
         version: 2.1.0(react@19.2.8)
@@ -98,7 +99,7 @@ importers:
         version: link:../../packages/test
       '@sentry/nextjs':
         specifier: 10.73.0
-        version: 10.73.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))
+        version: 10.73.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@19.2.8)
@@ -162,7 +163,7 @@ importers:
     devDependencies:
       '@chakra-ui/cli':
         specifier: 2.5.8
-        version: 2.5.8(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
+        version: 2.5.8(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
       '@chakra-ui/styled-system':
         specifier: 2.12.0
         version: 2.12.0(react@19.2.8)
@@ -225,7 +226,7 @@ importers:
     devDependencies:
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -303,7 +304,7 @@ importers:
         version: 0.0.41
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@chakra-ui/anatomy':
         specifier: ^2.2.2
         version: 2.3.4
@@ -478,7 +479,7 @@ importers:
         version: 0.14.5(@apollo/client@4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2))(@types/react@19.2.18)(graphql@16.14.2)(next@16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@chakra-ui/cli':
         specifier: 2.5.8
-        version: 2.5.8(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
+        version: 2.5.8(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
       '@chakra-ui/styled-system':
         specifier: 2.12.0
         version: 2.12.0(react@19.2.8)
@@ -579,7 +580,7 @@ importers:
         version: 4.2.12(graphql-ws@6.2.1(crossws@0.3.5)(graphql@16.14.2)(ws@8.21.3))(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rxjs@7.8.2)
       '@balancer/sdk':
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -7170,10 +7171,6 @@ packages:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
 
-  p-limit@7.3.2:
-    resolution: {integrity: sha512-Ll0w3fU24vYpXoZmjjZIee6bJQDgG0oAyo1PdmFYI8UDwJJddaHAypxIH9avUu+t+lSsAwKVsb1jDCMIIChliw==}
-    engines: {node: '>=20'}
-
   p-locate@4.1.0:
     resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
     engines: {node: '>=8'}
@@ -7532,12 +7529,6 @@ packages:
     resolution: {integrity: sha512-ma2FePH0z3px2+WOu6h+YycZcEvFmmxIlAb62cF52bG86eMySciO/EQZeQMXd07kPCYB0a1dWDT5J+KE9mCDUw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-
-  react-countdown@2.3.6:
-    resolution: {integrity: sha512-ZfX6S08Hb6x6W6eCn1hMDvxPICI/T30fd+gaeVTCR/2cGZ2WJ3f26e4ImNIMX1fHkopJrUdnRpWXP13/D39+gg==}
-    peerDependencies:
-      react: '>= 15'
-      react-dom: '>= 15'
 
   react-dom@19.2.8:
     resolution: {integrity: sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==}
@@ -8880,10 +8871,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  yocto-queue@1.2.2:
-    resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
-    engines: {node: '>=12.20'}
-
   yoctocolors@2.2.0:
     resolution: {integrity: sha512-xYqdZFUK/VYazNl/oCDYN+3WloWQwMfZxBoiNt6qNyk+xfOdi598muWE42rNZFp1kNOiqW936q5RhUdnpqElSg==}
     engines: {node: '>=18'}
@@ -9175,7 +9162,7 @@ snapshots:
 
   '@balancer-labs/balancer-maths@0.0.41': {}
 
-  '@balancer/sdk@6.2.0(typescript@5.9.3)(zod@3.25.76)':
+  '@balancer/sdk@6.2.0(patch_hash=356fe068a8e3283b17bbcf5e26cee86558d2d5e491a50021eb7d3787ebcfc1f0)(typescript@5.9.3)(zod@3.25.76)':
     dependencies:
       '@balancer-labs/balancer-maths': 0.0.40
       viem: 2.56.0(typescript@5.9.3)(zod@3.25.76)
@@ -9235,58 +9222,11 @@ snapshots:
 
   '@chakra-ui/anatomy@2.3.6': {}
 
-  '@chakra-ui/cli@2.5.8(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.0)':
+  '@chakra-ui/cli@2.5.8(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)':
     dependencies:
       bundle-n-require: 1.1.2
       chokidar: 3.6.0
-      cli-welcome: 2.2.3(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.0)
-      commander: 11.1.0
-      ora: 7.0.1
-      prettier: 3.9.6
-      update-notifier: 6.0.2
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/react'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - babel-plugin-macros
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - encoding
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - prisma
-      - react
-      - react-devtools-core
-      - sql.js
-      - sqlite3
-      - supports-color
-      - utf-8-validate
-      - ws
-
-  '@chakra-ui/cli@2.5.8(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)':
-    dependencies:
-      bundle-n-require: 1.1.2
-      chokidar: 3.6.0
-      cli-welcome: 2.2.3(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
+      cli-welcome: 2.2.3(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
       commander: 11.1.0
       ora: 7.0.1
       prettier: 3.9.6
@@ -11286,7 +11226,8 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@neondatabase/serverless@1.1.0': {}
+  '@neondatabase/serverless@1.1.0':
+    optional: true
 
   '@next/env@16.3.5': {}
 
@@ -12089,6 +12030,22 @@ snapshots:
       - encoding
       - supports-color
 
+  '@sentry/bundler-plugins@10.73.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
+    dependencies:
+      '@babel/core': 7.29.7(supports-color@10.2.2)
+      '@sentry/cli': 2.58.6(supports-color@10.2.2)
+      '@sentry/core': 10.73.0
+      dotenv: 17.4.2
+      find-up: 5.0.0
+      glob: 13.0.6
+      magic-string: 0.30.21
+    optionalDependencies:
+      rollup: 4.63.1
+      webpack: 5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
   '@sentry/bundler-plugins@10.73.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
@@ -12158,6 +12115,32 @@ snapshots:
   '@sentry/feedback@10.73.0':
     dependencies:
       '@sentry/core': 10.73.0
+
+  '@sentry/nextjs@10.73.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@rollup/plugin-commonjs': 28.0.1(rollup@4.63.1)
+      '@sentry/browser-utils': 10.73.0
+      '@sentry/bundler-plugin-core': 5.3.0(supports-color@10.2.2)
+      '@sentry/conventions': 0.16.0
+      '@sentry/core': 10.73.0
+      '@sentry/node': 10.73.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1))(supports-color@10.2.2)
+      '@sentry/opentelemetry': 10.73.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))
+      '@sentry/react': 10.73.0(react@19.2.8)
+      '@sentry/server-utils': 10.73.0
+      '@sentry/vercel-edge': 10.73.0
+      '@sentry/webpack-plugin': 5.4.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))
+      next: 16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      rollup: 4.63.1
+      stacktrace-parser: 0.1.11
+    transitivePeerDependencies:
+      - '@opentelemetry/core'
+      - '@opentelemetry/exporter-trace-otlp-http'
+      - '@opentelemetry/sdk-trace-base'
+      - encoding
+      - react
+      - supports-color
+      - webpack
 
   '@sentry/nextjs@10.73.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.5(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
     dependencies:
@@ -12252,6 +12235,15 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@sentry/core': 10.73.0
+
+  '@sentry/webpack-plugin@5.4.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
+    dependencies:
+      '@sentry/bundler-plugins': 10.73.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))
+      webpack: 5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))
+    transitivePeerDependencies:
+      - encoding
+      - rollup
+      - supports-color
 
   '@sentry/webpack-plugin@5.4.0(rollup@4.63.1)(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))':
     dependencies:
@@ -14392,49 +14384,7 @@ snapshots:
 
   cjs-module-lexer@2.2.1: {}
 
-  clear-any-console@1.16.4(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.0):
-    dependencies:
-      command-code: 1.50.1(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(supports-color@10.2.2)
-      langbase: 1.2.4(react@19.2.8)(ws@8.21.0)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/react'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - babel-plugin-macros
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - encoding
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - prisma
-      - react
-      - react-devtools-core
-      - sql.js
-      - sqlite3
-      - supports-color
-      - utf-8-validate
-      - ws
-
-  clear-any-console@1.16.4(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3):
+  clear-any-console@1.16.4(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3):
     dependencies:
       command-code: 1.50.1(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(supports-color@10.2.2)
       langbase: 1.2.4(react@19.2.8)(ws@8.21.3)
@@ -14517,52 +14467,10 @@ snapshots:
       slice-ansi: 9.0.0
       string-width: 8.2.2
 
-  cli-welcome@2.2.3(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.0):
+  cli-welcome@2.2.3(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3):
     dependencies:
       chalk: 2.4.2
-      clear-any-console: 1.16.4(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.0)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/react'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - babel-plugin-macros
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - encoding
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - prisma
-      - react
-      - react-devtools-core
-      - sql.js
-      - sqlite3
-      - supports-color
-      - utf-8-validate
-      - ws
-
-  cli-welcome@2.2.3(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3):
-    dependencies:
-      chalk: 2.4.2
-      clear-any-console: 1.16.4(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
+      clear-any-console: 1.16.4(@neondatabase/serverless@1.1.0)(@types/react@19.2.18)(babel-plugin-macros@3.1.0)(react@19.2.8)(supports-color@10.2.2)(ws@8.21.3)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -16220,18 +16128,6 @@ snapshots:
 
   kind-of@6.0.3: {}
 
-  langbase@1.2.4(react@19.2.8)(ws@8.21.0):
-    dependencies:
-      dotenv: 16.6.1
-      openai: 4.104.0(ws@8.21.0)(zod@3.25.76)
-      zod: 3.25.76
-      zod-validation-error: 3.5.4(zod@3.25.76)
-    optionalDependencies:
-      react: 19.2.8
-    transitivePeerDependencies:
-      - encoding
-      - ws
-
   langbase@1.2.4(react@19.2.8)(ws@8.21.3):
     dependencies:
       dotenv: 16.6.1
@@ -16455,6 +16351,18 @@ snapshots:
       brace-expansion: 2.1.4
 
   minimist@1.2.8: {}
+
+  minimizer-webpack-plugin@5.10.0(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.3
+      terser: 5.51.2
+      webpack: 5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))
+    optionalDependencies:
+      esbuild: 0.25.12
+      postcss: 8.5.28
+      sharp: 0.35.4(@types/node@24.13.4)
 
   minimizer-webpack-plugin@5.10.0(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))(webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))):
     dependencies:
@@ -16686,21 +16594,6 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
 
-  openai@4.104.0(ws@8.21.0)(zod@3.25.76):
-    dependencies:
-      '@types/node': 18.19.130
-      '@types/node-fetch': 2.6.13
-      abort-controller: 3.0.0
-      agentkeepalive: 4.6.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.7.0
-    optionalDependencies:
-      ws: 8.21.0
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - encoding
-
   openai@4.104.0(ws@8.21.3)(zod@3.25.76):
     dependencies:
       '@types/node': 18.19.130
@@ -16817,10 +16710,6 @@ snapshots:
   p-limit@3.1.0:
     dependencies:
       yocto-queue: 0.1.0
-
-  p-limit@7.3.2:
-    dependencies:
-      yocto-queue: 1.2.2
 
   p-locate@4.1.0:
     dependencies:
@@ -17138,12 +17027,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
       react: 19.2.8
-
-  react-countdown@2.3.6(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
-    dependencies:
-      prop-types: 15.8.1
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
 
   react-dom@19.2.8(react@19.2.8):
     dependencies:
@@ -18268,6 +18151,45 @@ snapshots:
 
   webpack-sources@3.5.1: {}
 
+  webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)):
+    dependencies:
+      '@types/estree': 1.0.9
+      '@types/json-schema': 7.0.15
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.18.0
+      browserslist: 4.28.9
+      chrome-trace-event: 1.0.4
+      enhanced-resolve: 5.24.5
+      es-module-lexer: 2.3.2
+      events: 3.3.0
+      graceful-fs: 4.2.11
+      mime-db: 1.54.0
+      minimizer-webpack-plugin: 5.10.0(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4))(webpack@5.110.3(esbuild@0.25.12)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)))
+      neo-async: 2.6.2
+      schema-utils: 4.3.3
+      tapable: 2.3.3
+      watchpack: 2.5.2
+      webpack-sources: 3.5.1
+    transitivePeerDependencies:
+      - '@minify-html/node'
+      - '@napi-rs/image'
+      - '@swc/core'
+      - '@swc/css'
+      - '@swc/html'
+      - clean-css
+      - cssnano
+      - csso
+      - esbuild
+      - html-minifier-terser
+      - imagemin
+      - lightningcss
+      - postcss
+      - sharp
+      - svgo
+      - uglify-js
+
   webpack@5.110.3(esbuild@0.28.2)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.13.4)):
     dependencies:
       '@types/estree': 1.0.9
@@ -18478,8 +18400,6 @@ snapshots:
       yargs-parser: 22.0.0
 
   yocto-queue@0.1.0: {}
-
-  yocto-queue@1.2.2: {}
 
   yoctocolors@2.2.0: {}
 

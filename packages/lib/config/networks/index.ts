@@ -9,6 +9,7 @@ import polygon from './polygon'
 import fantom from './fantom'
 import optimism from './optimism'
 import base from './base'
+import baseSepolia from './baseSepolia'
 import sepolia from './sepolia'
 import sonic from './sonic'
 import hyperevm from './hyperevm'
@@ -21,6 +22,7 @@ const networkConfigs: NetworkConfigs = {
   [GqlChainValues.Arbitrum]: arbitrum,
   [GqlChainValues.Avalanche]: avalanche,
   [GqlChainValues.Base]: base,
+  [GqlChainValues.BaseSepolia]: baseSepolia,
   [GqlChainValues.Gnosis]: gnosis,
   [GqlChainValues.Mainnet]: mainnet,
   [GqlChainValues.Polygon]: polygon,

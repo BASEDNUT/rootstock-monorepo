@@ -28,6 +28,7 @@ import {
 } from './PortfolioFilters'
 import { usePortfolioFilters } from './PortfolioFiltersProvider'
 import { motion } from 'motion/react'
+import NextLink from 'next/link'
 import { usePortfolioSorting } from './usePortfolioSorting'
 import { usePoolMigrations } from '../../pool/migrations/PoolMigrationsProvider'
 import { getChainId } from '@repo/lib/config/app.config'
@@ -199,10 +200,22 @@ export function PortfolioTable() {
               {...tableRowProps}
             />
             <Divider />
-            <Center h="160px" rounded="lg" w="full">
-              <Box>
+            <Center h="200px" rounded="lg" w="full">
+              <VStack spacing="md">
+                <Text color="font.secondary" fontSize="sm">
+                  Your positions live here once you start. Connect your wallet to see them — or dive
+                  straight in.
+                </Text>
                 <ConnectWallet size="lg" variant="primary" />
-              </Box>
+                <HStack spacing="md">
+                  <Link as={NextLink} fontSize="sm" href="/swap">
+                    Swap tokens →
+                  </Link>
+                  <Link as={NextLink} fontSize="sm" href="/mint">
+                    Mint a token →
+                  </Link>
+                </HStack>
+              </VStack>
             </Center>
           </Card>
         )}
@@ -292,7 +305,7 @@ const LoadedPortfolioTableContent = memo(function LoadedPortfolioTableContent({
       items={sortedPools}
       left={{ base: '-4px', sm: '0' }}
       loading={false}
-      noItemsFoundLabel="You have no current positions"
+      noItemsFoundLabel="No positions yet — explore Pools, Swap, or Mint a token to begin"
       paginationProps={undefined}
       position="relative"
       renderTableHeader={() => (

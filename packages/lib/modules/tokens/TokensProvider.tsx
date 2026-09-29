@@ -10,7 +10,8 @@ import { isSameAddress } from '@repo/lib/shared/utils/addresses'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { bn, Numberish, isBnParseable } from '@repo/lib/shared/utils/numbers'
 import { useQuery } from '@apollo/client/react'
-import { createContext, PropsWithChildren, useCallback } from 'react'
+import { useQuery as useReactQuery } from '@tanstack/react-query'
+import { createContext, PropsWithChildren, useCallback, useMemo } from 'react'
 import { Address } from 'viem'
 import {
   getNativeAssetAddress,
@@ -22,7 +23,12 @@ import { mins } from '@repo/lib/shared/utils/time'
 import mainnetNetworkConfig from '@repo/lib/config/networks/mainnet'
 import { PoolToken } from '../pool/pool.types'
 import { ApiToken, ApiOrCustomToken } from './token.types'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { getOnchainOnlyTokens } from './onchain-tokens'
+import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
+// S106 (PRD-07 pickers law): factory-deployed tokens + wrappers discovered
+// from TokenCreated / WrapperCreated events — appear in every picker.
+import { fetchOnchainFactoryTokens } from '../primitives/onchain-factory-tokens'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
 export const TokensContext = createContext<UseTokensResult | null>(null)
@@ -32,7 +38,7 @@ export type GetTokenFn = (address: string, chain: GqlChain) => ApiToken | undefi
 const POLL_INTERVAL = mins(3).toMs()
 
 const SUPPORTED_CHAINS = {
-  chains: PROJECT_CONFIG.supportedNetworks,
+  chains: toApiNetworks(PROJECT_CONFIG.supportedNetworks),
 }
 
 export function useTokensLogic() {
@@ -40,7 +46,32 @@ export function useTokensLogic() {
     variables: SUPPORTED_CHAINS,
   })
 
-  const tokens = tokensData?.tokens || []
+  // Rootstock: tokens of onchain-discovered pools (BASESEP) — onchain metadata only
+  const { data: onchainPoolTokens } = useReactQuery({
+    queryKey: ['onchain-pool-tokens', 'basesep'],
+    queryFn: fetchOnchainPoolTokens,
+    enabled: (PROJECT_CONFIG.onchainOnlyNetworks || []).length > 0,
+    staleTime: 60_000,
+  })
+
+  // S106 (PRD-07 pickers law): factory-deployed tokens + wrappers
+  // (TokenCreated / WrapperCreated events) — onchain metadata only.
+  const { data: factoryTokens } = useReactQuery({
+    queryKey: ['onchain-factory-tokens', 'basesep'],
+    queryFn: fetchOnchainFactoryTokens,
+    enabled: (PROJECT_CONFIG.onchainOnlyNetworks || []).length > 0,
+    staleTime: 60_000,
+  })
+
+  const tokens = useMemo(
+    () => [
+      ...(tokensData?.tokens || []),
+      ...getOnchainOnlyTokens(),
+      ...(onchainPoolTokens || []),
+      ...(factoryTokens || []),
+    ],
+    [tokensData, onchainPoolTokens, factoryTokens]
+  )
 
   const {
     data: tokenPricesData,

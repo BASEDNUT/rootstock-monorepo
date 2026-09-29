@@ -1,11 +1,32 @@
 import { MetadataRoute } from 'next'
 
+// S107 (Boss 2026-09-29): no DNS host exists — hosting is IPFS, a new CID
+// is minted per build, so there is no stable base URL to hardcode. When
+// NEXT_PUBLIC_SITE_URL is set (a real host, future) entries are generated
+// from it; otherwise the sitemap is EMPTY in static export. No fabricated
+// hosts, ever.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+
+const ROUTES = [
+  '/',
+  '/swap',
+  '/create',
+  '/pools',
+  '/portfolio',
+  '/nutusd',
+  '/lbp/create',
+  '/mint',
+  '/wrap',
+]
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://rootstock.basednut.com'
-  return [
-    { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-    { url: `${base}/swap`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${base}/create`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${base}/nutusd`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-  ]
+  if (!SITE_URL) return []
+  const base = `https://${SITE_URL}`
+  return ROUTES.map(route => ({
+    url: route === '/' ? base : `${base}${route}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority:
+      route === '/' ? 1 : route.startsWith('/swap') || route.startsWith('/create') ? 0.9 : 0.8,
+  }))
 }

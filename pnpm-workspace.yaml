@@ -49,3 +49,6 @@ minimumReleaseAgeExclude:
   - eslint-plugin-react-rsc@5.19.1
   - eslint-plugin-react-web-api@5.19.1
   - eslint-plugin-react-x@5.19.1
+
+patchedDependencies:
+  "@balancer/sdk@6.2.0": patches/@balancer__sdk@6.2.0.patch

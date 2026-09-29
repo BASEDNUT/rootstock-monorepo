@@ -122,7 +122,9 @@ export function useFormattedPoolAttributes() {
       },
       {
         title: 'Swap fees',
-        value: `${fNum('feePercent', dynamicData.swapFee, { hideSmallPercentage: false })} (${poolOwnerData?.editableText})`,
+        value: `${fNum('feePercent', dynamicData.swapFee, { hideSmallPercentage: false })}${
+          poolOwnerData?.editableText ? ` (${poolOwnerData.editableText})` : ''
+        }`,
       },
       isStable(pool.type) && 'amp' in pool
         ? {
@@ -141,11 +143,13 @@ export function useFormattedPoolAttributes() {
         title: 'Attribute immutability',
         value: isQuantAmmPool(type)
           ? 'Immutable except for swap fees editable by governance, and dynamic weight shifts per smart contract.'
-          : `Immutable${poolOwnerData?.attributeImmutabilityText}`,
+          : `Immutable${poolOwnerData?.attributeImmutabilityText ?? ''}`,
       },
       {
         title: 'Creation date',
-        value: format(createTime * 1000, 'dd MMMM yyyy'),
+        // S101 (D1 fix): createTime 0 or missing renders epoch garbage
+        // ('01 July 1971' + '20722 days' activity window). Hide instead.
+        value: createTime && createTime > 0 ? format(createTime * 1000, 'dd MMMM yyyy') : 'Unknown',
       },
       {
         title: 'LP token price',

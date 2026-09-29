@@ -20,6 +20,7 @@ export const GqlChainValues = {
   Arbitrum: 'ARBITRUM',
   Avalanche: 'AVALANCHE',
   Base: 'BASE',
+  BaseSepolia: 'BASESEP',
   Fantom: 'FANTOM',
   Gnosis: 'GNOSIS',
   Hyperevm: 'HYPEREVM',

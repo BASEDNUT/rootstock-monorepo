@@ -34,7 +34,7 @@ import {
 import { PaginationState } from '@repo/lib/shared/components/pagination/pagination.types'
 
 import { ButtonGroupOption } from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export const PROTOCOL_VERSION_TABS: ButtonGroupOption[] = [
   {
@@ -69,8 +69,13 @@ const poolListQueryStateParsers = {
   poolTypes: parseAsArrayOf(
     parseAsStringEnum<PoolFilterType>(poolTypeFilters as unknown as PoolFilterType[])
   ).withDefault([]),
+  // S101 D6 fix (Boss decision 2026-09-25): this deployment is Base Sepolia
+  // only. Default comes from PROJECT_CONFIG.defaultPoolListNetworks (plain
+  // config value, bundled client + server — env gates fail in the client
+  // bundle, browser-proven: env-gated default reverted to [] at runtime and
+  // re-fetched 919 upstream pools).
   networks: parseAsArrayOf(parseAsStringEnum<GqlChain>(Object.values(GqlChainValues))).withDefault(
-    []
+    (PROJECT_CONFIG.defaultPoolListNetworks as GqlChain[]) || []
   ),
   protocolVersion: parseAsInteger,
   textSearch: parseAsString,
@@ -322,7 +327,7 @@ export function usePoolListQueryState() {
         poolType => poolType !== GqlPoolTypeValues.LiquidityBootstrapping
       ),
       poolTypeNotIn: [GqlPoolTypeValues.LiquidityBootstrapping],
-      chainIn: networks.length > 0 ? networks : PROJECT_CONFIG.supportedNetworks,
+      chainIn: toApiNetworks(networks.length > 0 ? networks : PROJECT_CONFIG.supportedNetworks),
       userAddress,
       minTvl,
       tagIn:

@@ -204,10 +204,18 @@ export interface ProjectConfig {
   projectLogo: string
   acceptedPoliciesVersion: number | undefined
   supportedNetworks: GqlChain[]
+  /** Networks selectable in-app but never queried from the remote API. */
+  onchainOnlyNetworks?: GqlChain[]
   corePoolId: string // this prop is used to adjust the color of the SparklesIcon
   variantConfig?: VariantConfig
   defaultNetwork: GqlChain
   ensNetwork: GqlChain
+  /** S101 D6 (Boss decision 2026-09-25): networks preselected on the pools
+   * list by default. This deployment is Base Sepolia only — empty default
+   * queried all upstream chains (919 stale Base mainnet pools baked into
+   * the artifact + live-fetched in the browser). Plain config value, bundled
+   * client + server, no env dependency (env gates fail in the client). */
+  defaultPoolListNetworks?: GqlChain[]
   delegateOwner: Address
   options: OptionsConfig
   links: Links

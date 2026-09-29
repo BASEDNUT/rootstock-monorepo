@@ -34,13 +34,29 @@ describe('graphql-enums', () => {
       GqlChain: ['ZKEVM', 'MODE', 'FRAXTAL', 'XLAYER'],
     }
 
+    // Rootstock additions: values intentionally added beyond the upstream schema.
+    // BASE_SEPOLIA is our onchain-only deployment network (S100) — the upstream
+    // Balancer API schema does not know it, and it must never be sent to the API
+    // (onchain-only law); the runtime enum still needs it for chain routing.
+    const additionsByEnum: Record<string, string[]> = {
+      GqlChain: ['BASESEP'],
+    }
+
     for (const exported of exportedValues) {
       const schemaValues = schemaEnums.get(exported.enumName)
       expect(schemaValues, `schema should define ${exported.enumName}`).toBeDefined()
 
       const deprecatedValues = deprecatedValuesByEnum[exported.enumName] || []
+      const additions = additionsByEnum[exported.enumName] || []
       const sortedExported = [...exported.values].sort()
-      const sortedSchema = [...schemaValues!.filter(v => !deprecatedValues.includes(v))].sort()
+
+      // Union semantics: the generated schema already merges our enum-ext
+      // (base-sepolia-enum-ext.graphql), so an addition may already exist in
+      // the local schema artifact. Count each value exactly once — idempotent
+      // whether or not codegen has re-run with the merge.
+      const schemaFiltered = schemaValues!.filter(v => !deprecatedValues.includes(v))
+      const additionsBeyond = additions.filter(v => !schemaFiltered.includes(v))
+      const sortedSchema = [...schemaFiltered, ...additionsBeyond].sort()
 
       expect(sortedExported, `${exported.name} values mismatch`).toEqual(sortedSchema)
     }

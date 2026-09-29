@@ -18,7 +18,7 @@ import {
   getBlockExplorerAddressUrl,
   getBlockExplorerTxUrl,
 } from '@repo/lib/shared/utils/blockExplorer'
-import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 import { useCurrentDate } from '@repo/lib/shared/hooks/date.hooks'
 
 type ChartInfoTokens = {
@@ -308,7 +308,7 @@ export function useEcosystemPoolActivityChart() {
 
   const { loading, data: response } = usePoolEvents({
     first: 500,
-    chainIn: supportedNetworks,
+    chainIn: toApiNetworks(supportedNetworks),
   })
 
   const chartData = useMemo(() => {

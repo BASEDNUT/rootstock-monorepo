@@ -29,11 +29,13 @@ import { useTransactionSteps } from '../transactions/transaction-steps/useTransa
 import { emptyAddress } from '../web3/contracts/wagmi-helpers'
 import { useUserAccount } from '../web3/UserAccountProvider'
 import { AuraBalSwapHandler } from './handlers/AuraBalSwap.handler'
+import { OnchainSwapHandler } from './handlers/OnchainSwap.handler'
 import { DefaultSwapHandler } from './handlers/DefaultSwap.handler'
 import { NativeWrapHandler } from './handlers/NativeWrap.handler'
 import { SwapHandler } from './handlers/Swap.handler'
 import { useSimulateSwapQuery } from './queries/useSimulateSwapQuery'
 import { isAuraBalSwap, sanitizeSwapState } from './swap.helpers'
+import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import {
   OSwapAction,
   SdkSimulateSwapResponse,
@@ -87,6 +89,11 @@ function selectSwapHandler(
     return new WrapHandler()
   } else if (isAuraBalSwap(tokenInAddress, tokenOutAddress, chain, swapType)) {
     return new AuraBalSwapHandler(tokens)
+  }
+
+  // Rootstock: onchain-only networks build paths locally (S100 law) — never the API SOR
+  if (isOnchainOnlyNetwork(chain)) {
+    return new OnchainSwapHandler()
   }
 
   return new DefaultSwapHandler(apolloClient)
@@ -706,11 +713,15 @@ export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapPro
     if (!swapTxHash) replaceUrlPath()
   }, [selectedChain, swapState.tokenIn, swapState.tokenOut, swapState.tokenIn.amount])
 
-  // Update selectable tokens when the chain changes
+  // Update selectable tokens when the chain changes — or when the onchain
+  // discovery fetch lands (Rootstock: BASESEP pool tokens arrive async ~17s
+  // after mount; without this dep the token list stays stale at mount-time)
+  const tokensForChain = getTokensByChain(selectedChain)
+
   useEffect(() => {
     if (isPoolSwap) return
     setTokens(getTokensByChain(selectedChain))
-  }, [selectedChain])
+  }, [selectedChain, tokensForChain?.length])
 
   // Open the preview modal when a swap tx hash is present
   useEffect(() => {

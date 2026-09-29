@@ -59,6 +59,13 @@ const balancerNetworksConfig: NetworkConfig[] = [
     name: 'Base',
     displayProps: { display: { base: 'none', md: 'none', lg: 'block' } },
   },
+  // S101 D8 fix (Boss-approved 2026-09-25): portfolio showed no Base Sepolia
+  // row, so holders of Rootstock pools would never see their positions.
+  {
+    chain: GqlChainValues.BaseSepolia,
+    name: 'Base Sepolia',
+    displayProps: { display: { base: 'none', md: 'none', lg: 'block' } },
+  },
 ]
 
 const beetsNetworksConfig: NetworkConfig[] = [
