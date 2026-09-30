@@ -1,5 +1,10 @@
 import { MetadataRoute } from 'next'
 
+// S100 export law (restored S108): metadata routes must be force-static for
+// output:export — dropped by the S107 env-gated rewrite, main was never
+// export-built before S108, so the regression shipped unnoticed.
+export const dynamic = 'force-static'
+
 // S107 (Boss 2026-09-29): no DNS host exists — hosting is IPFS, a new CID
 // is minted per build, so there is no stable base URL to hardcode. When
 // NEXT_PUBLIC_SITE_URL is set (a real host, future) entries are generated

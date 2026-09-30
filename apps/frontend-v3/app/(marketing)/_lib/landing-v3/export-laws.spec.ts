@@ -64,6 +64,14 @@ describe('export laws — S102 boat integrity', () => {
     }
   })
 
+  it('sitemap.ts + robots.ts: declare force-static (output:export law)', () => {
+    // S100 export law, dropped by the S107 env-gated rewrite — main was never
+    // export-built before S108, so the regression shipped unnoticed. Static
+    // export requires force-static on metadata routes.
+    expect(sitemap).toContain("export const dynamic = 'force-static'")
+    expect(robots).toContain("export const dynamic = 'force-static'")
+  })
+
   const OUT = resolve(APP, 'out')
   const hasOut = existsSync(resolve(OUT, 'index.html'))
 
@@ -81,11 +89,17 @@ describe('export laws — S102 boat integrity', () => {
     expect(robotsTxt).not.toContain('rootstock.basednut.com')
   })
 
-  it.skipIf(!hasOut)('export out/: sitemap.xml covers core routes', () => {
+  it.skipIf(!hasOut)('export out/: sitemap.xml env-gated, zero fabricated hosts', () => {
     const sitemapXml = readFileSync(resolve(OUT, 'sitemap.xml'), 'utf8')
 
-    for (const route of ['/swap', '/create', '/pools', '/portfolio', '/nutusd', '/lbp/create']) {
-      expect(sitemapXml).toContain(route)
+    // S107 design + S108 reconciliation: no DNS host exists — no
+    // NEXT_PUBLIC_SITE_URL at build time → empty urlset. Route coverage is
+    // enforced at the source level above. No fabricated hosts, ever.
+    for (const banned of ['balancer.fi', 'rootstock.basednut.com']) {
+      expect(sitemapXml).not.toContain(banned)
     }
+
+    const locs = (sitemapXml.match(/<loc>/g) ?? []).length
+    expect(locs).toBe(0)
   })
 })
