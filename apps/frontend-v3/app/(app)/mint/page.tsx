@@ -9,7 +9,11 @@ import { ConnectWallet } from '@repo/lib/modules/web3/ConnectWallet'
 import { useUserAccount } from '@repo/lib/modules/web3/UserAccountProvider'
 import { NetworkSwitchButton } from '@repo/lib/modules/web3/useChainSwitch'
 import { useInvalidateFactoryTokens } from '@repo/lib/modules/primitives/useInvalidateFactoryTokens'
-import { TOKEN_FACTORY, PRIMITIVES_CHAIN_ID } from '@repo/lib/modules/primitives/primitives.config'
+import { getPrimitivesDeployment } from '@repo/lib/modules/primitives/primitives.config'
+import { ChainSelect } from '@repo/lib/modules/chains/ChainSelect'
+import { useRootstockChain, setRootstockChain } from '@repo/lib/shared/hooks/useRootstockChain'
+import { getChainId } from '@repo/lib/config/app.config'
+
 import { tokenFactoryAbi } from '@repo/lib/modules/primitives/primitivesAbi'
 import {
   parsePrimitiveError,
@@ -17,8 +21,6 @@ import {
 } from '@repo/lib/modules/primitives/primitive-errors'
 import { useWriteContract } from '@repo/lib/shared/utils/wagmi'
 import { discoveryClient } from '@repo/lib/modules/pool/onchain-pool-fetch'
-import { NetworkIcon } from '@repo/lib/shared/components/icons/NetworkIcon'
-import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 
 /**
  * PRD-07 Primitive 1 — Mint token (S106).
@@ -41,6 +43,11 @@ export default function MintTokenPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // S110: two chains for everything — the global chain selection
+  const selectedChain = useRootstockChain()
+  const chainId = getChainId(selectedChain)
+  const deployment = getPrimitivesDeployment(chainId)
+
   const decimals = 18
 
   const parsedSupply = (() => {
@@ -58,6 +65,12 @@ export default function MintTokenPage() {
     parsedSupply > 0n
 
   async function handleMint() {
+    if (!deployment) {
+      // honest gate — the button is disabled, the handler never guesses
+      setError('Base mainnet deploys with the Rootstock mainnet release.')
+      return
+    }
+
     setError(undefined)
     setSuccess(undefined)
     setIsSubmitting(true)
@@ -65,13 +78,15 @@ export default function MintTokenPage() {
     try {
       const hash = await writeContractAsync({
         abi: tokenFactoryAbi,
-        address: TOKEN_FACTORY as `0x${string}`,
+        address: deployment.tokenFactory as `0x${string}`,
         functionName: 'create',
         args: [name, symbol, parsedSupply],
-        chainId: PRIMITIVES_CHAIN_ID,
+        chainId,
       })
 
       // wait for the on-chain receipt, then refresh pickers (frontend-ux Rule 1)
+      // (receipt client = the deployed-chain client; parameterize per-chain
+      // at mainnet deploy)
       const client = discoveryClient()
       const txReceipt = await client.waitForTransactionReceipt({ hash })
 
@@ -107,21 +122,28 @@ export default function MintTokenPage() {
           </Text>
         </VStack>
 
-        {/* S109 (Boss live E2E walk 2026-09-30): always-visible chain
-            badge — the page is a Base Sepolia primitive; the chain must be
-            obvious before any wallet is connected. */}
-        <HStack>
-          <NetworkIcon chain={GqlChainValues.BaseSepolia} size={7} />
+        {/* S110 (Boss 2026-09-30): two chains for everything — the global
+            chain picker. One pick persists across every surface (swap,
+            create pool, launchpad, mint, wrap) until changed. */}
+        <VStack align="start" spacing="xs" w="full">
           <Text color="font.secondary" fontSize="sm">
-            Base Sepolia
+            Chain
           </Text>
-        </HStack>
+          <ChainSelect onChange={value => setRootstockChain(value)} value={selectedChain} />
+        </VStack>
+
+        {!deployment && (
+          <Text color="font.secondary" fontSize="sm">
+            The primitive factories are live on Base Sepolia — Base mainnet deploys with the
+            Rootstock mainnet release.
+          </Text>
+        )}
 
         <Card maxW="600px" p="xl" w="full">
           <VStack align="start" spacing="md" w="full">
             {/* S106 Boss correction (2026-09-28): the form is ALWAYS visible —
                 grok-first, wallet only to act (same law as /lbp). */}
-            {isConnected ? <NetworkSwitchButton chainId={PRIMITIVES_CHAIN_ID} /> : null}
+            {isConnected && deployment ? <NetworkSwitchButton chainId={chainId} /> : null}
 
             <Box w="full">
               <Text color="font.secondary" fontSize="sm" mb="xs">
@@ -181,7 +203,7 @@ export default function MintTokenPage() {
               <ConnectWallet size="lg" w="full" />
             ) : (
               <Button
-                isDisabled={!isValid || isSubmitting}
+                isDisabled={!isValid || isSubmitting || !deployment}
                 isLoading={isSubmitting}
                 loadingText="Minting…"
                 onClick={handleMint}
@@ -210,13 +232,15 @@ export default function MintTokenPage() {
               your token&apos;s address by mistake is unrecoverable — no admin exists to rescue it.
             </Text>
             <HStack spacing="md">
-              <Link
-                fontSize="sm"
-                href={`https://base-sepolia.blockscout.com/address/${TOKEN_FACTORY}`}
-                isExternal
-              >
-                Factory on Blockscout ↗
-              </Link>
+              {deployment && (
+                <Link
+                  fontSize="sm"
+                  href={`${deployment.explorerBase}/address/${deployment.tokenFactory}`}
+                  isExternal
+                >
+                  Factory on Blockscout ↗
+                </Link>
+              )}
               <Link fontSize="sm" href="/wrap">
                 Next: wrap a token →
               </Link>

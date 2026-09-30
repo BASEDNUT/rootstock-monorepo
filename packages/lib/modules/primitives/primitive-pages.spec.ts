@@ -70,6 +70,11 @@ describe('primitive pages law (S106, PRD-07)', () => {
   })
 
   it('GUI specificity laws (Boss 2026-09-28): decimals truth + previews + facts + advisories', () => {
+    const primitivesConfig = readFileSync(
+      resolve(MONOREPO_ROOT, 'packages/lib/modules/primitives/primitives.config.ts'),
+      'utf8'
+    )
+
     const mint = readFileSync(resolve(APP, 'app/(app)/mint/page.tsx'), 'utf-8')
     const wrap = readFileSync(resolve(APP, 'app/(app)/wrap/page.tsx'), 'utf-8')
 
@@ -101,8 +106,17 @@ describe('primitive pages law (S106, PRD-07)', () => {
       expect(src, `${name}: accidental-send honesty note must exist`).toContain('unrecoverable')
     }
 
-    // Both: Blockscout explorer links (S105 verified explorer).
-    expect(mint, 'mint: Blockscout link must exist').toContain('base-sepolia.blockscout.com')
-    expect(wrap, 'wrap: Blockscout link must exist').toContain('base-sepolia.blockscout.com')
+    // Both: Blockscout explorer links (S105 verified explorer). S110: the
+    // explorer URL now comes from the per-chain deployment config
+    // (primitives.config PRIMITIVES_DEPLOYMENTS[chainId].explorerBase) — the
+    // law asserts the mechanism (page reads deployment.explorerBase) plus
+    // the config truth (blockscout for the Base Sepolia deployment).
+    expect(mint, 'mint: per-chain explorer link must exist').toContain('deployment.explorerBase')
+    expect(wrap, 'wrap: per-chain explorer link must exist').toContain('deployment.explorerBase')
+
+    expect(
+      primitivesConfig,
+      'primitives.config: Base Sepolia explorer must be Blockscout'
+    ).toContain('base-sepolia.blockscout.com')
   })
 })

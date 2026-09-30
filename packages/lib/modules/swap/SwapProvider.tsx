@@ -20,6 +20,7 @@ import { PropsWithChildren, createContext, useEffect, useMemo, useRef, useState 
 import { Address, Hash, isAddress } from 'viem'
 import { ChainSlug, chainToSlugMap, getChainSlug } from '../pool/pool.utils'
 import { getWalletChainSyncAction } from './useWalletChainSync'
+import { rootstockChainVar, setRootstockChain } from '@repo/lib/shared/hooks/useRootstockChain'
 import { calcMarketPriceImpact } from '../price-impact/price-impact.utils'
 import { usePriceImpact } from '../price-impact/PriceImpactProvider'
 import { useTokenBalances } from '../tokens/TokenBalancesProvider'
@@ -258,6 +259,8 @@ export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapPro
   }
 
   function setSelectedChain(_selectedChain: GqlChain) {
+    // S110: one pick, every surface — the swap picker writes the global chain
+    setRootstockChain(_selectedChain)
     const defaultTokenState = getDefaultTokenState(_selectedChain)
     swapStateVar(defaultTokenState)
     resetPriceImpact()
@@ -674,6 +677,17 @@ export function useSwapLogic({ poolActionableTokens, pool, pathParams }: SwapPro
   useEffect(() => {
     selectedChainRef.current = selectedChain
   }, [selectedChain])
+
+  // S110: global persistent chain selection — follow the one pick on mount
+  // (every surface writes it; this surface follows it until the user picks)
+  useEffect(() => {
+    const globalChain = rootstockChainVar()
+
+    if (globalChain && globalChain !== selectedChainRef.current) {
+      setSelectedChain(globalChain)
+    }
+    // mount-only: seed from the global selection
+  }, [])
 
   // When wallet chain changes, update the swap form chain
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, HStack, IconButton, useDisclosure } from '@chakra-ui/react'
+import { Button, HStack, IconButton, useDisclosure, Text } from '@chakra-ui/react'
 import { ChevronLeftIcon } from '@chakra-ui/icons'
 import { useLbpForm } from './LbpFormProvider'
 import { LbpCreationModal } from './modal/LbpCreationModal'
@@ -9,6 +9,7 @@ import { useUserAccount } from '../web3/UserAccountProvider'
 import { ConnectWallet } from '../web3/ConnectWallet'
 import { useCopyToClipboard } from '@repo/lib/shared/hooks/useCopyToClipboard'
 import { useFormState, useWatch } from 'react-hook-form'
+import { getOnchainScanConfig } from '@repo/lib/modules/pool/onchain-pool-discovery'
 
 export function LbpFormAction() {
   const { isConnected } = useUserAccount()
@@ -25,6 +26,10 @@ export function LbpFormAction() {
   } = useLbpForm()
 
   const selectedChain = useWatch({ control: saleStructureForm.control, name: 'selectedChain' })
+
+  // S110 (Boss 2026-09-30): ROOTSTOCK launchpad factories exist only where
+  // OUR stack is deployed — honest gate until the mainnet release.
+  const rootstockChainReady = !!selectedChain && !!getOnchainScanConfig(selectedChain)
   const previewModalDisclosure = useDisclosure()
   const nextBtn = useRef(null)
   const { copyToClipboard, isCopied } = useCopyToClipboard()
@@ -60,6 +65,7 @@ export function LbpFormAction() {
       )}
 
       <Button
+        disabled={!rootstockChainReady}
         onClick={async () => {
           const isStepValid = await validateCurrentStep()
           if (!isStepValid) return
@@ -76,6 +82,13 @@ export function LbpFormAction() {
       >
         {formButtonText}
       </Button>
+
+      {!rootstockChainReady && (
+        <Text color="font.secondary" fontSize="sm" w="full">
+          ROOTSTOCK launchpad factories deploy with the Rootstock mainnet release — Base Sepolia is
+          live now.
+        </Text>
+      )}
 
       {isFormStateValid && isLastStep && (
         <LbpCreationModal

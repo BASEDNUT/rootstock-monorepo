@@ -148,11 +148,16 @@ describe('export laws — S102 boat integrity', () => {
     expect(poolUtils).toContain('navTo(router,')
   })
 
-  it('S109: mint/wrap carry an always-visible chain badge', () => {
+  it('S110: mint/wrap — global chain picker, honest Base gating (replaces static badge)', () => {
     for (const p of ['mint', 'wrap']) {
       const src = readFileSync(resolve(APP, `app/(app)/${p}/page.tsx`), 'utf8')
-      expect(src).toContain('<NetworkIcon')
-      expect(src).toContain('Base Sepolia')
+      // S110 (Boss 2026-09-30): two chains for everything — the page carries
+      // the global picker, not a static chain badge.
+      expect(src).toContain('<ChainSelect')
+      expect(src).toContain('setRootstockChain')
+      // honest Base state: factories are NOT deployed on Base mainnet yet
+      expect(src).toContain('deploys with the Rootstock mainnet release')
+      expect(src).not.toContain('<NetworkIcon chain={GqlChainValues.BaseSepolia} size={7}')
     }
   })
 
@@ -193,6 +198,41 @@ describe('export laws — S102 boat integrity', () => {
       expect(baked).toBe(true)
     }
   )
+
+  // ─── S110 laws (Boss live verdict 2026-09-30: swap page crash + two chains everywhere) ──
+
+  it('S110: OnchainSwapHandler ctor never throws (Base page-crash fix)', () => {
+    const h = readFileSync(resolve(LIB, 'modules/swap/handlers/OnchainSwap.handler.ts'), 'utf8')
+    const ctorStart = h.indexOf('constructor(')
+    const ctorEnd = h.indexOf('private async getPools')
+    expect(ctorStart).toBeGreaterThan(-1)
+    expect(ctorEnd).toBeGreaterThan(ctorStart)
+    const ctor = h.slice(ctorStart, ctorEnd)
+    expect(ctor).not.toContain('throw')
+    // honest no-pools at action time, never at render
+    expect(h).toContain('if (!this.scanConfig) return []')
+  })
+
+  it('S110: global persistent chain selection — one pick, every surface', () => {
+    const g = readFileSync(resolve(LIB, 'shared/hooks/useRootstockChain.ts'), 'utf8')
+    expect(g).toContain("'rootstock.selectedChain'")
+    expect(g).toContain('makeVar')
+    expect(g).toContain('localStorage')
+
+    for (const f of [
+      'modules/swap/SwapProvider.tsx',
+      'modules/lbp/steps/SaleStructureStep.tsx',
+      'modules/pool/actions/create/steps/type/ChooseNetwork.tsx',
+    ]) {
+      expect(readFileSync(resolve(LIB, f), 'utf8')).toContain('setRootstockChain')
+    }
+  })
+
+  it('S110: supportedNetworks = Base + Base Sepolia unconditionally (two chains for everything)', () => {
+    const cfg = readFileSync(resolve(LIB, 'config/projects/balancer.ts'), 'utf8')
+    expect(cfg).toContain('supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia]')
+    expect(cfg).not.toContain('...(isProd ? [] : [GqlChainValues.BaseSepolia])')
+  })
 
   it.skipIf(!hasOut)('export out/: sitemap.xml env-gated, zero fabricated hosts', () => {
     const sitemapXml = readFileSync(resolve(OUT, 'sitemap.xml'), 'utf8')

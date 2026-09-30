@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import { ChainSelect } from '../../chains/ChainSelect'
+import { rootstockChainVar, setRootstockChain } from '@repo/lib/shared/hooks/useRootstockChain'
 import { SaleStructureForm, SeedType, UserActions, WeightAdjustmentType } from '../lbp.types'
 import { Control, Controller, SubmitHandler, UseFormSetValue } from 'react-hook-form'
 import { InputWithError } from '@repo/lib/shared/components/inputs/InputWithError'
@@ -78,6 +79,16 @@ export function SaleStructureStep() {
   useEffect(() => {
     clearErrors()
   }, [saleType, clearErrors])
+
+  // S110: follow the global chain pick on mount (one pick, every surface)
+  useEffect(() => {
+    const globalChain = rootstockChainVar()
+
+    if (globalChain && globalChain !== selectedChain) {
+      setValue('selectedChain', globalChain, { shouldDirty: false })
+    }
+    // mount-only
+  }, [])
 
   const supportedChains = PROJECT_CONFIG.supportedNetworks.filter(chain => {
     const chainConfig = getNetworkConfig(chain)
@@ -217,6 +228,9 @@ function NetworkSelectInput({
             chains={chains}
             onChange={newValue => {
               field.onChange(newValue as GqlChain)
+              // S110: one pick, every surface — the launchpad picker writes
+              // the global chain
+              setRootstockChain(newValue as GqlChain)
             }}
             value={field.value}
           />

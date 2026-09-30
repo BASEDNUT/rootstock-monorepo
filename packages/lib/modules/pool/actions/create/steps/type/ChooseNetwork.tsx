@@ -15,6 +15,8 @@ import {
 import { INITIAL_POOL_CREATION_FORM } from '../../constants'
 import { isCowProtocol } from '../../helpers'
 import { useWatch } from 'react-hook-form'
+import { useEffect } from 'react'
+import { rootstockChainVar, setRootstockChain } from '@repo/lib/shared/hooks/useRootstockChain'
 
 export function ChooseNetwork({ control }: { control: Control<PoolCreationForm> }) {
   const { poolCreationForm } = usePoolCreationForm()
@@ -38,6 +40,22 @@ export function ChooseNetwork({ control }: { control: Control<PoolCreationForm> 
       label: getChainShortName(network),
     }))
 
+  // S110: follow the global chain pick on mount (one pick, every surface)
+  useEffect(() => {
+    const globalChain = rootstockChainVar()
+    const current = poolCreationForm.getValues('network')
+
+    if (globalChain && current && globalChain !== current) {
+      poolCreationForm.reset({
+        ...INITIAL_POOL_CREATION_FORM,
+        network: globalChain,
+        protocol,
+        poolType,
+      })
+    }
+    // mount-only
+  }, [])
+
   return (
     <VStack align="start" spacing="md" w="full">
       <Text color="font.primary" fontWeight="bold">
@@ -51,6 +69,9 @@ export function ChooseNetwork({ control }: { control: Control<PoolCreationForm> 
             name={field.name}
             onChange={(value: GqlChain) => {
               field.onChange(value)
+              // S110: one pick, every surface — the create-pool picker writes
+              // the global chain
+              setRootstockChain(value)
 
               poolCreationForm.reset({
                 ...INITIAL_POOL_CREATION_FORM,

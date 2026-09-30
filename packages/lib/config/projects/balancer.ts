@@ -16,12 +16,9 @@ export const ProjectConfigBalancer: ProjectConfig = {
   projectUrl: 'https://github.com/BASEDNUT/rootstock-monorepo',
   projectLogo: '/images/icons/nut.svg',
   acceptedPoliciesVersion: undefined,
-  supportedNetworks: [
-    GqlChainValues.Base,
-
-    // testnets only in dev mode — Base Sepolia is our Rootstock deployment
-    ...(isProd ? [] : [GqlChainValues.BaseSepolia]),
-  ],
+  // S110 (Boss 2026-09-30): two chains for everything — Base Sepolia is
+  // our live Rootstock deployment, unconditionally selectable.
+  supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   // Base Sepolia: selectable for wallet/onchain actions, never queried from the remote API
   onchainOnlyNetworks: [GqlChainValues.BaseSepolia],
   variantConfig: {

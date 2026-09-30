@@ -22,12 +22,12 @@ import { NetworkSwitchButton } from '@repo/lib/modules/web3/useChainSwitch'
 import { useTokens } from '@repo/lib/modules/tokens/TokensProvider'
 import { TokenSelectModal } from '@repo/lib/modules/tokens/TokenSelectModal/TokenSelectModal'
 import { TokenBalancesProvider } from '@repo/lib/modules/tokens/TokenBalancesProvider'
-import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { useInvalidateFactoryTokens } from '@repo/lib/modules/primitives/useInvalidateFactoryTokens'
-import {
-  WRAPPER_FACTORY,
-  PRIMITIVES_CHAIN_ID,
-} from '@repo/lib/modules/primitives/primitives.config'
+import { getPrimitivesDeployment } from '@repo/lib/modules/primitives/primitives.config'
+import { ChainSelect } from '@repo/lib/modules/chains/ChainSelect'
+import { useRootstockChain, setRootstockChain } from '@repo/lib/shared/hooks/useRootstockChain'
+import { getChainId } from '@repo/lib/config/app.config'
+
 import { wrapperFactoryAbi } from '@repo/lib/modules/primitives/primitivesAbi'
 import {
   parsePrimitiveError,
@@ -35,7 +35,6 @@ import {
 } from '@repo/lib/modules/primitives/primitive-errors'
 import { useWriteContract, useReadContracts } from '@repo/lib/shared/utils/wagmi'
 import { discoveryClient } from '@repo/lib/modules/pool/onchain-pool-fetch'
-import { NetworkIcon } from '@repo/lib/shared/components/icons/NetworkIcon'
 
 /**
  * PRD-07 Primitive 2 — Wrap token (S106).
@@ -54,10 +53,15 @@ export default function WrapTokenPage() {
   const [success, setSuccess] = useState<string>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // S110: two chains for everything — the global chain selection
+  const selectedChain = useRootstockChain()
+  const chainId = getChainId(selectedChain)
+  const deployment = getPrimitivesDeployment(chainId)
+
   const tokenSelectDisclosure = useDisclosure()
   const tokenSelectBtn = useRef(null)
   const { getTokensByChain } = useTokens()
-  const tokens = getTokensByChain(GqlChainValues.BaseSepolia)
+  const tokens = getTokensByChain(selectedChain)
 
   const { writeContractAsync } = useWriteContract()
   const invalidateFactoryTokens = useInvalidateFactoryTokens()
@@ -72,9 +76,9 @@ export default function WrapTokenPage() {
   const { data: underlyingMeta, isLoading: isLoadingMeta } = useReadContracts({
     contracts: isValidAddress
       ? [
-          { address: underlying, abi: erc20Abi, functionName: 'name' as const },
-          { address: underlying, abi: erc20Abi, functionName: 'symbol' as const },
-          { address: underlying, abi: erc20Abi, functionName: 'decimals' as const },
+          { address: underlying, abi: erc20Abi, functionName: 'name' as const, chainId },
+          { address: underlying, abi: erc20Abi, functionName: 'symbol' as const, chainId },
+          { address: underlying, abi: erc20Abi, functionName: 'decimals' as const, chainId },
         ]
       : [],
     allowFailure: true,
@@ -90,6 +94,12 @@ export default function WrapTokenPage() {
   const isValid = isValidAddress && metaOk && name.trim().length > 0 && symbol.trim().length > 0
 
   async function handleWrap() {
+    if (!deployment) {
+      // honest gate — the button is disabled, the handler never guesses
+      setError('Base mainnet deploys with the Rootstock mainnet release.')
+      return
+    }
+
     setError(undefined)
     setSuccess(undefined)
     setIsSubmitting(true)
@@ -97,13 +107,15 @@ export default function WrapTokenPage() {
     try {
       const hash = await writeContractAsync({
         abi: wrapperFactoryAbi,
-        address: WRAPPER_FACTORY as `0x${string}`,
+        address: deployment.wrapperFactory as `0x${string}`,
         functionName: 'create',
         args: [underlying as `0x${string}`, name, symbol],
-        chainId: PRIMITIVES_CHAIN_ID,
+        chainId,
       })
 
       // wait for the on-chain receipt, then refresh pickers (frontend-ux Rule 1)
+      // (receipt client = the deployed-chain client; parameterize per-chain
+      // at mainnet deploy)
       const client = discoveryClient()
       const txReceipt = await client.waitForTransactionReceipt({ hash })
 
@@ -139,20 +151,27 @@ export default function WrapTokenPage() {
           </Text>
         </VStack>
 
-        {/* S109 (Boss live E2E walk 2026-09-30): always-visible chain
-            badge — the page is a Base Sepolia primitive; the chain must be
-            obvious before any wallet is connected. */}
-        <HStack>
-          <NetworkIcon chain={GqlChainValues.BaseSepolia} size={7} />
+        {/* S110 (Boss 2026-09-30): two chains for everything — the global
+            chain picker. One pick persists across every surface (swap,
+            create pool, launchpad, mint, wrap) until changed. */}
+        <VStack align="start" spacing="xs" w="full">
           <Text color="font.secondary" fontSize="sm">
-            Base Sepolia
+            Chain
           </Text>
-        </HStack>
+          <ChainSelect onChange={value => setRootstockChain(value)} value={selectedChain} />
+        </VStack>
+
+        {!deployment && (
+          <Text color="font.secondary" fontSize="sm">
+            The primitive factories are live on Base Sepolia — Base mainnet deploys with the
+            Rootstock mainnet release.
+          </Text>
+        )}
 
         <TokenBalancesProvider extTokens={tokens}>
           {/* S106 Boss correction (2026-09-28): the form is ALWAYS visible —
               grok-first, wallet only to act (same law as /lbp). */}
-          {isConnected ? <NetworkSwitchButton chainId={PRIMITIVES_CHAIN_ID} /> : null}
+          {isConnected && deployment ? <NetworkSwitchButton chainId={chainId} /> : null}
 
           <Card maxW="600px" p="xl" w="full">
             <VStack align="start" spacing="md" w="full">
@@ -261,7 +280,7 @@ export default function WrapTokenPage() {
                 <ConnectWallet size="lg" w="full" />
               ) : (
                 <Button
-                  isDisabled={!isValid || isSubmitting}
+                  isDisabled={!isValid || isSubmitting || !deployment}
                   isLoading={isSubmitting}
                   loadingText="Wrapping…"
                   onClick={handleWrap}
@@ -295,13 +314,15 @@ export default function WrapTokenPage() {
                 mistake is unrecoverable — no admin exists to rescue it.
               </Text>
               <HStack spacing="md">
-                <Link
-                  fontSize="sm"
-                  href={`https://base-sepolia.blockscout.com/address/${WRAPPER_FACTORY}`}
-                  isExternal
-                >
-                  Factory on Blockscout ↗
-                </Link>
+                {deployment && (
+                  <Link
+                    fontSize="sm"
+                    href={`${deployment.explorerBase}/address/${deployment.wrapperFactory}`}
+                    isExternal
+                  >
+                    Factory on Blockscout ↗
+                  </Link>
+                )}
                 <Link fontSize="sm" href="/mint">
                   First: mint a token →
                 </Link>
@@ -313,7 +334,7 @@ export default function WrapTokenPage() {
           </Card>
 
           <TokenSelectModal
-            chain={GqlChainValues.BaseSepolia}
+            chain={selectedChain}
             finalFocusRef={tokenSelectBtn}
             isOpen={tokenSelectDisclosure.isOpen}
             onClose={tokenSelectDisclosure.onClose}

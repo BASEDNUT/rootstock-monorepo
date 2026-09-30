@@ -32,3 +32,30 @@ export const PRIMITIVES_CHAIN_ID = 84532
 
 /** Block explorer base for links (Base Sepolia). */
 export const BASESEPOLIA_BLOCK_EXPLORER = 'https://sepolia.basescan.org'
+
+/**
+ * S110 (Boss 2026-09-30): per-chain factory deployments. Base Sepolia is
+ * live (S105 ledger); Base mainnet factories deploy with the Rootstock
+ * mainnet release — getPrimitivesDeployment returns undefined for chains
+ * without a deployment and the pages gate honestly instead of guessing.
+ */
+export interface PrimitivesDeployment {
+  tokenFactory: string
+  wrapperFactory: string
+  explorerBase: string
+  fromBlock: number
+}
+
+export const PRIMITIVES_DEPLOYMENTS: Record<number, PrimitivesDeployment> = {
+  84532: {
+    tokenFactory: TOKEN_FACTORY,
+    wrapperFactory: WRAPPER_FACTORY,
+    explorerBase: 'https://base-sepolia.blockscout.com',
+    fromBlock: FACTORY_SCAN_FROM_BLOCK,
+  },
+  // 8453 (Base mainnet): factories deploy with the Rootstock mainnet release.
+}
+
+export function getPrimitivesDeployment(chainId: number): PrimitivesDeployment | undefined {
+  return PRIMITIVES_DEPLOYMENTS[chainId]
+}

@@ -49,22 +49,31 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
   private chain
   private poolsCache: OnchainPoolListItem[] | undefined
 
-  // S109: per-chain handler — Base mainnet included. Chains without a
-  // deployed Rootstock vault return no pools (honest 'no pool' error).
+  // S110 (Boss live verdict 2026-09-30): the handler is constructed during
+  // render — it must NEVER throw. Chains without a deployed Rootstock vault
+  // (Base mainnet until the mainnet release) honestly return zero pools at
+  // ACTION time ('no pool found — pools deploy with the mainnet release'),
+  // never a dead page.
+  private scanConfig: ReturnType<typeof getOnchainScanConfig>
+
   constructor(chain: GqlChain) {
     super()
 
     this.chain = chain
     const scanConfig = getOnchainScanConfig(chain)
-    if (!scanConfig) throw new Error(`No onchain scan config for chain ${chain}`)
+    this.scanConfig = scanConfig
 
-    this.client = createPublicClient({
-      chain: scanConfig.chainId === 84532 ? baseSepolia : base,
-      transport: http(scanConfig.rpcUrl),
-    })
+    if (scanConfig) {
+      this.client = createPublicClient({
+        chain: scanConfig.chainId === 84532 ? baseSepolia : base,
+        transport: http(scanConfig.rpcUrl),
+      })
+    }
   }
 
   private async getPools(): Promise<OnchainPoolListItem[]> {
+    if (!this.scanConfig) return []
+
     if (!this.poolsCache) {
       this.poolsCache = await fetchDiscoveredPools(this.chain)
     }
@@ -74,6 +83,8 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
 
   private async getTokenDecimals(address: Address): Promise<number> {
     if (address === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') return 18 // native ETH
+
+    if (!this.client) return 18 // no scan config — never reached (no-pool throw first)
 
     try {
       return await this.client.readContract({
