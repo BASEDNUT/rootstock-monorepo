@@ -1,14 +1,15 @@
 import { createPublicClient, http, type PublicClient } from 'viem'
-import { baseSepolia } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import {
-  BASESEP_VAULT,
   POOL_REGISTERED_TOPIC0,
   getOnchainDiscoveryRpcUrl,
+  getOnchainScanConfig,
   type OnchainPoolListItem,
 } from './onchain-pool-discovery'
 import bakedRegistry from './baked-pool-registry.json'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 
 /**
  * Rootstock onchain pool fetch (BASESEP).
@@ -26,7 +27,6 @@ import bakedRegistry from './baked-pool-registry.json'
  * - full scan from deploy block ~75s cold-start (hence baked-first)
  */
 
-const DISCOVERY_FROM_BLOCK = 46_984_000
 const CHUNK = 1_000
 
 // Non-generic factory: pins the exact client instantiation so TS2719
@@ -34,10 +34,15 @@ const CHUNK = 1_000
 // S100b: explicit return type — TS7056 (inferred type exceeds serialization
 // length) triggered by e2e-tests buildinfo once the registry JSON import grew.
 function createDiscoveryClient(): PublicClient {
-  return createPublicClient({
-    chain: baseSepolia,
-    transport: http(getOnchainDiscoveryRpcUrl()),
-  }) as PublicClient
+  // S109: delegate to the per-chain factory using the Base Sepolia scan
+  // config (keeps the S100 discoveryClient() API; scan config is the
+  // single source of vault + fromBlock truth now).
+  // S109: delegate to the per-chain factory with the Base Sepolia scan
+  // config (vault + fromBlock truth lives in onchain-pool-discovery.ts).
+  return createDiscoveryClientFor({
+    chainId: 84532,
+    rpcUrl: getOnchainDiscoveryRpcUrl(),
+  })
 }
 
 type DiscoveryClient = ReturnType<typeof createDiscoveryClient>
@@ -50,6 +55,22 @@ export function discoveryClient(): DiscoveryClient {
   }
 
   return cachedClient
+}
+
+/**
+ * S109: per-chain discovery client (called by the per-chain scan).
+ * Base Sepolia (84532) → sepolia.base.org; Base mainnet (8453) →
+ * base.publicnode.com via the scan config rpcUrl.
+ */
+export function createDiscoveryClientFor(scanConfig: {
+  chainId: number
+  rpcUrl: string
+}): DiscoveryClient {
+  const viemChain = scanConfig.chainId === 84532 ? baseSepolia : base
+  return createPublicClient({
+    chain: viemChain,
+    transport: http(scanConfig.rpcUrl),
+  }) as PublicClient
 }
 
 /**
@@ -118,22 +139,28 @@ interface DiscoveredRaw {
 }
 
 /** Full live scan — Vault PoolRegistered events + direct pool reads. */
-export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
-  const client = discoveryClient()
+export async function scanDiscoveredPools(
+  chain: GqlChain = GqlChainValues.BaseSepolia
+): Promise<OnchainPoolListItem[]> {
+  // S109: per-chain scan — chains without a Rootstock vault (Base mainnet)
+  // honestly return zero pools rather than leak upstream routing.
+  const scanConfig = getOnchainScanConfig(chain)
+  if (!scanConfig) return []
+
+  const client = createDiscoveryClientFor(scanConfig)
   const latest = await client.getBlockNumber()
   const logs: DiscoveredRaw[] = []
 
-  for (let to = latest; to > BigInt(DISCOVERY_FROM_BLOCK); to -= BigInt(CHUNK)) {
-    const from =
-      to - BigInt(CHUNK) >= BigInt(DISCOVERY_FROM_BLOCK)
-        ? to - BigInt(CHUNK)
-        : BigInt(DISCOVERY_FROM_BLOCK)
+  const FROM_BLOCK = BigInt(scanConfig.fromBlock)
+
+  for (let to = latest; to > FROM_BLOCK; to -= BigInt(CHUNK)) {
+    const from = to - BigInt(CHUNK) >= FROM_BLOCK ? to - BigInt(CHUNK) : FROM_BLOCK
 
     const raw = (await client.request({
       method: 'eth_getLogs',
       params: [
         {
-          address: BASESEP_VAULT,
+          address: scanConfig.vault as `0x${string}`,
           topics: [POOL_REGISTERED_TOPIC0],
           fromBlock: ('0x' + from.toString(16)) as `0x${string}`,
           toBlock: ('0x' + to.toString(16)) as `0x${string}`,
@@ -159,7 +186,7 @@ export async function scanDiscoveredPools(): Promise<OnchainPoolListItem[]> {
       const item: OnchainPoolListItem = {
         id: pool,
         address: pool,
-        chain: GqlChainValues.BaseSepolia,
+        chain,
         type: 'WEIGHTED',
         protocolVersion: 3,
         symbol: '',
@@ -235,17 +262,21 @@ export function mergePools(
   return [...byAddress.values()]
 }
 
-let liveScanPromise: Promise<OnchainPoolListItem[]> | undefined
+let liveScanPromise: Promise<OnchainPoolListItem[]> | undefined // S109: single-chain cache
 
 /**
  * Primary fetch: baked-first (instant), then live scan merges in background.
  * Returns baked immediately if live scan not yet complete.
  */
-export async function fetchDiscoveredPools(): Promise<OnchainPoolListItem[]> {
-  const baked = getBakedPools()
+export async function fetchDiscoveredPools(
+  chain: GqlChain = GqlChainValues.BaseSepolia
+): Promise<OnchainPoolListItem[]> {
+  // S109: baked registry is the Base Sepolia deployment snapshot — other
+  // chains rely on the live scan only.
+  const baked = chain === GqlChainValues.BaseSepolia ? getBakedPools() : []
 
   if (!liveScanPromise) {
-    liveScanPromise = scanDiscoveredPools().catch(() => baked) // scan failure → baked still works
+    liveScanPromise = scanDiscoveredPools(chain).catch(() => baked) // scan failure → baked still works
   }
 
   // Race with short timeout: if live scan finishes fast (cached/warm), use merged.

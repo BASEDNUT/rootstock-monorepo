@@ -17,6 +17,8 @@ import {
 } from '@repo/lib/modules/primitives/primitive-errors'
 import { useWriteContract } from '@repo/lib/shared/utils/wagmi'
 import { discoveryClient } from '@repo/lib/modules/pool/onchain-pool-fetch'
+import { NetworkIcon } from '@repo/lib/shared/components/icons/NetworkIcon'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 
 /**
  * PRD-07 Primitive 1 — Mint token (S106).
@@ -104,6 +106,16 @@ export default function MintTokenPage() {
             picker across the app.
           </Text>
         </VStack>
+
+        {/* S109 (Boss live E2E walk 2026-09-30): always-visible chain
+            badge — the page is a Base Sepolia primitive; the chain must be
+            obvious before any wallet is connected. */}
+        <HStack>
+          <NetworkIcon chain={GqlChainValues.BaseSepolia} size={7} />
+          <Text color="font.secondary" fontSize="sm">
+            Base Sepolia
+          </Text>
+        </HStack>
 
         <Card maxW="600px" p="xl" w="full">
           <VStack align="start" spacing="md" w="full">

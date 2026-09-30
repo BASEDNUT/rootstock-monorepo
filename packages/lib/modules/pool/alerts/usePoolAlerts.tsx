@@ -22,6 +22,7 @@ import { usePoolMetadata } from '../metadata/usePoolMetadata'
 import { Address } from 'viem'
 import { usePoolTokenPriceWarnings } from '../usePoolTokenPriceWarnings'
 import { recoveryModeAlert } from '../actions/recovery-mode/RecoveryModeAlert'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export type PoolAlert = {
   identifier: string
@@ -239,7 +240,7 @@ export function usePoolAlerts(pool: Pool) {
           title="Migrate to the new veBAL staking gauge for future BAL liquidity incentives"
           tooltipLabel={migrateStakeTooltipLabel}
         >
-          <BalAlertButton onClick={() => router.push(`${pathname}/migrate-stake`)}>
+          <BalAlertButton onClick={() => navTo(router, `${pathname}/migrate-stake`)}>
             Migrate
           </BalAlertButton>
         </BalAlertContent>

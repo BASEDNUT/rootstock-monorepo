@@ -54,6 +54,7 @@ import { usePoolMetadata } from '../metadata/usePoolMetadata'
 import { formatTextListAsItems } from '@repo/lib/shared/utils/text-format'
 import { bn, fNum, ZERO_VALUE_DASH, formatFalsyValueAsDash } from '@repo/lib/shared/utils/numbers'
 import { StakeUnstakeButton } from './StakeUnstakeButton'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 function getTabs(isVeBalPool: boolean) {
   return [
@@ -220,7 +221,7 @@ export default function PoolMyLiquidity() {
     if (isFx(pool.type)) {
       openRedirectModal(RedirectPartner.Xave)
     } else {
-      router.push(`${pathname}/add-liquidity`)
+      navTo(router, `${pathname}/add-liquidity`)
     }
   }
 
@@ -228,7 +229,7 @@ export default function PoolMyLiquidity() {
     if (isFx(pool.type)) {
       openRedirectModal(RedirectPartner.Xave)
     } else {
-      router.push(`${pathname}/remove-liquidity`)
+      navTo(router, `${pathname}/remove-liquidity`)
     }
   }
 
@@ -377,7 +378,7 @@ export default function PoolMyLiquidity() {
                     <Button
                       flex="1"
                       maxW="120px"
-                      onClick={() => router.push(`${pathname}/migrate-stake`)}
+                      onClick={() => navTo(router, `${pathname}/migrate-stake`)}
                       rightIcon={<InfoOutlineIcon fontSize="sm" />}
                       variant="secondary"
                     >

@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { chainToSlugMap, getPoolPath } from '../pool.utils'
 import { usePoolMigrations } from './PoolMigrationsProvider'
 import { abbreviateAddress } from '@repo/lib/shared/utils/addresses'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 type Props = {
   pool: Pool
@@ -38,7 +39,7 @@ function AlertWithBalance({ pool }: Props) {
     if (hasStakedBalance) {
       onOpen()
     } else {
-      router.push(`${getPoolPath(pool)}/migrate-pool`)
+      navTo(router, `${getPoolPath(pool)}/migrate-pool`)
     }
   }
 

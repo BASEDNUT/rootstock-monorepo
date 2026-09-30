@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation'
 import { MouseEvent } from 'react'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export function useRedirect(path: string) {
   const router = useRouter()
@@ -11,7 +12,7 @@ export function useRedirect(path: string) {
     if (event && (event.ctrlKey || event.metaKey)) {
       window.open(path, '_blank')
     } else {
-      router.push(path)
+      navTo(router, path)
     }
   }
 

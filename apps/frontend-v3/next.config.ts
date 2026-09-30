@@ -20,7 +20,17 @@ const nextConfig: NextConfig = {
   // Without it, static servers and IPFS path-gateways resolve /pools to a raw directory
   // listing (route.html + route/ dir, no index) — directory-listing bug, verified live.
   ...(isIpfsExport
-    ? { output: 'export' as const, trailingSlash: true, images: { unoptimized: true } }
+    ? {
+        output: 'export' as const,
+        trailingSlash: true,
+        images: { unoptimized: true },
+        // S109: full-page links on the ship — next/link imports are
+        // rewritten at build time (scripts/build-ipfs.sh
+        // rewrite_link_imports); turbopack resolveAlias for the
+        // next-internal 'next/link' module fails silently (verified
+        // S109: zero data-ipfs-link baked, both relative and
+        // absolute forms).
+      }
     : {}),
   serverExternalPackages: ['thread-stream', 'real-require', 'encoding'],
   logging: {

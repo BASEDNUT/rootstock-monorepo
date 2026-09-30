@@ -28,6 +28,7 @@ import {
 import { Pool } from './pool.types'
 import { isSameAddress } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 // URL slug for each chain
 export enum ChainSlug {
@@ -219,7 +220,7 @@ export const poolClickHandler = (
   if (event.ctrlKey || event.metaKey) {
     window.open(poolPath, '_blank')
   } else {
-    router.push(poolPath)
+    navTo(router, poolPath)
   }
 }
 

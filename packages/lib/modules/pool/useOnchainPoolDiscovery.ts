@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { fetchDiscoveredPools } from './onchain-pool-fetch'
 
 /**
@@ -11,7 +12,7 @@ import { fetchDiscoveredPools } from './onchain-pool-fetch'
 export function useOnchainPoolDiscovery(enabled: boolean) {
   return useQuery({
     queryKey: ['onchain-pool-discovery', 'basesep'],
-    queryFn: fetchDiscoveredPools,
+    queryFn: () => fetchDiscoveredPools(GqlChainValues.BaseSepolia),
     enabled,
     staleTime: 60_000,
   })

@@ -31,13 +31,14 @@ import { hyperEVM } from '@balancer/sdk'
 export const rpcFallbacks: Partial<Record<GqlChain, string | undefined>> = {
   [GqlChainValues.Mainnet]: 'https://1rpc.io/eth',
   [GqlChainValues.Arbitrum]: 'https://1rpc.io/arb',
-  [GqlChainValues.Base]: 'https://1rpc.io/base',
+  [GqlChainValues.Base]: 'https://base.publicnode.com',
+  [GqlChainValues.BaseSepolia]: 'https://sepolia.base.org',
   [GqlChainValues.Avalanche]: 'https://1rpc.io/avax/c',
   [GqlChainValues.Fantom]: 'https://1rpc.io/ftm',
   [GqlChainValues.Gnosis]: 'https://1rpc.io/gnosis',
   [GqlChainValues.Optimism]: 'https://1rpc.io/op',
   [GqlChainValues.Polygon]: 'https://1rpc.io/matic',
-  [GqlChainValues.Sepolia]: 'https://1rpc.io/sepolia',
+  [GqlChainValues.Sepolia]: 'https://sepolia.base.org',
   [GqlChainValues.Sonic]: 'https://1rpc.io/sonic',
   [GqlChainValues.Hyperevm]: 'https://1rpc.io/hyperliquid',
   [GqlChainValues.Plasma]: 'https://rpc.plasma.to',
@@ -46,9 +47,24 @@ export const rpcFallbacks: Partial<Record<GqlChain, string | undefined>> = {
 
 const baseUrl = getBaseUrl()
 
+// S109 (Boss live E2E walk 2026-09-30): the IPFS export ships no API
+// server — the /api/rpc proxy 404s on gateways (killed swap quotes
+// live). Our chains route to public RPCs on the ship. CORS-verified
+// live: base.publicnode.com -> 'access-control-allow-origin: *',
+// sepolia.base.org -> echoes origin. 1rpc.io is CORS-BLOCKED from
+// browsers (probed: no ACAO header) — replaced for our chains.
+const isIpfsExport = process.env.NEXT_PUBLIC_IPFS_EXPORT === '1'
+
+export const exportPublicRpcUrls: Partial<Record<GqlChain, string>> = {
+  [GqlChainValues.Base]: 'https://base.publicnode.com',
+  [GqlChainValues.BaseSepolia]: 'https://sepolia.base.org',
+  [GqlChainValues.Sepolia]: 'https://sepolia.base.org',
+}
+
 const getPrivateRpcUrl = (chain: GqlChain) => {
   // Use anvil fork for E2E dev tests
   if (shouldUseAnvilFork) return defaultAnvilForkRpcUrl
+  if (isIpfsExport) return exportPublicRpcUrls[chain]
   return `${baseUrl}/api/rpc/${chain}`
 }
 

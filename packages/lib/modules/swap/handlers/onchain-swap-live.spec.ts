@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { OnchainSwapHandler } from './OnchainSwap.handler'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 
 // LIVE integration: real Base Sepolia, real mock pool, real onchain query.
 // Skips automatically if RPC unreachable.
 describe('OnchainSwapHandler live', () => {
   it('simulates a real single-pool swap onchain (no API)', async () => {
-    const handler = new OnchainSwapHandler()
+    const handler = new OnchainSwapHandler(GqlChainValues.BaseSepolia)
     let result
 
     try {

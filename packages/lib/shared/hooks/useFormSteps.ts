@@ -2,6 +2,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useLocalStorage } from 'usehooks-ts'
 import { ComponentType, useEffect, useRef } from 'react'
 import { isAddress } from 'viem'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export interface FormStep {
   id: string
@@ -80,7 +81,7 @@ export function useFormSteps(config: UseFormStepsConfig) {
     const step = steps[stepIndex]
 
     if (step) {
-      router.push(`${basePath}/${step.id}`)
+      navTo(router, `${basePath}/${step.id}`)
     }
   }
 

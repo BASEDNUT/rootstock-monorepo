@@ -40,6 +40,48 @@ export const ProjectConfigBalancer: ProjectConfig = {
   ensNetwork: GqlChainValues.Base,
   delegateOwner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
   merklRewardsChains: [GqlChainValues.Base],
+  // S109 (Boss live E2E walk 2026-09-30): the pools-page explainer band —
+  // upstream's 4 expandables left an EMPTY band on our ship (promoItems
+  // was undefined). Four ROOTSTOCK-native cards, internal links only.
+  promoItems: [
+    {
+      id: 1,
+      icon: 'v3',
+      label: 'Pools',
+      title: 'Weighted pools',
+      description: 'Custom weights for any token pair — the flexible default for custom markets.',
+      linkText: 'Create a weighted pool',
+      linkURL: '/create',
+    },
+    {
+      id: 2,
+      icon: 'boosted',
+      label: 'Pools',
+      title: 'Stable pools',
+      description: 'Like-kind assets at a steady 1:1 with lower slippage and fees.',
+      linkText: 'Create a stable pool',
+      linkURL: '/create',
+    },
+    {
+      id: 3,
+      icon: 'autorange',
+      label: 'Pools',
+      title: 'reCLAMM pools',
+      description:
+        'Concentrated liquidity that auto-recenters as price moves — capital-efficient by default.',
+      linkText: 'Create a reCLAMM pool',
+      linkURL: '/create',
+    },
+    {
+      id: 4,
+      icon: 'hook',
+      label: 'Launch',
+      title: 'Liquidity Bootstrapping',
+      description: 'Start high, sell down — the fair-launch auction pool for new tokens.',
+      linkText: 'Open the launchpad',
+      linkURL: '/lbp/create',
+    },
+  ],
   options: {
     poolDisplayType: PoolDisplayType.TokenPills,
     hidePoolTags: ['DYNAMIC_ECLP'],

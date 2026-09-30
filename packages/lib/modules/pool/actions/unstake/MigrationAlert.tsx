@@ -4,6 +4,7 @@ import { BalAlertContent } from '@repo/lib/shared/components/alerts/BalAlertCont
 import { useRouter } from 'next/navigation'
 import { getPoolPath } from '../../pool.utils'
 import { Pool } from '../../pool.types'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 type Props = {
   pool: Pool
@@ -11,7 +12,7 @@ type Props = {
 
 export function MigrationAlert({ pool }: Props) {
   const router = useRouter()
-  const migrate = () => router.push(`${getPoolPath(pool)}/migrate-pool`)
+  const migrate = () => navTo(router, `${getPoolPath(pool)}/migrate-pool`)
 
   const description = `
   Migrate your liquidity from this Balancer v2 pool to the recommended similar

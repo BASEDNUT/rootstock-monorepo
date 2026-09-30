@@ -40,6 +40,7 @@ import { ClaimRecoveredFundsModal } from '../recovered-funds/ClaimRecoveredFunds
 import { BalAlertLink } from '@repo/lib/shared/components/alerts/BalAlertLink'
 import { RecoveredFundsLearnMoreModal } from '../recovered-funds/RecoveredFundsLearnMoreModal'
 import { isChainDeprecated } from '@repo/lib/modules/chains/chain.utils'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 interface NetworkConfig {
   chain: GqlChain
@@ -48,23 +49,15 @@ interface NetworkConfig {
 }
 
 const balancerNetworksConfig: NetworkConfig[] = [
-  { chain: GqlChainValues.Mainnet, name: 'Ethereum', displayProps: {} },
-  {
-    chain: GqlChainValues.Arbitrum,
-    name: 'Arbitrum',
-    displayProps: { display: { base: 'none', md: 'block' } },
-  },
-  {
-    chain: GqlChainValues.Base,
-    name: 'Base',
-    displayProps: { display: { base: 'none', md: 'none', lg: 'block' } },
-  },
-  // S101 D8 fix (Boss-approved 2026-09-25): portfolio showed no Base Sepolia
-  // row, so holders of Rootstock pools would never see their positions.
+  // S109 (Boss live E2E walk 2026-09-30): upstream tabs showed Ethereum +
+  // Arbitrum — not our chains, nothing to claim there. Our chains only.
+  { chain: GqlChainValues.Base, name: 'Base', displayProps: {} },
+  // S101 D8 fix (Boss-approved 2026-09-25): Base Sepolia row so holders of
+  // Rootstock pools see their positions.
   {
     chain: GqlChainValues.BaseSepolia,
     name: 'Base Sepolia',
-    displayProps: { display: { base: 'none', md: 'none', lg: 'block' } },
+    displayProps: { display: { base: 'none', md: 'block' } },
   },
 ]
 
@@ -290,7 +283,7 @@ export function ClaimNetworkPools() {
                         openClaimRecoveredFundModal()
                         break
                       default:
-                        router.push(`/portfolio/${chainToSlugMap[item.chain]}`)
+                        navTo(router, `/portfolio/${chainToSlugMap[item.chain]}`)
                     }
                   }
 

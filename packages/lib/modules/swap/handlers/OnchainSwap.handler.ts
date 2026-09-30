@@ -1,14 +1,12 @@
 import { createPublicClient, http, erc20Abi, type Address } from 'viem'
-import { baseSepolia } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 import { balancerV3Contracts } from '@balancer/sdk'
 import { BaseDefaultSwapHandler } from './BaseDefaultSwap.handler'
 import { buildOnchainSwapPaths, findOnchainPoolForPair } from './onchain-swap-path'
-import {
-  getOnchainDiscoveryRpcUrl,
-  type OnchainPoolListItem,
-} from '../../pool/onchain-pool-discovery'
+import { getOnchainScanConfig, type OnchainPoolListItem } from '../../pool/onchain-pool-discovery'
 import { fetchDiscoveredPools } from '../../pool/onchain-pool-fetch'
 import type { SimulateSwapInputs, SdkSimulateSwapResponse } from '../swap.types'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import { ProtocolVersion } from '../../pool/pool.types'
 
 /**
@@ -48,20 +46,27 @@ patchSdkAddressTableForBaseSepolia()
 export class OnchainSwapHandler extends BaseDefaultSwapHandler {
   name = 'OnchainSwapHandler'
   private client
+  private chain
   private poolsCache: OnchainPoolListItem[] | undefined
 
-  constructor() {
+  // S109: per-chain handler — Base mainnet included. Chains without a
+  // deployed Rootstock vault return no pools (honest 'no pool' error).
+  constructor(chain: GqlChain) {
     super()
 
+    this.chain = chain
+    const scanConfig = getOnchainScanConfig(chain)
+    if (!scanConfig) throw new Error(`No onchain scan config for chain ${chain}`)
+
     this.client = createPublicClient({
-      chain: baseSepolia,
-      transport: http(getOnchainDiscoveryRpcUrl()),
+      chain: scanConfig.chainId === 84532 ? baseSepolia : base,
+      transport: http(scanConfig.rpcUrl),
     })
   }
 
   private async getPools(): Promise<OnchainPoolListItem[]> {
     if (!this.poolsCache) {
-      this.poolsCache = await fetchDiscoveredPools()
+      this.poolsCache = await fetchDiscoveredPools(this.chain)
     }
 
     return this.poolsCache
@@ -83,13 +88,19 @@ export class OnchainSwapHandler extends BaseDefaultSwapHandler {
 
   async simulate({ ...inputs }: SimulateSwapInputs): Promise<SdkSimulateSwapResponse> {
     const { chain, tokenIn, tokenOut, swapType, swapAmount } = inputs
-    if (chain !== 'BASESEP') throw new Error('OnchainSwapHandler only for BASESEP')
+
+    // S109: our chains only — never upstream networks
+    if (chain !== 'BASESEP' && chain !== 'BASE') {
+      throw new Error(`OnchainSwapHandler does not support chain ${chain}`)
+    }
 
     const pools = await this.getPools()
     const pool = findOnchainPoolForPair(pools, tokenIn, tokenOut)
 
     if (!pool) {
-      throw new Error(`No onchain pool found for pair ${tokenIn}/${tokenOut} on Base Sepolia`)
+      throw new Error(
+        `No ${this.chain === 'BASE' ? 'Rootstock mainnet' : 'Rootstock Base Sepolia'} pool found for pair ${tokenIn}/${tokenOut} — pools deploy with the ${this.chain === 'BASE' ? 'mainnet release' : 'testnet vault'}`
+      )
     }
 
     const [inDecimals, outDecimals] = await Promise.all([

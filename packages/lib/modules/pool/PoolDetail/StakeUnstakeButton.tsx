@@ -5,6 +5,7 @@ import { getCanStake } from '../actions/stake.helpers'
 import { Pool } from '../pool.types'
 import { calcGaugeStakedBalance, getUserWalletBalance } from '../user-balance.helpers'
 import { TooltipWithTouch } from '@repo/lib/shared/components/tooltips/TooltipWithTouch'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 type StakeUnstakeButtonProps = {
   pool: Pool
@@ -30,7 +31,7 @@ export function StakeUnstakeButton({ pool, action }: StakeUnstakeButtonProps) {
       ? 'tertiary'
       : 'disabled'
 
-  const handleClick = () => router.push(`${pathname}/${isStakeAction ? 'stake' : 'unstake'}`)
+  const handleClick = () => navTo(router, `${pathname}/${isStakeAction ? 'stake' : 'unstake'}`)
 
   const stakeTooltipLabel =
     isStakeAction && !canStake

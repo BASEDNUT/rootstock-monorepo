@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 
@@ -11,6 +11,7 @@ import { dirname, resolve } from 'path'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '../../../../../../')
 const APP = resolve(ROOT, 'apps/frontend-v3')
+const LIB = resolve(ROOT, 'packages/lib')
 
 const buildScript = readFileSync(resolve(APP, 'scripts/build-ipfs.sh'), 'utf8')
 const robots = readFileSync(resolve(APP, 'app/robots.ts'), 'utf8')
@@ -88,6 +89,110 @@ describe('export laws — S102 boat integrity', () => {
     expect(robotsTxt).not.toContain('balancer.fi')
     expect(robotsTxt).not.toContain('rootstock.basednut.com')
   })
+
+  // ─── S109 laws (Boss live E2E walk 2026-09-30) ────────────────────────────
+
+  it('S109: AcceptPoliciesModal entity is project-native (no upstream orgs)', () => {
+    const modal = readFileSync(resolve(LIB, 'modules/web3/AcceptPoliciesModal.tsx'), 'utf8')
+    expect(modal).not.toContain('BeethovenX DAO')
+    expect(modal).not.toContain('Balancer Foundation')
+    expect(modal).toContain('entityName = projectName')
+  })
+
+  it('S109: claim tabs are our chains only (Base + Base Sepolia)', () => {
+    const claim = readFileSync(
+      resolve(LIB, 'modules/portfolio/PortfolioClaim/ClaimNetworkPools/ClaimNetworkPools.tsx'),
+      'utf8'
+    )
+
+    expect(claim).not.toContain("{ chain: GqlChainValues.Mainnet, name: 'Ethereum'")
+    expect(claim).not.toContain('{ chain: GqlChainValues.Arbitrum')
+    expect(claim).toContain("{ chain: GqlChainValues.Base, name: 'Base'")
+    expect(claim).toContain('GqlChainValues.BaseSepolia')
+  })
+
+  it('S109: ChainConfig export-mode public RPCs (no dead /api/rpc proxy on the ship)', () => {
+    const cfg = readFileSync(resolve(LIB, 'modules/web3/ChainConfig.tsx'), 'utf8')
+    expect(cfg).toContain('NEXT_PUBLIC_IPFS_EXPORT')
+    expect(cfg).toContain('base.publicnode.com')
+    expect(cfg).toContain('sepolia.base.org')
+    expect(cfg).not.toContain("[GqlChainValues.Base]: 'https://1rpc.io/base'")
+  })
+
+  it('S109: our chains swap onchain — never the upstream API SOR (upstream pool routing killed live swaps)', () => {
+    const sp = readFileSync(resolve(LIB, 'modules/swap/SwapProvider.tsx'), 'utf8')
+    expect(sp).toContain('chain === GqlChainValues.Base')
+    const h = readFileSync(resolve(LIB, 'modules/swap/handlers/OnchainSwap.handler.ts'), 'utf8')
+    expect(h).toContain('8453')
+    expect(h).toContain('chain: GqlChain')
+  })
+
+  it('S109: export build rewrites next/link imports to the IpfsLink full-page anchor', () => {
+    // turbopack resolveAlias for the next-internal 'next/link' module fails
+    // silently (verified S109: zero data-ipfs-link baked, both relative and
+    // absolute forms) — the deterministic mechanism is a build-time import
+    // rewrite in build-ipfs.sh (flat stash + manifest, trap-restored).
+    expect(buildScript).toContain('rewrite_link_imports')
+    expect(buildScript).toContain('restore_link_imports')
+    expect(buildScript).toContain("from 'next/link'")
+    expect(buildScript).toContain('@repo/lib/shared/components/ipfs/IpfsLink')
+    const ipfsLink = readFileSync(resolve(LIB, 'shared/components/ipfs/IpfsLink.tsx'), 'utf8')
+    expect(ipfsLink).toContain('<a')
+    expect(ipfsLink).toContain('data-ipfs-link')
+  })
+
+  it('S109: router.push sites route through navTo (full-page on the ship)', () => {
+    const nav = readFileSync(resolve(LIB, 'shared/utils/ipfs-nav.ts'), 'utf8')
+    expect(nav).toContain('window.location.assign')
+    const poolUtils = readFileSync(resolve(LIB, 'modules/pool/pool.utils.ts'), 'utf8')
+    expect(poolUtils).toContain('navTo(router,')
+  })
+
+  it('S109: mint/wrap carry an always-visible chain badge', () => {
+    for (const p of ['mint', 'wrap']) {
+      const src = readFileSync(resolve(APP, `app/(app)/${p}/page.tsx`), 'utf8')
+      expect(src).toContain('<NetworkIcon')
+      expect(src).toContain('Base Sepolia')
+    }
+  })
+
+  it('S109: pools page explainer — 4 ROOTSTOCK promo cards configured', () => {
+    const proj = readFileSync(resolve(LIB, 'config/projects/balancer.ts'), 'utf8')
+    expect(proj).toContain('promoItems: [')
+
+    for (const t of [
+      'Weighted pools',
+      'Stable pools',
+      'reCLAMM pools',
+      'Liquidity Bootstrapping',
+    ]) {
+      expect(proj).toContain(t)
+    }
+  })
+
+  it('S109: build-ipfs.sh bakes the export flag and trap-restores stashes', () => {
+    expect(buildScript).toContain('NEXT_PUBLIC_IPFS_EXPORT=1')
+    expect(buildScript).toContain('trap ')
+  })
+
+  it.skipIf(!hasOut)(
+    'S109 export out/: IpfsLink baked into JS chunks (full-page anchors on the ship)',
+    () => {
+      // The nav is hydration-gated (suspense boundaries prerender empty) —
+      // anchors appear client-side, so the alias proof lives in the BUNDLED
+      // CHUNKS, not the static HTML. Zero data-ipfs-link in chunks = the
+      // alias silently failed (verified S109: relative-path form).
+      const chunksDir = resolve(OUT, '_next/static/chunks')
+      const files = readdirSync(chunksDir).filter(f => f.endsWith('.js'))
+
+      const baked = files.some(f =>
+        readFileSync(resolve(chunksDir, f), 'utf8').includes('data-ipfs-link')
+      )
+
+      expect(files.length).toBeGreaterThan(0)
+      expect(baked).toBe(true)
+    }
+  )
 
   it.skipIf(!hasOut)('export out/: sitemap.xml env-gated, zero fabricated hosts', () => {
     const sitemapXml = readFileSync(resolve(OUT, 'sitemap.xml'), 'utf8')

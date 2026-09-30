@@ -4,6 +4,7 @@ import { AlertStatus } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 import { isGyro } from '../../pool.helpers'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export function recoveryModeAlert(pool: Pool) {
   const isV3 = pool.protocolVersion === 3
@@ -28,7 +29,7 @@ function RecoveryAction() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const openRecoveryModeModal = () => router.push(`${pathname}/enable-recovery-mode`)
+  const openRecoveryModeModal = () => navTo(router, `${pathname}/enable-recovery-mode`)
 
   return (
     <>

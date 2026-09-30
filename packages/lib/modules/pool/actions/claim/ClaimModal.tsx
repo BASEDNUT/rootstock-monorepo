@@ -26,6 +26,7 @@ import { AnimateHeightChange } from '@repo/lib/shared/components/animations/Anim
 import { GasCostSummaryCard } from '@repo/lib/modules/transactions/transaction-steps/GasCostSummaryCard'
 import { TxBatchAlert } from '@repo/lib/shared/components/alerts/TxBatchAlert'
 import { useShouldBatchTransactions } from '@repo/lib/modules/transactions/transaction-steps/tx-batch.hooks'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 type Props = {
   isOpen: boolean
@@ -113,7 +114,7 @@ export function ClaimModal({
           isSuccess={isSuccess}
           returnAction={() => {
             onClose(isSuccess)
-            router.push('/portfolio')
+            navTo(router, '/portfolio')
           }}
           returnLabel="Return to portfolio"
         />

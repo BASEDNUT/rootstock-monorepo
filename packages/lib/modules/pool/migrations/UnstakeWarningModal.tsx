@@ -12,6 +12,7 @@ import {
 import { SuccessOverlay } from '@repo/lib/shared/components/modals/SuccessOverlay'
 import { usePathname, useRouter } from 'next/navigation'
 import { Pool } from '../pool.types'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export function UnstakeWarningModal({
   isOpen = false,
@@ -27,7 +28,7 @@ export function UnstakeWarningModal({
 
   const unstake = () => {
     onClose()
-    router.push(`${pathname}/unstake`)
+    navTo(router, `${pathname}/unstake`)
   }
 
   return (

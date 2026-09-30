@@ -14,6 +14,7 @@ import { getXavePoolLink } from '../../pool.utils'
 import { PoolAdvancedOptions } from './PoolAdvancedOptions'
 import { usePoolMetadata } from '../../metadata/usePoolMetadata'
 import { formatTextListAsItems } from '@repo/lib/shared/utils/text-format'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 export function PoolHeader() {
   const pathname = usePathname()
@@ -43,7 +44,7 @@ export function PoolHeader() {
     if (isFx(pool.type)) {
       openRedirectModal(RedirectPartner.Xave)
     } else {
-      router.push(`${pathname}/add-liquidity`)
+      navTo(router, `${pathname}/add-liquidity`)
     }
   }
 

@@ -21,6 +21,7 @@ import { useRef } from 'react'
 import { ArrowUpRight, Menu } from 'lucide-react'
 import { AppLink, useNav } from './useNav'
 import { SocialIcon } from './SocialIcon'
+import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
 
 type NavLinkProps = {
   appLinks: AppLink[]
@@ -130,7 +131,7 @@ export function MobileNav({
 
   function homeRedirect() {
     onClose()
-    router.push('/')
+    navTo(router, '/')
   }
 
   return (

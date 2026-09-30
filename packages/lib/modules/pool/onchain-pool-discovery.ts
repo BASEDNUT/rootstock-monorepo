@@ -104,6 +104,34 @@ export function mapDiscoveredPoolToListItem(dp: DiscoveredPool): OnchainPoolList
   }
 }
 
+/**
+ * S109 (Boss live E2E walk 2026-09-30): per-chain onchain scan config.
+ * The live Base swap error routed through UPSTREAM Balancer pools — our
+ * chains build swap paths from OUR pools only. Base mainnet (8453) has no
+ * Rootstock vault yet (deploys with the mainnet release) — the scan
+ * honestly returns zero pools instead of leaking upstream routing.
+ */
+export interface OnchainScanConfig {
+  chainId: number
+  rpcUrl: string
+  vault: string
+  fromBlock: number
+}
+
+export const ONCHAIN_SCAN_CONFIGS: Partial<Record<GqlChain, OnchainScanConfig>> = {
+  [GqlChainValues.BaseSepolia]: {
+    chainId: 84532,
+    rpcUrl: ONCHAIN_DISCOVERY_RPC_URL,
+    vault: BASESEP_VAULT,
+    fromBlock: 46_984_000,
+  },
+  // Base mainnet (8453): add vault + fromBlock here at mainnet deploy.
+}
+
+export function getOnchainScanConfig(chain: GqlChain): OnchainScanConfig | undefined {
+  return ONCHAIN_SCAN_CONFIGS[chain]
+}
+
 export function isOnchainDiscoveryNetwork(chain: GqlChain): boolean {
   return isOnchainOnlyNetwork(chain)
 }

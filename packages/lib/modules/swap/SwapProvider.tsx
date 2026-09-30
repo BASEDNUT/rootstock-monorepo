@@ -10,7 +10,7 @@ import { useMakeVarPersisted } from '@repo/lib/shared/hooks/useMakeVarPersisted'
 import { useVault } from '@repo/lib/shared/hooks/useVault'
 import { LABELS } from '@repo/lib/shared/labels'
 import type { GqlChain, GqlSorSwapType } from '@repo/lib/shared/services/api/generated/graphql'
-import { GqlSorSwapTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { GqlChainValues, GqlSorSwapTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { isSameAddress, selectByAddress } from '@repo/lib/shared/utils/addresses'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { isDisabledWithReason } from '@repo/lib/shared/utils/functions/isDisabledWithReason'
@@ -91,9 +91,14 @@ function selectSwapHandler(
     return new AuraBalSwapHandler(tokens)
   }
 
-  // Rootstock: onchain-only networks build paths locally (S100 law) — never the API SOR
-  if (isOnchainOnlyNetwork(chain)) {
-    return new OnchainSwapHandler()
+  // Rootstock: our chains build paths locally (S100/S109 law) — never the
+  // upstream API SOR. Live proof: the Base swap error routed through
+  // UPSTREAM Balancer pools (upstream router + pool addresses) — funding
+  // would flow to pools that are not ours. Base mainnet deploys its vault
+  // with the mainnet release; until then onchain scan = zero pools = honest
+  // 'no pool' error.
+  if (isOnchainOnlyNetwork(chain) || chain === GqlChainValues.Base) {
+    return new OnchainSwapHandler(chain)
   }
 
   return new DefaultSwapHandler(apolloClient)

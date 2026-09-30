@@ -20,7 +20,7 @@ import { useUserSettings } from '../user/settings/UserSettingsProvider'
 import { useUserAccount } from './UserAccountProvider'
 import { useDisconnect } from 'wagmi'
 import NextLink from 'next/link'
-import { isBalancer, PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 import { shouldUseAnvilFork } from '@repo/lib/config/app.config'
 
 export function AcceptPoliciesModal() {
@@ -31,7 +31,9 @@ export function AcceptPoliciesModal() {
   const disconnect = useDisconnect()
 
   const { projectName } = PROJECT_CONFIG
-  const entityName = isBalancer ? 'Balancer Foundation' : 'BeethovenX DAO'
+  // S109 (Boss live E2E walk 2026-09-30): upstream entity leak — the modal
+  // showed an upstream org name after connecting. One project, one entity.
+  const entityName = projectName
 
   const isAddressInAcceptedPolicies =
     acceptedPolicies.includes(userAddress.toLowerCase()) ||

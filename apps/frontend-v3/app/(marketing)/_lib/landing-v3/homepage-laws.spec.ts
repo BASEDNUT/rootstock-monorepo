@@ -213,8 +213,12 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     expect(config).toContain('defaultNetwork: GqlChainValues.Base,')
   })
 
-  it('no promo banners or partner cards (pools-page machinery)', () => {
-    expect(config).not.toContain('promoItems')
+  it('pools-page explainer: promoItems required (Boss 2026-09-30), partner cards banned', () => {
+    // S109 (Boss live E2E walk 2026-09-30): the pools page showed an EMPTY
+    // explainer band where upstream's 4 expandables render. Boss directive:
+    // reuse the pattern, our copy — 4 ROOTSTOCK cards. Supersedes the old
+    // 'no promoItems' law (S99-era upstream-fingerprint ban).
+    expect(config).toContain('promoItems: [')
     expect(config).not.toContain('partnerCards')
   })
 

@@ -35,6 +35,7 @@ import {
 } from '@repo/lib/modules/primitives/primitive-errors'
 import { useWriteContract, useReadContracts } from '@repo/lib/shared/utils/wagmi'
 import { discoveryClient } from '@repo/lib/modules/pool/onchain-pool-fetch'
+import { NetworkIcon } from '@repo/lib/shared/components/icons/NetworkIcon'
 
 /**
  * PRD-07 Primitive 2 — Wrap token (S106).
@@ -137,6 +138,16 @@ export default function WrapTokenPage() {
             compose anywhere. Your wrapper instantly appears in every picker.
           </Text>
         </VStack>
+
+        {/* S109 (Boss live E2E walk 2026-09-30): always-visible chain
+            badge — the page is a Base Sepolia primitive; the chain must be
+            obvious before any wallet is connected. */}
+        <HStack>
+          <NetworkIcon chain={GqlChainValues.BaseSepolia} size={7} />
+          <Text color="font.secondary" fontSize="sm">
+            Base Sepolia
+          </Text>
+        </HStack>
 
         <TokenBalancesProvider extTokens={tokens}>
           {/* S106 Boss correction (2026-09-28): the form is ALWAYS visible —
