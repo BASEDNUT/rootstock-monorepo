@@ -237,7 +237,7 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     }
   })
 
-  it('AtAGlance system diagram section (Boss 2026-10-01, artwork v2 + copy v2 same day)', () => {
+  it('AtAGlance full section (Boss 2026-10-01: artwork v2 + copy v2 + full port same day)', () => {
     expect(atAGlance).toContain('The system at a glance')
     // copy v2 (Boss editorial 2026-10-01): upload's original lines, no verbatim
     // of approved section copy, no 'Powered by Rootstock' (we ARE Rootstock —
@@ -262,6 +262,31 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     expect(atAGlance).toContain('hooks · router')
     expect(atAGlance).toContain('wrappers · LBP')
     expect(atAGlance).toContain('<svg')
+    // full port (Boss 2026-10-01: 'add the whole thing'): copy column + layer
+    // list + three feature cards + closing bar with docs link
+    expect(atAGlance).toContain('Core responsibilities, edge rules')
+    expect(atAGlance).toContain("'Root Vault'")
+    expect(atAGlance).toContain("'Edge Extensions'")
+    expect(atAGlance).toContain("'Market Composition'")
+    expect(atAGlance).toContain("'Vault', 'Pools', 'Extensions'")
+
+    expect(flat(atAGlance)).toContain(
+      'One coherent foundation for building and extending Based Nut markets.'
+    )
+
+    expect(atAGlance).toContain('Read the docs')
+    expect(atAGlance).toContain('https://docs.basednut.com/rootstock')
+    // feature SVGs carry their own labels
+    expect(atAGlance).toContain('balances')
+    expect(atAGlance).toContain('scaling')
+    expect(atAGlance).toContain('launch')
+  })
+
+  it('long headlines wrap inside the page (Boss 2026-10-01 overflow fix)', () => {
+    // WordsPullUp renders an HStack — without flexWrap long headlines
+    // overflow the page ('Build the market...' shipped overflowing).
+    expect(codeStack).toContain('flexWrap="wrap"')
+    expect(code).toContain('flexWrap="wrap"')
   })
 
   it('hero orbital-root artwork overlay (Boss 2026-10-01)', () => {

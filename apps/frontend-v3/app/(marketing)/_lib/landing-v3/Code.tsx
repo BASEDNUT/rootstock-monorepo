@@ -119,7 +119,8 @@ export function Code() {
                     <WordsPullUp
                       as="h3"
                       color="font.primary"
-                      fontSize={{ base: '2xl', lg: '4xl' }}
+                      flexWrap="wrap"
+                      fontSize={{ base: '2xl', lg: '3xl', xl: '4xl' }}
                       fontWeight="bold"
                       letterSpacing="-0.04rem"
                       lineHeight={1}

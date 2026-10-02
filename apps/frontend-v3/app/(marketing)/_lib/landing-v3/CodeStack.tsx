@@ -41,10 +41,12 @@ export function CodeStack() {
           <WordsPullUp
             as="h2"
             color="font.primary"
-            fontSize={{ base: '4xl', md: '6xl' }}
+            flexWrap="wrap"
+            fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
             fontWeight="bold"
             letterSpacing="-0.04rem"
             lineHeight={1.05}
+            maxW="820px"
             pr="2"
             text="Build the market, not the machinery."
           />
