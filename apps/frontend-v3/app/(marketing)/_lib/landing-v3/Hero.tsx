@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 'use client'
 
-import { Box, Button, Center, Heading, HStack, Stack, Text, VStack, Link } from '@chakra-ui/react'
+import { Box, Button, Center, Heading, Image, Stack, Text, VStack, Link } from '@chakra-ui/react'
 import Noise from '@repo/lib/shared/components/layout/Noise'
 import { motion, useInView } from 'motion/react'
 import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
@@ -11,12 +11,11 @@ import { ArrowUpRight } from 'lucide-react'
 import { SoilBg } from './shared/SoilBg'
 import { useRef } from 'react'
 import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
-import { MotionButtonProps, MotionBoxProps } from './types'
+import { MotionButtonProps } from './types'
 
 const MotionText = motion(Text)
 const MotionHeading = motion(Heading)
 const MotionButton = motion(Button) as React.FC<MotionButtonProps>
-const MotionBox = motion(Box) as React.FC<MotionBoxProps>
 
 export function Hero() {
   const ref = useRef(null)
@@ -25,10 +24,46 @@ export function Hero() {
   return (
     <Noise position="relative">
       <Box bottom={0} h="100vh" left={0} minH="600px" position="absolute" right={0} top={0}>
-              <SoilBg />
+        <SoilBg />
       </Box>
 
-      <DefaultPageContainer flex="1" h="100vh" minH="600px" noVerticalPadding position="relative">
+      {/* Orbital-root hero artwork — foreground overlay, right-anchored, masked
+          fade toward the left so the headline stays readable (Boss 2026-10-01).
+          The seed core is the root of the orbital liquidity network. */}
+      <Box
+        maxW="1150px"
+        opacity={{ base: 0.4, md: 0.72, xl: 0.82 }}
+        pointerEvents="none"
+        position="absolute"
+        right={{ base: '-45%', md: '-12%', xl: '-4%' }}
+        sx={{
+          maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,.25) 12%, black 34%)',
+          WebkitMaskImage:
+            'linear-gradient(to right, transparent 0%, rgba(0,0,0,.25) 12%, black 34%)',
+        }}
+        top="50%"
+        transform="translateY(-50%)"
+        w={{ base: '115vw', md: '68vw', xl: '58vw' }}
+        zIndex={1}
+      >
+        <Image
+          alt=""
+          h="auto"
+          htmlHeight="941"
+          htmlWidth="1672"
+          src="/images/landing/rootstock-orbital-root.webp"
+          w="full"
+        />
+      </Box>
+
+      <DefaultPageContainer
+        flex="1"
+        h="100vh"
+        minH="600px"
+        noVerticalPadding
+        position="relative"
+        zIndex={2}
+      >
         <Center h="full" justifyContent="start" ref={ref}>
           <VStack alignItems="start" spacing="xl">
             <MotionText
@@ -136,7 +171,6 @@ export function Hero() {
                 Create a pool
               </MotionButton>
             </Stack>
-            
           </VStack>
         </Center>
       </DefaultPageContainer>

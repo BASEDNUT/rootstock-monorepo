@@ -113,6 +113,11 @@ export const ProjectConfigBalancer: ProjectConfig = {
     // deep links only.
     ecosystemLinks: [
       {
+        label: 'Docs',
+        href: 'https://docs.basednut.com/rootstock',
+        isExternal: true,
+      },
+      {
         label: 'Audits',
         href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',
         isExternal: true,
@@ -156,6 +161,11 @@ export const ProjectConfigBalancer: ProjectConfig = {
         title: 'Build on ROOTSTOCK',
         links: [
           { label: 'Home', href: '/' },
+          {
+            label: 'Docs',
+            href: 'https://docs.basednut.com/rootstock',
+            isExternal: true,
+          },
           {
             label: 'Audits',
             href: 'https://github.com/BASEDNUT/rootstock-monorepo/audits',

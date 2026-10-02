@@ -8,11 +8,17 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '../../../../../../')
 const read = (f: string) => readFileSync(`${HERE}/${f}`, 'utf8')
 
+// Approved copy is asserted on whitespace-collapsed text so prettier's line
+// wrapping never breaks the law.
+const flat = (s: string) => s.replace(/\s+/g, ' ')
+
 const hero = read('Hero.tsx')
+const grow = read('Grow.tsx')
+const atAGlance = read('AtAGlance.tsx')
+const codeStack = read('CodeStack.tsx')
 const code = read('Code.tsx')
-const contracts = read('Contracts.tsx')
 const features = read('Features.tsx')
-const landingSurface = [hero, code, contracts, features].join('')
+const landingSurface = [hero, grow, atAGlance, codeStack, code, features].join('')
 
 const buildPromo = readFileSync(
   resolve(ROOT, 'packages/lib/shared/pages/PoolsPage/BuildPromo.tsx'),
@@ -51,6 +57,11 @@ const headerBanner = readFileSync(
   'utf8'
 )
 
+const orbitalArtwork = resolve(
+  ROOT,
+  'apps/frontend-v3/public/images/landing/rootstock-orbital-root.webp'
+)
+
 const landingAll = [
   landingSurface,
   buildPromo,
@@ -63,7 +74,7 @@ const landingAll = [
   headerBanner,
 ].join('')
 
-describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabricated-URLs', () => {
+describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction scope', () => {
   it('zero Balancer anywhere on homepage surfaces', () => {
     for (const surface of [
       landingSurface,
@@ -86,7 +97,7 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
   })
 
   it('no NUT/wNUT/orchard/graft tokens on homepage surfaces', () => {
-    for (const banned of [/\bwNUT\b/, /\bNUT\b/, /\borchard\b/i, /\bgraft\b/i]) {
+    for (const banned of [/\\bwNUT\\b/, /\\bNUT\\b/, /\\borchard\\b/i, /\\bgraft\\b/i]) {
       expect(landingSurface.match(banned)).toBeNull()
     }
   })
@@ -128,20 +139,129 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
     expect(navBar).not.toContain('"/debug"')
   })
 
-  it('Launch app points at /swap', () => {
-    expect(navBar).toContain('href="/swap" prefetch px={7}')
+  it('navbar CTA is Learn more -> docs; hero keeps Launch app -> /swap (Boss 2026-10-01)', () => {
+    expect(navBar).toContain('https://docs.basednut.com/rootstock')
+    expect(navBar).toContain('Learn more')
+    expect(hero).toContain('Launch app')
+    expect(hero).toContain('"/swap"')
   })
 
-  it('Videos, Grow, Audits sections are deleted (Boss 2026-09-21)', () => {
+  it('Videos + Audits stay deleted; Grow is RESTORED (Boss 2026-10-01)', () => {
     expect(existsSync(`${HERE}/Videos.tsx`)).toBe(false)
-    expect(existsSync(`${HERE}/Grow.tsx`)).toBe(false)
     expect(existsSync(`${HERE}/Audits.tsx`)).toBe(false)
+    // Grow is back: real stats high on the page (live pool count from the
+    // onchain discovery scan; engine facts ledger-verified). IPFS static
+    // CAN fetch live data client-side — the removal premise was false.
+    expect(existsSync(`${HERE}/Grow.tsx`)).toBe(true)
+    const grow = read('Grow.tsx')
+    expect(grow).toContain('useOnchainPoolDiscovery')
+    expect(grow).toContain('Pools live')
     expect(hero).not.toContain('youtu.be')
     expect(hero).not.toContain('PlayVideoButton')
     expect(existsSync(`${HERE}/images/video-createCustomAMMs.png`)).toBe(false)
     expect(existsSync(`${HERE}/images/video-prototypePool.png`)).toBe(false)
     expect(existsSync(`${HERE}/images/video-createHook.png`)).toBe(false)
     expect(existsSync(`${HERE}/images/video-createRouter.png`)).toBe(false)
+  })
+
+  it('Contracts section is deleted (Boss 2026-10-01: 3-section approved copy)', () => {
+    expect(existsSync(`${HERE}/Contracts.tsx`)).toBe(false)
+  })
+
+  it('approved copy v1 (Boss 2026-10-01) — three sections, exact headlines', () => {
+    // Section 1 — Code Stack (CodeStack.tsx)
+    expect(flat(codeStack)).toContain('Build the market, not the machinery.')
+
+    expect(flat(codeStack)).toContain(
+      'Rootstock provides a shared foundation for execution, accounting, routing, liquidity, and extensibility.'
+    )
+
+    // Section 2 — Simplicity (Code.tsx)
+    expect(flat(code)).toContain('Minimal by design')
+    expect(flat(code)).toContain('Pools define the logic. Rootstock handles the rest.')
+
+    expect(flat(code)).toContain(
+      'A pool only needs to express how its market behaves. The Root Vault handles balances, accounting, fees, scaling, and settlement, leaving pool contracts focused on the math that makes them unique.'
+    )
+
+    // Section 3 — Built into the stack (Features.tsx)
+    expect(flat(features)).toContain('Built into the stack')
+
+    expect(flat(features)).toContain(
+      'Rootstock handles more of the difficult infrastructure at the protocol level, so every pool does not have to solve the same problems again.'
+    )
+  })
+
+  it('approved copy v1 — all nine stack features present', () => {
+    for (const title of [
+      'LVR / MEV Mitigation',
+      'Decimal Scaling',
+      'Rate Scaling',
+      'Liquidity Invariant Approximation',
+      'Transient Accounting',
+      'ERC20MultiToken',
+      'Swap Fee Management',
+      'Pool Creator Fees',
+      'Pool Pause Manager',
+    ]) {
+      expect(flat(features)).toContain(`'${title}'`)
+    }
+
+    // feature bodies carry the approved plain-English explanations
+    expect(flat(features)).toContain(
+      'The Root Vault normalizes their values before they reach the pool, giving pool math a consistent 18-decimal format to work with.'
+    )
+
+    expect(flat(features)).toContain(
+      'EIP-1153 makes this pattern efficient and enables more complex interactions without permanently storing every intermediate state.'
+    )
+
+    expect(flat(features)).toContain(
+      'This gives developers a native way to build sustainable economics around new market designs.'
+    )
+  })
+
+  it('banned Balancer marketing language stays dead (Boss 2026-10-01)', () => {
+    const sections = codeStack + code + features
+
+    for (const banned of [
+      'Code less, build more',
+      'Built for builders',
+      'Technical highlights',
+      'The engine',
+      'keyFeatures',
+      'stone-1.png',
+      'stone-2.png',
+    ]) {
+      expect(sections).not.toContain(banned)
+    }
+  })
+
+  it('AtAGlance system diagram section (Boss 2026-10-01)', () => {
+    expect(atAGlance).toContain('The system at a glance')
+    expect(atAGlance).toContain('Root Vault')
+    expect(atAGlance).toContain('Root Pools')
+    expect(atAGlance).toContain('Hooks')
+    expect(atAGlance).toContain('Routers')
+    expect(atAGlance).toContain('Pool Tokens')
+    expect(atAGlance).toContain('<svg')
+  })
+
+  it('hero orbital-root artwork overlay (Boss 2026-10-01)', () => {
+    // foreground overlay, right-anchored, masked fade toward the left,
+    // non-interactive, beneath the copy layer
+    expect(hero).toContain('rootstock-orbital-root.webp')
+    expect(hero).toContain('pointerEvents="none"')
+    expect(hero).toContain('maskImage')
+    expect(hero).toContain('WebkitMaskImage')
+    expect(hero).toContain('zIndex={1}')
+    expect(hero).toContain('zIndex={2}')
+    expect(existsSync(orbitalArtwork)).toBe(true)
+    // hero copy and CTA structure unchanged
+    expect(hero).toContain('Custom markets made simple')
+    expect(hero).toContain('Launch app')
+    expect(hero).toContain('Create a pool')
+    expect(hero).toContain('SoilBg')
   })
 
   // S101c lint fix (no-useless-assignment): read upstream blob via helper
@@ -160,7 +280,14 @@ describe('homepage laws v7 — IPFS interaction scope + no-verbatim + no-fabrica
   it('NO VERBATIM COPY from upstream balancer landing files', () => {
     // Extract string literals (>=6 words) from upstream versions of our live
     // landing files and assert none appear verbatim in our live files.
-    const files = ['Hero.tsx', 'Code.tsx', 'Contracts.tsx', 'Features.tsx']
+    const files = [
+      'Hero.tsx',
+      'Grow.tsx',
+      'AtAGlance.tsx',
+      'CodeStack.tsx',
+      'Code.tsx',
+      'Features.tsx',
+    ]
 
     for (const f of files) {
       // eslint no-useless-assignment: read via helper, no dead initializer

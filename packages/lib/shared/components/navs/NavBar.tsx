@@ -103,8 +103,14 @@ export function NavActions({
       return [
         {
           el: (
-            <Button as={NextLink} href="/swap" prefetch px={7} size="md" variant="primary">
-              Launch app
+            <Button
+              as={NextLink}
+              href="https://docs.basednut.com/rootstock"
+              px={7}
+              size="md"
+              variant="primary"
+            >
+              Learn more
             </Button>
           ),
           display: { base: 'block', lg: 'block' },
