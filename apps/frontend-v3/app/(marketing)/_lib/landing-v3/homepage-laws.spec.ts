@@ -237,13 +237,30 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     }
   })
 
-  it('AtAGlance system diagram section (Boss 2026-10-01)', () => {
+  it('AtAGlance system diagram section (Boss 2026-10-01, artwork v2 + copy v2 same day)', () => {
     expect(atAGlance).toContain('The system at a glance')
-    expect(atAGlance).toContain('Root Vault')
-    expect(atAGlance).toContain('Root Pools')
-    expect(atAGlance).toContain('Hooks')
-    expect(atAGlance).toContain('Routers')
-    expect(atAGlance).toContain('Pool Tokens')
+    // copy v2 (Boss editorial 2026-10-01): upload's original lines, no verbatim
+    // of approved section copy, no 'Powered by Rootstock' (we ARE Rootstock —
+    // the upload header duplicated the Section 1 headline and carried that
+    // nonsensical h1; both permanently banned from this section).
+    expect(flat(atAGlance)).toContain('A smaller core. A wider design space.')
+
+    expect(flat(atAGlance)).toContain(
+      'Accounting, balances, fees, and scaling stay in the Root Vault.'
+    )
+
+    expect(flat(atAGlance)).toContain('Pools carry only their market math.')
+    expect(atAGlance).not.toContain('Powered by Rootstock')
+    expect(atAGlance).not.toContain('Build the market, not the machinery')
+    // artwork v2 (Boss upload): Root Vault seed core + Pools/Edges/Markets nodes
+    expect(atAGlance).toContain('ROOT VAULT')
+    expect(atAGlance).toContain('SHARED CORE')
+    expect(atAGlance).toContain('Pools')
+    expect(atAGlance).toContain('Edges')
+    expect(atAGlance).toContain('Markets')
+    expect(atAGlance).toContain('pool * vaults')
+    expect(atAGlance).toContain('hooks · router')
+    expect(atAGlance).toContain('wrappers · LBP')
     expect(atAGlance).toContain('<svg')
   })
 
