@@ -61,8 +61,8 @@ export function FeaturedPool1SVG() {
           y1="26.27"
           y2="98.8"
         >
-          <stop stopColor="#9EFFE0" />
-          <stop offset="1" stopColor="#017953" />
+          <stop stopColor="#efd0a6" />
+          <stop offset="1" stopColor="#7b6049" />
         </linearGradient>
         {/* Left */}
         <linearGradient
@@ -73,8 +73,8 @@ export function FeaturedPool1SVG() {
           y1="44.37"
           y2="126.22"
         >
-          <stop stopColor="#0050B6" />
-          <stop offset="1" stopColor="#85BAFF" />
+          <stop stopColor="#624f3f" />
+          <stop offset="1" stopColor="#e0b77f" />
         </linearGradient>
         {/* Right */}
         <linearGradient
@@ -85,8 +85,8 @@ export function FeaturedPool1SVG() {
           y1="116.5"
           y2="108.07"
         >
-          <stop stopColor="#9F9545" />
-          <stop offset="1" stopColor="#C9C183" />
+          <stop stopColor="#95785d" />
+          <stop offset="1" stopColor="#c2ad97" />
         </linearGradient>
         <SvgShadowFilter id={`shadow-filter-${id}`} />
       </defs>
@@ -169,8 +169,8 @@ export function FeaturedPool2SVG() {
           y1="130.65"
           y2="19.5"
         >
-          <stop stopColor="#85BAFF" />
-          <stop offset="1" stopColor="#0050B6" />
+          <stop stopColor="#e0b77f" />
+          <stop offset="1" stopColor="#624f3f" />
         </linearGradient>
         <linearGradient
           gradientUnits="userSpaceOnUse"
@@ -180,8 +180,8 @@ export function FeaturedPool2SVG() {
           y1="-98"
           y2="105"
         >
-          <stop stopColor="#00c538" stopOpacity="1" />
-          <stop offset="1" stopColor="#62f58b" stopOpacity="1" />
+          <stop stopColor="#b08d5f" stopOpacity="1" />
+          <stop offset="1" stopColor="#d9bd93" stopOpacity="1" />
         </linearGradient>
         <SvgShadowFilter id={`shadow-filter-${id}`} />
       </defs>
@@ -249,8 +249,8 @@ export function FeaturedPool3SVG() {
           y1="26.27"
           y2="98.8"
         >
-          <stop stopColor="#9EFFE0" />
-          <stop offset="1" stopColor="#017953" />
+          <stop stopColor="#efd0a6" />
+          <stop offset="1" stopColor="#7b6049" />
         </linearGradient>
         {/* Left */}
         <linearGradient
@@ -261,8 +261,8 @@ export function FeaturedPool3SVG() {
           y1="44.37"
           y2="126.22"
         >
-          <stop stopColor="#0050B6" />
-          <stop offset="1" stopColor="#85BAFF" />
+          <stop stopColor="#624f3f" />
+          <stop offset="1" stopColor="#e0b77f" />
         </linearGradient>
         {/* Right */}
         <linearGradient
@@ -273,8 +273,8 @@ export function FeaturedPool3SVG() {
           y1="116.5"
           y2="108.07"
         >
-          <stop stopColor="#00c538" />
-          <stop offset="1" stopColor="#62f58b" />
+          <stop stopColor="#b08d5f" />
+          <stop offset="1" stopColor="#d9bd93" />
         </linearGradient>
         <SvgShadowFilter id={`shadow-filter-${id}`} />
       </defs>

@@ -411,3 +411,47 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     expect(safeHooks).toContain('projectUrl')
   })
 })
+
+// S112e mobile-wrap law (Boss 2026-10-02): WordsPullUp renders words in a
+// nowrap HStack — every landing usage MUST carry flexWrap="wrap" or the
+// headline forces the hero column wider than small viewports and clips
+// (verified live: H1 min-width 476px at 375px, 'simple' cut off-screen).
+describe('landing-v3 mobile wrap laws — S112e', () => {
+  const wordsFiles = [hero, codeStack, code, features]
+  const wordsNames = ['Hero.tsx', 'CodeStack.tsx', 'Code.tsx', 'Features.tsx']
+
+  const wordsSources = wordsNames.map((name, i) => ({
+    name,
+    src: wordsFiles[i] as string,
+  }))
+
+  it.each(wordsSources)('%s: every WordsPullUp wraps on small screens', ({ src }) => {
+    const uses = src.split('<WordsPullUp').length - 1
+    if (uses === 0) return
+    const blocks = src.split('<WordsPullUp').slice(1)
+
+    for (const b of blocks) {
+      // props end at the tag's own first '/>' — parse exactly that span
+      const props = b.split('/>')[0]
+      // each WordsPullUp props block must include flexWrap="wrap"
+      expect(props).toContain('flexWrap="wrap"')
+    }
+  })
+
+  // S112f CTA law (Boss 2026-10-02 correction): TWO Launch-app buttons existed —
+  // navbar + hero. Desired end state (VERIFIED live): navbar CTA = 'Learn more'
+  // -> docs.basednut.com/rootstock; hero 'Launch app' -> /swap stays as is.
+  it('navbar CTA is Learn more -> rootstock docs; hero Launch app -> /swap (Boss 2026-10-02)', () => {
+    const navCtaBlock = navBar.slice(0, navBar.indexOf('Learn more')).slice(-400)
+    expect(navCtaBlock).toContain('https://docs.basednut.com/rootstock')
+    expect(navBar).toContain('Learn more')
+    expect(hero).toContain('Launch app')
+    const heroLaunch = hero.slice(hero.indexOf('Launch app') - 700, hero.indexOf('Launch app') + 30)
+    expect(heroLaunch).toContain('href="/swap"')
+  })
+
+  it('Hero H1 text fits small viewports when wrapped (no nowrap trap)', () => {
+    // the hero headline must not contain nbsp-joined words that defeat wrap
+    expect(hero).toContain('text="Custom markets made simple"')
+  })
+})

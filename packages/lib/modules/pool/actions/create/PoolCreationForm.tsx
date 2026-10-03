@@ -64,7 +64,17 @@ export function PoolCreationForm() {
               spacing="lg"
               w="full"
             >
-              <VStack align="start" ref={stepperRef} spacing="md" w="full">
+              <VStack
+                align="start"
+                css={{
+                  '&::-webkit-scrollbar': { display: 'none' },
+                  scrollbarWidth: 'none',
+                }}
+                overflowX="auto"
+                ref={stepperRef}
+                spacing="md"
+                w="full"
+              >
                 <Divider />
                 <Stepper
                   gap={{ base: 1, sm: 4 }}
@@ -72,7 +82,7 @@ export function PoolCreationForm() {
                   orientation="horizontal"
                   pt="sm"
                   size={{ base: 'sm', sm: 'md' }}
-                  w="full"
+                  w={{ base: 'fit-content', sm: 'full' }}
                 >
                   {steps.map((step, index) => {
                     const isCompleted = index < currentStepIndex

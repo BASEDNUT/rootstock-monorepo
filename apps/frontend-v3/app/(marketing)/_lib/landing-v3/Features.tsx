@@ -70,6 +70,7 @@ export function Features() {
           <WordsPullUp
             as="h2"
             color="font.primary"
+            flexWrap="wrap"
             fontSize={{ base: '4xl', md: '6xl' }}
             fontWeight="bold"
             letterSpacing="-0.04rem"

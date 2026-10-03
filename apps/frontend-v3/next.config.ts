@@ -23,7 +23,6 @@ const nextConfig: NextConfig = {
     ? {
         output: 'export' as const,
         trailingSlash: true,
-        images: { unoptimized: true },
         // S109: full-page links on the ship — next/link imports are
         // rewritten at build time (scripts/build-ipfs.sh
         // rewrite_link_imports); turbopack resolveAlias for the
@@ -54,6 +53,9 @@ const nextConfig: NextConfig = {
       },
     ],
     minimumCacheTTL: 60,
+    // S112e: static export has no /_next/image optimizer — without this,
+    // remote token logos 404 through /_next/image/?url=... on gateways.
+    ...(isIpfsExport ? { unoptimized: true } : {}),
   },
   transpilePackages: ['@repo/lib'],
 

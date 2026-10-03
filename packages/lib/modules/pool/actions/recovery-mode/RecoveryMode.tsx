@@ -62,7 +62,7 @@ export function RecoveryMode() {
         />
       )}
 
-      <Card width="xl">
+      <Card width={{ base: 'full', md: 'xl' }}>
         <CardHeader>
           <TransactionHeader
             chain={pool.chain}

@@ -56,7 +56,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
               subTitle="Battle-tested AMM engineering, forked and grown."
               title="Custom markets made simple"
             />
-            <SpeedInsights />
+            {/* S112e: Vercel analytics script 404s on IPFS gateways — never
+                bake into the export (sweep: 200x failures across 50 pages). */}
+            {process.env.NEXT_PUBLIC_IPFS_EXPORT !== '1' && <SpeedInsights />}
           </Providers>
         </ThemeProvider>
       </body>

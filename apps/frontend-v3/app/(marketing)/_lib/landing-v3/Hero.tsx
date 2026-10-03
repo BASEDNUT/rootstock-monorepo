@@ -90,10 +90,12 @@ export function Hero() {
               as="h1"
               color="font.primary"
               delay={0.7}
+              flexWrap="wrap"
               fontSize={{ base: '4xl', md: '6xl' }}
               fontWeight="bold"
               letterSpacing="-2px"
               lineHeight={1}
+              maxW="100%"
               pr="2"
               text="Custom markets made simple"
             />

@@ -8,7 +8,7 @@ import { PropsWithChildren, Suspense } from 'react'
 import Noise from '@repo/lib/shared/components/layout/Noise'
 import { RadialPattern } from '@repo/lib/shared/components/zen/RadialPattern'
 import { PoolPageStats } from './PoolPageStats'
-import { NewPools } from './NewPools'
+import { OnchainFeaturedPools } from './OnchainFeaturedPools'
 import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { fNumCustom } from '../../utils/numbers'
 import { useProtocolStats } from '@repo/lib/modules/protocol/ProtocolStatsProvider'
@@ -135,7 +135,7 @@ export function PoolsPage({ children, rewardsClaimed24h }: PoolsPageProps) {
         </FadeInOnView>
       </DefaultPageContainer>
       <DefaultPageContainer mb="0" py="0" rounded="2xl">
-        <NewPools />
+        <OnchainFeaturedPools />
       </DefaultPageContainer>
       {isBalancer && (
         <DefaultPageContainer mb="0" py="0" rounded="2xl">

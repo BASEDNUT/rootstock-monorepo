@@ -22,12 +22,7 @@ export default function NutUsdPage() {
     <DefaultPageContainer>
       <VStack alignItems="start" pt="2xl" spacing="xl" w="full">
         <VStack alignItems="start" spacing="sm">
-          <Text
-            background="font.special"
-            backgroundClip="text"
-            fontSize="sm"
-            variant="eyebrow"
-          >
+          <Text background="font.special" backgroundClip="text" fontSize="sm" variant="eyebrow">
             BASED NUT's Rootstock
           </Text>
           <Text
@@ -41,8 +36,8 @@ export default function NutUsdPage() {
             nutUSD
           </Text>
           <Text color="font.secondary" fontSize="lg" maxW="2xl">
-            A USDC lending vault on Morpho Blue. Supply USDC and earn from lending against cbBTC
-            and cbETH collateral — allocations are managed by the vault curator.
+            A USDC lending vault on Morpho Blue. Supply USDC and earn from lending against cbBTC and
+            cbETH collateral — allocations are managed by the vault curator.
           </Text>
         </VStack>
 
@@ -51,11 +46,7 @@ export default function NutUsdPage() {
             <Text color="font.primary" fontWeight="bold">
               Vault facts
             </Text>
-            <Stack direction={{ base: 'column', md: 'row' }}
-              spacing="md"
-              w="full"
-              wrap="wrap"
-            >
+            <Stack direction={{ base: 'column', md: 'row' }} spacing="md" w="full" wrap="wrap">
               {facts.map(f => (
                 <Box bg="background.level2" key={f.label} minW="200px" p="md" rounded="lg">
                   <Text color="font.secondary" fontSize="sm">
@@ -68,12 +59,13 @@ export default function NutUsdPage() {
               ))}
             </Stack>
             <Text color="font.secondary" fontSize="sm">
-              Vault address: <span style={{ fontFamily: 'monospace' }}>{VAULT}</span>
+              Vault address:{' '}
+              <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{VAULT}</span>
             </Text>
           </VStack>
         </Card>
 
-        <HStack>
+        <HStack flexWrap="wrap" gap="md">
           <Button
             as={Link}
             href={APP_URL}
