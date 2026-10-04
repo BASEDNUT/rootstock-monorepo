@@ -1,15 +1,20 @@
 # deployments — AGENTS.md
 
-Deployment registry + byte-exact provenance proofs for ROOTSTOCK contracts (Base Sepolia 84532).
+Deployment registry + byte-exact provenance proofs for ROOTSTOCK contracts — Base MAINNET (8453, live 2026-10-03) + Base Sepolia (84532).
 
 ## Files
 
-| File                             | Content                                                                  |
-| -------------------------------- | ------------------------------------------------------------------------ |
-| `PROVENANCE.md`                  | The proof doc — claim, result table, method, how to verify               |
-| `base-sepolia.json`              | Full deployment registry (67 entries, 43 tasks, deployer, receipts)      |
-| `provenance-sweep-20260928.json` | 69-row sweep result: per-contract sha256 pairs, statuses, corpus sources |
-| `provenance_sweep.py`            | Rerunnable proof script (selftest included)                              |
+| File                                  | Content                                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------ |
+| `PROVENANCE.md`                       | The proof doc — claim, result table, method, how to verify               |
+| `base-sepolia.json`                   | Full deployment registry (67 entries, 43 tasks, deployer, receipts)      |
+| `base.json`                           | Base MAINNET registry (45 contracts, 39 tasks, deployer, multisig admin) |
+| `s113-live-deploy-verification.json`  | 55/55 live-verified battery (Base mainnet, 2026-10-03)                   |
+| `s113-rehearsal-predictions.json`     | Pre-deploy address predictions (fork rehearsal — 53/55 exact match)      |
+| `s113b-permission-fee-rehearsal.json` | Permission/fee-path rehearsal (10/10 gates GREEN, fork of live Base)     |
+| `s113-live-deploy-create-audit.json`  | CREATE-tx audit (tx classification, gas accounting)                      |
+| `provenance-sweep-20260928.json`      | 69-row sweep result: per-contract sha256 pairs, statuses, corpus sources |
+| `provenance_sweep.py`                 | Rerunnable proof script (selftest included)                              |
 
 ## Rules
 

@@ -1,0 +1,120 @@
+{
+  "session": "S113b-permission-fee-rehearsal",
+  "rpc": "http://127.0.0.1:8545",
+  "zero_broadcast": true,
+  "steps": [
+    {
+      "step": "impersonate+fund",
+      "ms": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "hot": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+      "zero_broadcast": true
+    },
+    {
+      "step": "multisig-admin-from-birth",
+      "hasDefaultAdmin": true
+    },
+    {
+      "step": "tokens-ready",
+      "bal": "20k BAL-mock minted",
+      "weth": "50 WETH wrapped"
+    },
+    {
+      "step": "permit2-approvals",
+      "txs": 4
+    },
+    {
+      "step": "pool-created",
+      "pool": "0xa155AB6e2692e88FcB10A40D91E5D4F3a20854fd",
+      "roles": {
+        "pauseManager": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+        "swapFeeManager": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+        "poolCreator": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a"
+      },
+      "swapFeePct": "0.3%",
+      "weights": "50/50"
+    },
+    {
+      "step": "pool-initialized",
+      "amounts": "40 WETH + 10,000 BAL"
+    },
+    {
+      "step": "swap-executed",
+      "inAmt": "1 WETH",
+      "balOut": "243188525989706560000"
+    },
+    {
+      "step": "collect-aggregate-fees",
+      "caller": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+      "permissionless": true
+    },
+    {
+      "step": "fee-accrual",
+      "protocolFees": {
+        "0x4200000000000000000000000000000000000006": "1500000000000000",
+        "0x6C8a67866Fb1f2ac2aaa45bBB5c38c07C3Fe4de3": "0"
+      }
+    },
+    {
+      "step": "unauthorized-withdraw-revert",
+      "result": "REVERT-AS-EXPECTED",
+      "err": "('0x23dada53', '0x23dada53')"
+    },
+    {
+      "step": "grantRole",
+      "actionId": "0xc7897063be4ea333bac45948cbb7de76740d49ba2103ba7739cedc1505b66b57",
+      "grantedTo": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e"
+    },
+    {
+      "step": "withdraw-protocol-fees",
+      "treasury": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "received": {
+        "0x4200000000000000000000000000000000000006": "1500000000000000",
+        "0x6C8a67866Fb1f2ac2aaa45bBB5c38c07C3Fe4de3": "0"
+      },
+      "feesAfterZero": true
+    },
+    {
+      "step": "revokeRole",
+      "actionId": "0xc7897063be4ea333bac45948cbb7de76740d49ba2103ba7739cedc1505b66b57",
+      "revokedFrom": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e"
+    },
+    {
+      "step": "post-revoke-withdraw-revert",
+      "result": "REVERT-AS-EXPECTED",
+      "err": "('0x23dada53', '0x23dada53')"
+    },
+    {
+      "step": "unauthorized-pause-revert",
+      "result": "REVERT-AS-EXPECTED",
+      "err": "('0x23dada53', '0x23dada53')"
+    },
+    {
+      "step": "multisig-pause",
+      "isPoolPaused": true
+    },
+    {
+      "step": "swap-while-paused-revert",
+      "result": "REVERT-AS-EXPECTED",
+      "err": "('0xd971f597000000000000000000000000a155ab6e2692e88fcb10a40d91e5d4f3a20854fd', '0xd971f597000000000000000000000000a155ab6e2692e88fcb10a40d91e5d4f3a20854fd')"
+    },
+    {
+      "step": "unpause-and-swap-works",
+      "isPoolPaused": false,
+      "postUnpauseSwap": "OK"
+    }
+  ],
+  "verdict": "GREEN",
+  "generated": "2026-10-03T13:15:31-0400",
+  "addresses": {
+    "multisig": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+    "hot": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+    "authorizer": "0x4BC9Ee12AB3700cF514A34855e0691BFAc387C6A",
+    "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+    "pfc": "0x2Be8e78B1bCbD433e83AF2dEC99fF825EDf15C66",
+    "router": "0xc8dcC030C81635Da8df2D7fb35573E661B01cDCe",
+    "factory": "0x9a5bd368C8dA0d7fad33Fc89b6be4e39E5A33F92",
+    "pool": "0xa155AB6e2692e88FcB10A40D91E5D4F3a20854fd",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "bal": "0x6C8a67866Fb1f2ac2aaa45bBB5c38c07C3Fe4de3"
+  }
+}

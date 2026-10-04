@@ -44,6 +44,8 @@ Full setup including the static export path: [INIT.md](./INIT.md).
 
 65 contracts live on Base Sepolia (84532), end-to-end verified: initialize → add liquidity → swap → remove liquidity, receipts on record. Registry: [deployments/base-sepolia.json](./deployments/base-sepolia.json).
 
+**Base MAINNET is live (8453, deployed 2026-10-03):** 55 contracts live-verified, treasury multisig is Authorizer admin from birth, permission/fee paths rehearsed GREEN on a live-fork. Registry: [deployments/base.json](./deployments/base.json). Vulnerability disclosures: [SECURITY.md](./SECURITY.md) (support@basednut.com).
+
 ## Lineage and licenses
 
 - Contracts: forked from GPL-3.0 `balancer-v3-monorepo` (pristine copy, full upstream test suite passing)
