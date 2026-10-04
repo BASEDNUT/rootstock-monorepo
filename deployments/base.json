@@ -131,5 +131,6 @@
       "MevCaptureHook": "0xfE807044D0329BD96aEa42A78F091c2Db1069f42"
     }
   },
+  "factory_derived": [],
   "provenance_note": "Deployed via deploy_chain_mainnet.sh (supervisor-resilient). 37 upstream tasks (byte-identical to Balancer V3 official build artifacts) + primitives (TokenFactory/WrapperFactory, S105-audited) + MevCaptureHook. Vault 0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7 (CREATE2-exact prediction match). Authorizer admin = treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a from birth (live-verified hasRole)."
 }

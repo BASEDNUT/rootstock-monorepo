@@ -161,5 +161,17 @@
       "WrapperFactory": "0x678a8F6AD8887De4323CA49Bc261043E67850dC7"
     }
   },
+  "factory_derived": [
+    [
+      "0x1aba4e89fd64e41fe3081fabf6ce33cb613977c7",
+      "TASK:v3/tasks/20260115-v3-weighted-pool-v2/WeightedPool",
+      "Rootstock WETH/BAL Pool (WeightedPoolFactory-created)"
+    ],
+    [
+      "0xf64f66fced6ad963807e246ceb679b2620d200fd",
+      "SOL:Wrapper",
+      "wrksRWT wrapper (WrapperFactory-created, S104 E2E)"
+    ]
+  ],
   "provenance_note": "All contracts deployed via upstream balancer-deployments task system. Bytecode provenance: deployments/provenance-sweep-20260928.json"
 }

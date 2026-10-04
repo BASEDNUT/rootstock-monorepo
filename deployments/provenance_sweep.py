@@ -41,7 +41,8 @@ CONFIG_ONLY_ZERO = "0x0000000000000000000000000000000000000000"
 PRIM_TASK_KEY = "20260927-primitives-factories"
 PRIM_IMPLS = {"TokenFactory": "TokenFactory", "WrapperFactory": "WrapperFactory"}
 
-# Factory-derived instances (address, impl ref, label)
+# Factory-derived instances (address, impl ref, label) — LEGACY SEPOLIA list;
+# used only when the registry carries no "factory_derived" key (base-sepolia.json).
 # TASK:<task_dir>/<ContractName> → hardhat artifact; SOL:<ContractName> → forge out rglob
 FACTORY_DERIVED = [
     ("0x1aba4e89fd64e41fe3081fabf6ce33cb613977c7", "TASK:v3/tasks/20260115-v3-weighted-pool-v2/WeightedPool", "Rootstock WETH/BAL Pool (WeightedPoolFactory-created)"),
@@ -252,8 +253,9 @@ def run_sweep(rpc_url, registry_path, repo, sol_out, sleep_s=0.2, corpus=None):
     seen = {}
     for task_key, contracts in reg["tasks"].items():
         for name, addr in contracts.items():
-            if PRIM_TASK_KEY in task_key and name in PRIM_IMPLS:
-                continue  # forge-deployed: handled by PRIMITIVE branch
+            if name in PRIM_IMPLS:
+                continue  # forge-deployed primitives: handled by PRIMITIVE branch
+                         # (skip by NAME, not task key — registry task keys vary)
             cls = classify(addr)
             rec = {"task": task_key, "contract": name, "address": addr, "class": cls}
             if cls == "CONFIG_ONLY":
@@ -334,8 +336,10 @@ def run_sweep(rpc_url, registry_path, repo, sol_out, sleep_s=0.2, corpus=None):
         rows.append(rec)
         time.sleep(sleep_s)
 
-    # FACTORY_DERIVED class
-    for addr, impl_ref, label in FACTORY_DERIVED:
+    # FACTORY_DERIVED class — registry-driven (each registry carries its own
+    # factory_derived array; chain-correct instances only; empty = none).
+    factory_derived = reg.get("factory_derived", FACTORY_DERIVED)
+    for addr, impl_ref, label in factory_derived:
         rec = {"address": addr, "label": label, "class": "FACTORY_DERIVED"}
         local = None
         ranges = None

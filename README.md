@@ -6,14 +6,14 @@ One core: Root Vault, Root Pools, Root Hooks, Root Routers. Forked from Balancer
 
 ## Quick map
 
-| Want                         | Go                                                                                                              |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Run the app locally          | [INIT.md](./INIT.md) — setup from zero                                                                          |
-| Build the IPFS artifact      | [INIT.md](./INIT.md) → Build static export                                                                      |
-| Contribute code              | [AGENTS.md](./AGENTS.md) — rules, architecture, law specs                                                       |
-| Verify our contracts         | [deployments/PROVENANCE.md](./deployments/PROVENANCE.md) — byte-exact proof, 69/69 GREEN                        |
-| Study the inherited security | [audits/](./audits/AGENTS.md) — Balancer's audit reports (lineage)                                              |
-| Understand a workspace       | [apps/frontend-v3/AGENTS.md](./apps/frontend-v3/AGENTS.md) · [packages/lib/AGENTS.md](./packages/lib/AGENTS.md) |
+| Want                         | Go                                                                                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Run the app locally          | [INIT.md](./INIT.md) — setup from zero                                                                           |
+| Build the IPFS artifact      | [INIT.md](./INIT.md) → Build static export                                                                       |
+| Contribute code              | [AGENTS.md](./AGENTS.md) — rules, architecture, law specs                                                        |
+| Verify our contracts         | [deployments/PROVENANCE.md](./deployments/PROVENANCE.md) — byte-exact proof, 45/45 mainnet + 69/69 Sepolia GREEN |
+| Study the inherited security | [audits/](./audits/AGENTS.md) — Balancer's audit reports (lineage)                                               |
+| Understand a workspace       | [apps/frontend-v3/AGENTS.md](./apps/frontend-v3/AGENTS.md) · [packages/lib/AGENTS.md](./packages/lib/AGENTS.md)  |
 
 ## For development
 

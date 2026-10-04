@@ -1,0 +1,18 @@
+{
+  "generated": "2026-10-04",
+  "purpose": "Supplementary live permission evidence for the S113 chain deploy (the original battery honestly deferred this check).",
+  "chain": 8453,
+  "checks": {
+    "authorizer": "0x4BC9Ee12AB3700cF514A34855e0691BFAc387C6A",
+    "hasRole_DEFAULT_ADMIN_multisig": {
+      "multisig": "0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "live_result": true,
+      "raw": "0x0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    "zero_address_not_admin": {
+      "live_result": true,
+      "raw": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "conclusion": "treasury multisig holds DEFAULT_ADMIN_ROLE on the live mainnet Authorizer"
+}
