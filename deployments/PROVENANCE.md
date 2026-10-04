@@ -2,7 +2,7 @@
 
 ## Claim
 
-Every contract deployed by Rootstock is **byte-identical to Balancer's own officially-committed build artifacts**, with exactly one exception pair: our **TokenFactory + WrapperFactory** primitives, byte-identical to our audited source (audit: 0 Critical / 0 High / 0 Medium, 2026-09-27).
+Every contract deployed by Rootstock is **byte-identical to Balancer's own officially-committed build artifacts**, with exactly one exception pair: our **TokenFactory + WrapperFactory** primitives, byte-identical to our forge build of [BASEDNUT/sol-contracts](https://github.com/BASEDNUT/sol-contracts) `src/primitives/` (audited 2026-09-27: [report](../audits/2026-09-27-primitive-factories-verify-audit.md)).
 
 ## Result: 69/69 GREEN, 0 issues (2026-09-28)
 
@@ -19,12 +19,20 @@ Every contract deployed by Rootstock is **byte-identical to Balancer's own offic
 
 Deployed 2026-10-03 (see [base.json](./base.json)). Every mainnet contract is proven byte-identical to the same upstream/audited build artifacts:
 
-| Class            | Count | Meaning                                                                                         |
+By **status** (rows sum to 45):
+
+| Status           | Count | Meaning                                                                                         |
 | ---------------- | ----: | ----------------------------------------------------------------------------------------------- |
-| EXACT_MATCH      |     4 | byte-for-byte sha256 match (incl. TokenFactory + WrapperFactory vs our audited forge artifacts) |
+| EXACT_MATCH      |     4 | byte-for-byte sha256 match — 2 upstream + **2 ours** (TokenFactory, WrapperFactory)             |
 | MATCH_IMMUTABLES |    37 | same, with solc immutableReferences ranges masked (constructor args differ per-chain by design) |
 | MATCH_CORPUS     |     4 | bytecode matches Balancer's committed build-info compiler output                                |
-| PRIMITIVE (ours) |     2 | TokenFactory + WrapperFactory — byte-exact vs our S105-audited source                           |
+
+By **class** (rows sum to 45):
+
+| Class                  | Count | Meaning                                                                                                                                                                                                                                                                                                          |
+| ---------------------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TASK_DEPLOYED (theirs) |    43 | Balancer V3 upstream task artifacts — byte-exact                                                                                                                                                                                                                                                                 |
+| PRIMITIVE (ours)       |     2 | TokenFactory + WrapperFactory — byte-exact vs our forge build of [BASEDNUT/sol-contracts](https://github.com/BASEDNUT/sol-contracts) `src/primitives/` (audited 2026-09-27: [report](../audits/2026-09-27-primitive-factories-verify-audit.md), internal skills-based battery — see matrix for what that covers) |
 
 Evidence: [provenance-sweep-base-mainnet-20261004.json](./provenance-sweep-base-mainnet-20261004.json) — rerunnable, same script, same method.
 

@@ -36,11 +36,11 @@ _Reports archived in mirror: `balancer/mirrors/balancer-v3-monorepo/audits/` (ce
 
 ## Rootstock-specific code (NOT covered by upstream audits)
 
-| Contract                                                 | Coverage                                                                                                  | Evidence                                              |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| TokenFactory `0xB27D...4b13`                             | S105 audit: 0 Critical / 0 High / 0 Medium; permissionless, zero admin surface, factories hold zero state | audits/2026-09-27-primitive-factories-verify-audit.md |
-| WrapperFactory `0x678a...0dC7`                           | S105 audit (same battery)                                                                                 | audits/2026-09-27-primitive-factories-verify-audit.md |
-| Deployment configuration (input.ts blocks, network keys) | Not code — config values reviewed in S113 runbook                                                         | rootstock/docs/S113-MAINNET-RUNBOOK.md                |
+| Contract                                                 | Coverage                                                                                                  | Evidence                                                                                           |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| TokenFactory `0xB27D...4b13`                             | S105 audit: 0 Critical / 0 High / 0 Medium; permissionless, zero admin surface, factories hold zero state | [2026-09-27-primitive-factories-verify-audit.md](./2026-09-27-primitive-factories-verify-audit.md) |
+| WrapperFactory `0x678a...0dC7`                           | S105 audit (same battery)                                                                                 | [2026-09-27-primitive-factories-verify-audit.md](./2026-09-27-primitive-factories-verify-audit.md) |
+| Deployment configuration (input.ts blocks, network keys) | Not code — config values reviewed in S113 runbook                                                         | rootstock/docs/S113-MAINNET-RUNBOOK.md (project-internal; public repo carries the audit doc)       |
 
 ## NOT covered anywhere (honest gaps)
 

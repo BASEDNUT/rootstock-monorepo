@@ -1,6 +1,8 @@
 name: Checks
 
 on:
+  push:
+    branches: [main]
   pull_request:
     types: [opened, synchronize]
 
@@ -140,4 +142,3 @@ jobs:
             ./packages/e2e-tests/playwright-report/
             ./packages/e2e-tests/test-results/
           retention-days: 30
-
