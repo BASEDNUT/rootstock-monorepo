@@ -1,4 +1,3 @@
 Contact: mailto:support@basednut.com
 Expires: 2027-07-05T00:00:00.000Z
 Preferred-Languages: en
-Canonical: https://rootstock.basednut.com/.well-known/security.txt

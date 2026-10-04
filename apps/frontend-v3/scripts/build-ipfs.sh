@@ -68,15 +68,10 @@ restore_all() {
   restore_link_imports
   if [ -d "$API_STASH" ]; then
     mv "$API_STASH" "$API_DIR"
-    echo "# S113e: Next.js export skips dotfile dirs from public/ — carry
-# .well-known/security.txt (disclosure contact) into the export manually.
-if [ -d "public/.well-known" ]; then
-  mkdir -p out/.well-known
-  cp -r public/.well-known/. out/.well-known/
-  echo "[ipfs] .well-known/security.txt carried into out/"
-fi
-
-[ipfs] app/api restored (trap)"
+    # S113f: Next.js DOES copy public/.well-known -> out/.well-known (verified:
+    # out/.well-known/security.txt exists post-build). The dotfile law is at
+    # PIN time: `ipfs add` skips dotfiles by default — always pin with --hidden.
+    echo "[ipfs] app/api restored (trap)"
   fi
   if [ -d "$DEV_SURFACE_STASH" ]; then
     for d in "${DEV_SURFACE_DIRS[@]}"; do
