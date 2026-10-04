@@ -53,7 +53,15 @@ export const PRIMITIVES_DEPLOYMENTS: Record<number, PrimitivesDeployment> = {
     explorerBase: 'https://base-sepolia.blockscout.com',
     fromBlock: FACTORY_SCAN_FROM_BLOCK,
   },
-  // 8453 (Base mainnet): factories deploy with the Rootstock mainnet release.
+  // Rootstock Base MAINNET (8453) — TokenFactory + WrapperFactory deployed
+  // 2026-10-03 (S113d): forge broadcast, receipts status 0x1, bytecode
+  // sha-match vs S105-audited artifacts; deploy block 52146169 (0x31baff9).
+  8453: {
+    tokenFactory: '0xfA6172cF414d89b2F37fd8a5932385ed6f831b84',
+    wrapperFactory: '0x1aF90D8E8130218503C2bb9f18e54782e1F4feD0',
+    explorerBase: 'https://basescan.org',
+    fromBlock: 52_146_169,
+  },
 }
 
 export function getPrimitivesDeployment(chainId: number): PrimitivesDeployment | undefined {

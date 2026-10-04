@@ -3,6 +3,7 @@ import {
   FACTORY_TO_POOL_TYPE,
   POOL_REGISTERED_TOPIC0,
   getOnchainDiscoveryRpcUrl,
+  getOnchainScanConfig,
   mapDiscoveredPoolToListItem,
   type DiscoveredPool,
 } from './onchain-pool-discovery'
@@ -12,11 +13,20 @@ import {
 // historical log index is broken — verified live 2026-09-22).
 describe('onchain pool discovery', () => {
   it('maps all 8 factories to pool types', () => {
-    expect(FACTORY_TO_POOL_TYPE.size).toBe(8)
+    // S113d: 8 Sepolia + 8 Base mainnet factories (deployed 2026-10-03)
+    expect(FACTORY_TO_POOL_TYPE.size).toBe(16)
     expect(FACTORY_TO_POOL_TYPE.get('0x277d7dde3c6762c31cfb438c9331376fe8887a7c')).toBe('WEIGHTED')
     expect(FACTORY_TO_POOL_TYPE.get('0x24ab9fba48e54b05c24a02122c4c40fd2018ba10')).toBe('STABLE')
     expect(FACTORY_TO_POOL_TYPE.get('0x6cd1150ccc00e0d00cd3f671a8bdf00d38f5be6e')).toBe('STABLE')
     expect(FACTORY_TO_POOL_TYPE.get('0x928e433f50fa579c9be5f7e1273f1db46d630ee1')).toBe('RECLAMM')
+
+    // S113d: Base mainnet factories (S113c live deploy 2026-10-03)
+    expect(FACTORY_TO_POOL_TYPE.get('0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92')).toBe('WEIGHTED')
+    expect(FACTORY_TO_POOL_TYPE.get('0x730bf6af759e9e74aa6f9f0950e233df974d1859')).toBe('RECLAMM')
+
+    expect(FACTORY_TO_POOL_TYPE.get('0xf5cac7d8e637d2827c07c44ae4767093647b0867')).toBe(
+      'LIQUIDITY_BOOTSTRAPPING'
+    )
 
     expect(FACTORY_TO_POOL_TYPE.get('0xdfdddd87dc49756dd93598123879ae3d67b531a3')).toBe(
       'LIQUIDITY_BOOTSTRAPPING'
@@ -56,5 +66,17 @@ describe('onchain pool discovery', () => {
     expect(item.protocolVersion).toBe(3)
     expect(item.symbol).toBe('TEST')
     expect(item.factory).toBe(dp.factory)
+  })
+
+  it('wires the Base mainnet scan config (S113d)', () => {
+    // Deployed 2026-10-03 (S113c live): Vault at CREATE2-exact prediction.
+    const base = getOnchainScanConfig('BASE')
+    expect(base).toBeDefined()
+    expect(base?.chainId).toBe(8453)
+    expect(base?.vault).toBe('0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7')
+    expect(base?.fromBlock).toBe(52131550)
+    expect(base?.rpcUrl).toBe('https://base.publicnode.com')
+    // Both Rootstock networks carry scan configs
+    expect(getOnchainScanConfig('BASESEP')).toBeDefined()
   })
 })

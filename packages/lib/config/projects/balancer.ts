@@ -19,8 +19,11 @@ export const ProjectConfigBalancer: ProjectConfig = {
   // S110 (Boss 2026-09-30): two chains for everything — Base Sepolia is
   // our live Rootstock deployment, unconditionally selectable.
   supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
-  // Base Sepolia: selectable for wallet/onchain actions, never queried from the remote API
-  onchainOnlyNetworks: [GqlChainValues.BaseSepolia],
+  // S113d (2026-10-03): BOTH Rootstock networks are onchain-only — the
+  // upstream API is never queried for our Base mainnet pools either (our
+  // vault + 8 factories live 2026-10-03; THEIR pools must never display
+  // under our name on the Base chain selector).
+  onchainOnlyNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   variantConfig: {
     [PartnerVariant.cow]: {
       banners: {
@@ -31,9 +34,10 @@ export const ProjectConfigBalancer: ProjectConfig = {
   },
   corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
   defaultNetwork: GqlChainValues.Base,
-  // S101 D6 (Boss 2026-09-25): this deployment is Base Sepolia only —
-  // pools list preselects BASESEP so no upstream all-chains query runs.
-  defaultPoolListNetworks: [GqlChainValues.BaseSepolia],
+  // S113d (2026-10-03): BOTH Rootstock networks are live (Base mainnet S113c
+  // + Base Sepolia S95) — pools list preselects both, and every supported
+  // network is onchain-only, so no upstream all-chains query ever runs.
+  defaultPoolListNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   ensNetwork: GqlChainValues.Base,
   delegateOwner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
   merklRewardsChains: [GqlChainValues.Base],

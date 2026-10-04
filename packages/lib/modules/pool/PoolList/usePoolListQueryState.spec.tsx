@@ -11,8 +11,9 @@ describe('Pool list state query', () => {
       wrapper: withNuqsTestingAdapter({ searchParams: '?first=20&skip=0' }),
     })
 
+    // S113d: default networks = both Rootstock chains (Base + BaseSepolia)
     expect(result.current.joinablePools).toBe(false)
-    expect(result.current.totalFilterCount).toBe(0)
+    expect(result.current.totalFilterCount).toBe(2)
     expect(result.current.pagination.pageSize).toBe(20)
     expect(result.current.pagination.pageIndex).toBe(0)
 
@@ -21,7 +22,7 @@ describe('Pool list state query', () => {
     })
 
     expect(result.current.joinablePools).toBe(true)
-    expect(result.current.totalFilterCount).toBe(1)
+    expect(result.current.totalFilterCount).toBe(3)
     expect(result.current.pagination.pageSize).toBe(100)
     expect(result.current.pagination.pageIndex).toBe(0)
 
@@ -79,11 +80,12 @@ describe('Pool list state query', () => {
     expect(result.current.joinablePools).toBe(false)
   })
 
-  it('returns zero totalFilterCount with no filters', () => {
+  it('returns both-chains default totalFilterCount with no filters', () => {
     const { result } = testHook(() => usePoolListQueryState(), {
       wrapper: withNuqsTestingAdapter(),
     })
 
-    expect(result.current.totalFilterCount).toBe(0)
+    // S113d: default networks = [Base, BaseSepolia] (both live Rootstock chains)
+    expect(result.current.totalFilterCount).toBe(2)
   })
 })

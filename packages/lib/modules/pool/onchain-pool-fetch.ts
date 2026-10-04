@@ -262,7 +262,9 @@ export function mergePools(
   return [...byAddress.values()]
 }
 
-let liveScanPromise: Promise<OnchainPoolListItem[]> | undefined // S109: single-chain cache
+// S113d: per-chain cache — with TWO live Rootstock chains (Base mainnet +
+// Base Sepolia) a single promise would poison the wrong chain's results.
+const liveScanPromises = new Map<GqlChain, Promise<OnchainPoolListItem[]>>()
 
 /**
  * Primary fetch: baked-first (instant), then live scan merges in background.
@@ -275,14 +277,17 @@ export async function fetchDiscoveredPools(
   // chains rely on the live scan only.
   const baked = chain === GqlChainValues.BaseSepolia ? getBakedPools() : []
 
-  if (!liveScanPromise) {
-    liveScanPromise = scanDiscoveredPools(chain).catch(() => baked) // scan failure → baked still works
+  let promise = liveScanPromises.get(chain)
+
+  if (!promise) {
+    promise = scanDiscoveredPools(chain).catch(() => baked) // scan failure → baked still works
+    liveScanPromises.set(chain, promise)
   }
 
   // Race with short timeout: if live scan finishes fast (cached/warm), use merged.
   // Otherwise return baked immediately; live merges on next query (staleTime refetch).
   const timeoutPromise = new Promise<null>(resolve => setTimeout(() => resolve(null), 500))
-  const live = await Promise.race([liveScanPromise, timeoutPromise])
+  const live = await Promise.race([promise, timeoutPromise])
 
   if (live) return mergePools(baked, live)
   return baked

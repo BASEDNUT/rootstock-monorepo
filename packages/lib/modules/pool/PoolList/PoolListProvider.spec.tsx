@@ -50,9 +50,15 @@ const mockOnchainPools: OnchainPoolListItem[] = [
 // Repo-native seeding: withNuqsTestingAdapter({ searchParams })
 const withBaseSepNetworks = withNuqsTestingAdapter({ searchParams: '?networks=BASESEP' })
 
+// S113d: every SUPPORTED network (Base, BaseSepolia) is onchain-only — the
+// GQL merge path only runs for non-onchain-only selections. These two tests
+// pin ARBITRUM (an API network) to keep the provider's API-merge path tested
+// without pretending production queries the remote API.
+const withArbitrumNetworks = withNuqsTestingAdapter({ searchParams: '?networks=ARBITRUM' })
+
 async function renderUsePoolsList() {
   const { result, waitForLoadedUseQuery } = testHook(() => usePoolListLogic(), {
-    wrapper: withNuqsTestingAdapter(),
+    wrapper: withArbitrumNetworks,
   })
 
   await waitForLoadedUseQuery(result)

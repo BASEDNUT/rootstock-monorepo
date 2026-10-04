@@ -60,7 +60,9 @@ export function usePoolListLogic({
   // All selected networks are onchain-only → chainIn empty → skip the API
   // query entirely (never send BASESEP-shaped queries to the remote API).
   const skipApiQuery = (variables.where.chainIn || []).length === 0
-  const { data: onchainPools } = useOnchainPoolDiscovery(hasOnchainOnlyChain)
+  // S113d: fetch pools for the SELECTED onchain-only chains (both live now).
+  const selectedOnchainChains = selectedNetworksForDiscovery.filter(isOnchainOnlyNetwork)
+  const { data: onchainPools } = useOnchainPoolDiscovery(hasOnchainOnlyChain, selectedOnchainChains)
 
   const { data, loading, previousData, refetch, networkStatus, error } = useQuery(
     GetPoolsDocument,

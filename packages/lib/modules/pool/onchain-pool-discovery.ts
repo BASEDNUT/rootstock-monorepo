@@ -39,6 +39,15 @@ export const FACTORY_TO_POOL_TYPE: Map<string, GqlPoolType> = new Map([
   ['0x928e433f50fa579c9be5f7e1273f1db46d630ee1', 'RECLAMM'],
   ['0xdfdddd87dc49756dd93598123879ae3d67b531a3', 'LIQUIDITY_BOOTSTRAPPING'],
   ['0x9a30757385012495a21d64c5efac335b1a6fe48d', 'LIQUIDITY_BOOTSTRAPPING'],
+  // Rootstock Base MAINNET (8453) factories — deployed 2026-10-03 (S113c live).
+  ['0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92', 'WEIGHTED'],
+  ['0x74c9804b4659feb7d056f150a810c4b5ae926da1', 'STABLE'],
+  ['0x179bdcaebadf57d6be08db5776781f4d0b64d5ce', 'STABLE'],
+  ['0x8da17c9a51b3bbc4a4c951edce5cd9764e42a985', 'GYRO'],
+  ['0xf7024eb7d37e993c8959090c84762f6273e43682', 'GYROE'],
+  ['0x730bf6af759e9e74aa6f9f0950e233df974d1859', 'RECLAMM'],
+  ['0xf5cac7d8e637d2827c07c44ae4767093647b0867', 'LIQUIDITY_BOOTSTRAPPING'],
+  ['0x5dbd872f506ab714bf4d9c20675598d9f1495ba8', 'LIQUIDITY_BOOTSTRAPPING'],
 ])
 
 export interface DiscoveredPool {
@@ -125,7 +134,14 @@ export const ONCHAIN_SCAN_CONFIGS: Partial<Record<GqlChain, OnchainScanConfig>> 
     vault: BASESEP_VAULT,
     fromBlock: 46_984_000,
   },
-  // Base mainnet (8453): add vault + fromBlock here at mainnet deploy.
+  // Rootstock Base MAINNET (8453) — deployed 2026-10-03 (S113c live, S113d wiring).
+  // Vault CREATE2-exact prediction match; deploy window starts block 52131550.
+  [GqlChainValues.Base]: {
+    chainId: 8453,
+    rpcUrl: 'https://base.publicnode.com',
+    vault: '0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7',
+    fromBlock: 52_131_550,
+  },
 }
 
 export function getOnchainScanConfig(chain: GqlChain): OnchainScanConfig | undefined {
