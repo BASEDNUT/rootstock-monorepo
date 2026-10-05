@@ -45,6 +45,10 @@ export function patchSdkAddressTableForRootstock(): void {
     FixedPriceLBPoolFactory: Record<number, string>
     MevCaptureHook: Record<number, string>
     StableSurgeHook: Record<number, string>
+    BufferRouter: Record<number, string>
+    UnbalancedAddViaSwapRouter: Record<number, string>
+    VaultAdmin: Record<number, string>
+    VaultExtension: Record<number, string>
   }
 
   // S113d (2026-10-03): our Base MAINNET stack — replaces upstream's 8453
@@ -58,13 +62,27 @@ export function patchSdkAddressTableForRootstock(): void {
   table.WeightedPoolFactory[8453] = '0x9a5bd368C8dA0d7fad33Fc89b6be4e39E5A33F92'
   table.StablePoolFactory[8453] = '0x74c9804b4659fEb7d056F150a810C4B5ae926DA1'
   table.StableSurgePoolFactory[8453] = '0x179BdCaeBADF57d6Be08DB5776781F4D0B64d5ce'
-  table.Gyro2CLPPoolFactory[8453] = '0x8dA17C9a51B3BBc4A4C951eDCE5cD9764e42a985'
+
+  // SDK 6.2.0 table has NO Gyro2CLPPoolFactory key (verified across dist) —
+  // an unguarded assignment throws at module load (latent crash caught by
+  // onchain-swap-sdk-table.spec.ts). Guard: patch only if the key ever exists.
+  if (table.Gyro2CLPPoolFactory) {
+    table.Gyro2CLPPoolFactory[8453] = '0x8dA17C9a51B3BBc4A4C951eDCE5cD9764e42a985'
+  }
+
   table.GyroECLPPoolFactory[8453] = '0xF7024Eb7D37e993c8959090C84762F6273e43682'
   table.ReClammPoolFactory[8453] = '0x730bF6Af759e9E74aa6f9F0950e233dF974D1859'
   table.LBPoolFactory[8453] = '0xf5CAC7d8e637D2827C07c44Ae4767093647b0867'
   table.FixedPriceLBPoolFactory[8453] = '0x5dBd872F506aB714bF4D9C20675598D9F1495bA8'
   table.MevCaptureHook[8453] = '0xfE807044D0329BD96aEa42A78F091c2Db1069f42'
   table.StableSurgeHook[8453] = '0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981'
+  // S113-fix C-5 (2026-10-05): complete the 8453 table — the 4 keys the
+  // patch missed were the unbalanced-add/buffer router + vault admin/ext
+  // (misroute class: upstream routers operate against THEIR vault).
+  table.BufferRouter[8453] = '0xEa94Cee1C04E50e43935c4078F69B68df3Dc3946'
+  table.UnbalancedAddViaSwapRouter[8453] = '0x9e586F22ab23A0040231E78a4d021B5f761036E5'
+  table.VaultAdmin[8453] = '0xFbE459C6D811d474464F0209296590BBe35814Ca'
+  table.VaultExtension[8453] = '0x2234Add4f8284e98cA51830678D6A66553506a07'
 
   // Base Sepolia (84532) — SDK table lacks the key entirely (verified
   // live 2026-09-22). Our Sepolia deployments (LIVE_DEPLOYMENTS.md).
@@ -73,6 +91,11 @@ export function patchSdkAddressTableForRootstock(): void {
   table.BatchRouter[84532] = '0x41978EB90477d4D971dF22111B2d09679f4DadA6'
   table.CompositeLiquidityRouter[84532] = '0x5808B214B66C70e6c0759803AbF3498c2c78F437'
   table.Vault[84532] = '0xEf348c4222ab9c08aFE768AD722Fb02b10d640c9'
+  // C-5 84532 parity (2026-10-05): SDK table lacks these keys on 84532.
+  table.BufferRouter[84532] = '0xe1c7A291D4eBa814f36Ec96fD10F343A53BFa1D7'
+  table.UnbalancedAddViaSwapRouter[84532] = '0xbbEc9F2c69037852A86aB3F97326172649E82337'
+  table.VaultAdmin[84532] = '0xC67111C130b1380E5ba027733315DE82bB5A6837'
+  table.VaultExtension[84532] = '0x8e86fDf21a578cDB01F1A58c71a2ef21dBBE2A8E'
 }
 
 patchSdkAddressTableForRootstock()
