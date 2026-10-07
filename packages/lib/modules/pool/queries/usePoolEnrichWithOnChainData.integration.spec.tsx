@@ -7,6 +7,44 @@ import { usePoolEnrichWithOnChainData } from './usePoolEnrichWithOnChainData'
 import { balWeth8020 } from '../__mocks__/pool-examples/flat'
 import { getApiPoolMock } from '../__mocks__/api-mocks/api-mocks'
 
+import { graphql, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+import { aTokenPriceMock } from '../../tokens/__mocks__/token.builders'
+
+/*
+  Rootstock chains law: supportedNetworks = Base + Base Sepolia, both
+  onchain-only, so toApiNetworks() = [] and the real GetTokenPrices query is
+  intentionally starved. These tests assert enrichment math over upstream
+  mainnet pools and need prices — served here from a dedicated msw server.
+  bypass lets everything unmocked (anvil fork RPC, fetchPoolMock fixtures)
+  pass through untouched.
+*/
+const priceOf = (address: string) => aTokenPriceMock({ address, chain: GqlChainValues.Mainnet })
+
+/*
+  Inline graphql handler (operation name 'GetTokenPrices' as sent by the app):
+  importing the shared msw handler module pulls the circular
+  utils -> server -> default-handlers -> handlers chain, whose module-init
+  order TDZ-crashes under the integration SSR transform. Built inline instead.
+*/
+const tokenPricesServer = setupServer(
+  graphql.query('GetTokenPrices', () =>
+    HttpResponse.json({
+      data: {
+        tokenPrices: [
+          priceOf('0xba100000625a3754423978a60c9317c58a424e3d'), // BAL
+          priceOf('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'), // WETH
+          priceOf('0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0'), // wstETH (Cow AMM pool)
+          priceOf('0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9'), // AAVE (Cow AMM pool)
+        ],
+      },
+    })
+  )
+)
+
+beforeAll(() => tokenPricesServer.listen({ onUnhandledRequest: 'bypass' }))
+afterAll(() => tokenPricesServer.close())
+
 function testPoolEnrichWithOnChainData(pool: Pool) {
   const { result } = testHook(() => usePoolEnrichWithOnChainData(pool))
   return result

@@ -6,6 +6,59 @@ import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { Address, Hash } from 'viem'
 import { gnosis, polygon } from 'viem/chains'
+import { graphql, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+import { allFakeGqlTokens } from '@repo/lib/test/data/all-gql-tokens.fake'
+
+/*
+  Rootstock chains law (Base + Base Sepolia, both onchain-only) starves the
+  real GetTokens query — getToken() returns undefined and receipt-parsers fall
+  back to 18 decimals, mangling non-18-decimal tokens (Gnosis USDC.e is 6 —
+  1e4 raw became 0.00000000000001 instead of 0.01). Serve token metadata from
+  a dedicated msw server; bypass lets anvil fork RPC pass through untouched.
+*/
+const gnosisToken = (address: string, symbol: string, name: string, decimals: number) => {
+  const template = structuredClone(allFakeGqlTokens[0])
+  return {
+    ...template,
+    address,
+    symbol,
+    name,
+    decimals,
+    chain: GqlChainValues.Gnosis,
+    chainId: 100,
+  }
+}
+
+/*
+  Inline graphql handler (operation name 'GetTokens' as sent by the app):
+  importing the shared msw handler module pulls the circular
+  utils -> server -> default-handlers -> handlers chain, whose module-init
+  order TDZ-crashes under the integration SSR transform. Built inline instead.
+*/
+const tokensServer = setupServer(
+  graphql.query('GetTokens', () =>
+    HttpResponse.json({
+      data: {
+        tokens: [
+          ...allFakeGqlTokens,
+          gnosisToken('0x2a22f9c3b484c3629090feed35f17ff8f88f76f0', 'USDC.e', 'USDC.e (PoS)', 6),
+          gnosisToken('0xe91d153e0b41518a2ce8dd3d7944fa863463a97d', 'WXDAI', 'Wrapped XDAI', 18),
+          gnosisToken(
+            '0xcb444e90d8198415266c6a2724b7900fb12fc56e',
+            'EURe',
+            'Monerium EUR eMoney',
+            18
+          ),
+        ],
+      },
+    })
+  )
+)
+
+beforeAll(() => tokensServer.listen({ onUnhandledRequest: 'bypass' }))
+afterAll(() => tokensServer.close())
+
 import {
   useAddLiquidityReceipt,
   useLstStakeReceipt,
