@@ -22,12 +22,12 @@ const engineFacts = [
   {
     stat: '8',
     title: 'Pool factories',
-    subTitle: 'Weighted · stable · boosted · reCLAMM · Gyro · LBP',
+    subTitle: 'Weighted, stable, boosted, reCLAMM, Gyro, LBP',
   },
   {
     stat: '7',
     title: 'Routers',
-    subTitle: 'Router · batch · buffer · composite · aggregator',
+    subTitle: 'Router, batch, buffer, composite, aggregator',
   },
 ]
 

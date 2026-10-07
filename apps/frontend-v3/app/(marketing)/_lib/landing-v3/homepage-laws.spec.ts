@@ -306,12 +306,20 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     expect(hero).toContain('SoilBg')
   })
 
-  // S101c lint fix (no-useless-assignment): read upstream blob via helper
-  // so no dead initializer exists.
+  /*
+    S114 fix: the upstream baseline is the immutable root-import commit
+    (943bfcd85, 2026-09-20 — the frozen Balancer landing files at fork time).
+    The old `origin/main` ref pointed at OUR OWN repo once we became origin,
+    turning the detector into a self-compare (CI: every long string "verbatim";
+    local: ref missing → silently skipped). A pinned sha is deterministic in
+    both environments.
+  */
+  const UPSTREAM_IMPORT = '943bfcd85c76ffe4e7f6903bbdb37b7257460f0b'
+
   function readUpstreamOrNull(f: string): string | null {
     try {
       return execSync(
-        `git show 'origin/main:apps/frontend-v3/app/(marketing)/_lib/landing-v3/${f}'`,
+        `git show '${UPSTREAM_IMPORT}:apps/frontend-v3/app/(marketing)/_lib/landing-v3/${f}'`,
         { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
       )
     } catch {
