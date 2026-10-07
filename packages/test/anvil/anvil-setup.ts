@@ -62,13 +62,13 @@ const ANVIL_PORTS: Record<ChainIdWithFork, number> = {
 export const ANVIL_NETWORKS: Record<ChainIdWithFork, NetworkSetup> = {
   [mainnet.id]: {
     chainId: mainnet.id,
-    fallBackRpc: 'https://cloudflare-eth.com',
+    fallBackRpc: 'https://eth.drpc.org',
     port: ANVIL_PORTS[mainnet.id],
     forkBlockNumber: 24521900n,
   },
   [polygon.id]: {
     chainId: polygon.id,
-    fallBackRpc: 'https://polygon-rpc.com',
+    fallBackRpc: 'https://polygon.drpc.org',
     port: ANVIL_PORTS[polygon.id],
     forkBlockNumber: 67867894n,
   },
@@ -92,7 +92,7 @@ export const ANVIL_NETWORKS: Record<ChainIdWithFork, NetworkSetup> = {
   },
   [gnosis.id]: {
     chainId: gnosis.id,
-    fallBackRpc: 'https://gnosis.drpc.org',
+    fallBackRpc: 'https://rpc.gnosischain.com',
     port: ANVIL_PORTS[gnosis.id],
     forkBlockNumber: 37902207n,
   },
@@ -122,10 +122,8 @@ export function getForkUrl(chainId: ChainIdWithFork, verbose = false): string {
   const network = ANVIL_NETWORKS[chainId]
   const privateKey = process.env['NEXT_PRIVATE_DRPC_KEY']
 
-  if (!privateKey) {
-    throw Error(`Please set the NEXT_PRIVATE_DRPC_KEY environment variable.`)
-  }
-
+  // Drpc (preferred) or keyless public archive fallback — verified to serve
+  // the pinned forkBlockNumber for every ANVIL_NETWORKS chain (2026-10-06).
   if (privateKey) {
     return drpcUrlByChainId(chainId, privateKey)
   }
@@ -135,7 +133,7 @@ export function getForkUrl(chainId: ChainIdWithFork, verbose = false): string {
   }
 
   if (verbose) {
-    console.warn(`Falling back to \`${network.fallBackRpc}\`.`)
+    console.warn(`No NEXT_PRIVATE_DRPC_KEY set. Falling back to \`${network.fallBackRpc}\`.`)
   }
 
   return network.fallBackRpc

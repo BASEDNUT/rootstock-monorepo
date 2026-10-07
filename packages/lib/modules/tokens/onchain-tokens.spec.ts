@@ -32,7 +32,22 @@ describe('getOnchainOnlyTokens', () => {
 
   it('produces no tokens for API-served chains', () => {
     const tokens = getOnchainOnlyTokens()
-    expect(tokens.find(t => t.chain === 'BASE')).toBeUndefined()
     expect(tokens.find(t => t.chain === 'SEPOLIA')).toBeUndefined()
+    expect(tokens.find(t => t.chain === 'MAINNET')).toBeUndefined()
+  })
+
+  it('synthesizes ETH + WETH for Base mainnet (S113d onchain-only doctrine)', () => {
+    const tokens = getOnchainOnlyTokens()
+    const base = tokens.filter(t => t.chain === 'BASE')
+    expect(base.length).toBe(2)
+
+    const eth = base.find(t => t.symbol === 'ETH')
+    expect(eth?.address).toBe('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+    expect(eth?.chainId).toBe(8453)
+
+    const weth = base.find(t => t.symbol === 'WETH')
+    expect(weth?.address).toBe('0x4200000000000000000000000000000000000006')
+    expect(weth?.chainId).toBe(8453)
+    expect(weth?.tradable).toBe(true)
   })
 })

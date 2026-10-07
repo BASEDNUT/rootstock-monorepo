@@ -12,6 +12,7 @@ import { join, normalize, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
+/* global process, console */
 const HERE = dirname(fileURLToPath(import.meta.url))
 const OUT = resolve(HERE, '../out')
 const PORT = Number(process.argv[2] || 8091)

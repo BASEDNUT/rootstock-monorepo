@@ -12,8 +12,10 @@ const semanticTokens = getSemanticTokens(tokens, colors)
 
 // BASED NUT brand pass — honey glow on primary buttons instead of violet
 const primaryButton = (components as any).Button?.variants?.primary
+
 if (primaryButton) {
   primaryButton.boxShadow = '0 3px 20px hsla(38, 68%, 70%, 0.35)'
+
   primaryButton._hover = {
     ...primaryButton._hover,
     boxShadow: '0 3px 20px hsla(26, 80%, 60%, 0.45)',

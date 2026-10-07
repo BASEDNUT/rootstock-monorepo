@@ -68,7 +68,6 @@ export function SwapForm({
   customToken,
   customTokenUsdPrice,
 }: Props) {
-
   const {
     tokenIn,
     tokenOut,

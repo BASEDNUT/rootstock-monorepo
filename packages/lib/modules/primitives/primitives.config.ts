@@ -25,7 +25,7 @@ export const WRAPPER_CREATED_TOPIC0 =
 export const FACTORY_SCAN_FROM_BLOCK = 47_381_481
 
 /** Scan chunk when a wide-range getLogs is rejected (house pattern, S100). */
-export const FACTORY_SCAN_CHUNK = 1_000
+export const FACTORY_SCAN_CHUNK = 500
 
 /** Base Sepolia chain id (our deployment — LIVE_DEPLOYMENTS.md). */
 export const PRIMITIVES_CHAIN_ID = 84532

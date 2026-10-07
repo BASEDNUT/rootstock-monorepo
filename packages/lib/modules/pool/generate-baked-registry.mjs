@@ -1,8 +1,9 @@
+/* global setTimeout, URL, console */
 // Rootstock: generates baked pool registry JSON from live onchain discovery.
 // Run at freeze time (ARD-03): the registry is baked into the IPFS artifact.
 // Usage: node generate-baked-registry.mjs
 import { writeFileSync } from 'fs'
-import { createPublicClient, http, pad } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { baseSepolia } from 'viem/chains'
 import { erc20Abi } from 'viem'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'

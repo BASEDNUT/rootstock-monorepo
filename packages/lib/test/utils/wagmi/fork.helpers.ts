@@ -75,12 +75,11 @@ export async function setTokenBalances({
 export function resetFork(chainId: number = mainnet.id) {
   const privateKey = process.env['NEXT_PRIVATE_DRPC_KEY']
 
-  if (!privateKey) {
-    throw new Error('NEXT_PRIVATE_DRPC_KEY is missing')
-  }
+  // Keyless fallback: public archive RPC serving the pinned fork block.
+  const jsonRpcUrl = privateKey ? drpcUrlByChainId(chainId, privateKey) : 'https://eth.drpc.org'
 
   return forkClient.reset({
-    jsonRpcUrl: drpcUrlByChainId(chainId, privateKey),
+    jsonRpcUrl,
   })
 }
 

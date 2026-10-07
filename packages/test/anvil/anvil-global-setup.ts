@@ -25,7 +25,7 @@ async function sleep(time: number) {
   })
 }
 
-async function waitForAnvilReady(port: number, chainName: string, maxAttempts = 90) {
+async function waitForAnvilReady(port: number, chainName: string, maxAttempts = 300) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const response = await fetch(`http://127.0.0.1:${port}/1`, {

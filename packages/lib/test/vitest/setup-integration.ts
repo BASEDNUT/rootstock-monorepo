@@ -1,8 +1,7 @@
-import { chainsByKey } from '@repo/lib/modules/web3/ChainConfig'
 import * as transportsModule from '@repo/lib/modules/web3/transports'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
-import { ChainIdWithFork, getTestRpcSetup } from '@repo/test/anvil/anvil-setup'
+import { ANVIL_NETWORKS, ChainIdWithFork, getTestRpcSetup } from '@repo/test/anvil/anvil-setup'
 import { mainnetTest, polygonTest } from '@repo/test/anvil/testWagmiConfig'
 import {
   connectWithDefaultUser,
@@ -36,8 +35,16 @@ vi.mock('@repo/lib/modules/web3/transports', async importOriginal => {
   return {
     ...originalModule,
     getRpcUrl: (chainId: number) => {
-      const { rpcUrl } = getTestRpcSetup(chainsByKey[chainId]!.id as ChainIdWithFork)
-      return rpcUrl
+      // Fork chains route straight to their anvil proxy (ANVIL_NETWORKS is
+      // keyed by chain id). Upstream read chainsByKey[chainId]!.id — a UI-chains
+      // lookup that crashes when the app's supported networks no longer include
+      // the fork chain (our app supports Base/Base Sepolia only).
+      if (chainId in ANVIL_NETWORKS) {
+        const { rpcUrl } = getTestRpcSetup(chainId as ChainIdWithFork)
+        return rpcUrl
+      }
+
+      return originalModule.getRpcUrl(chainId)
     },
   }
 })

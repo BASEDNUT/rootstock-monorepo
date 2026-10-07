@@ -13,11 +13,11 @@ function hueOf(hexInput?: string) {
   const min = Math.min(r, g, b)
   if (max === min) return 0
   const d = max - min
-  let hue = 0
+  let hue
   if (max === r) hue = ((g - b) / d) % 6
   else if (max === g) hue = (b - r) / d + 2
   else hue = (r - g) / d + 4
-  return Math.round(((hue * 60) + 360) % 360)
+  return Math.round((hue * 60 + 360) % 360)
 }
 
 describe('BASED NUT brand pass', () => {

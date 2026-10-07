@@ -81,7 +81,7 @@ async function scanFactoryLogs(factory: string, topic0: string): Promise<RawLog[
   try {
     return await getLogsRaw(factory, topic0, from, latest)
   } catch {
-    // chunked fallback (house pattern, S100 — 1,000-block range limit)
+    // chunked fallback (house pattern, S100 — 500-block range limit, live-observed 2026-10-06)
     const logs: RawLog[] = []
 
     for (

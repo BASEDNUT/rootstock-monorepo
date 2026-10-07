@@ -23,11 +23,11 @@ import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
  * - NEVER the remote API (onchain-only law).
  *
  * Live scan truth (verified 2026-09-22):
- * - sepolia.base.org eth_getLogs limited to 1,000-block range
+ * - sepolia.base.org eth_getLogs limited to 500-block range (tightened from 1,000; observed 2026-10-06)
  * - full scan from deploy block ~75s cold-start (hence baked-first)
  */
 
-const CHUNK = 1_000
+const CHUNK = 500
 
 // Non-generic factory: pins the exact client instantiation so TS2719
 // (two unrelated PublicClient instantiations of the generic) cannot occur.

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Button, Center, Flex, Heading, Link, Text, HStack, Stack } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Heading, Text, Stack } from '@chakra-ui/react'
 import FadeInOnView from '@repo/lib/shared/components/containers/FadeInOnView'
 import NextLink from 'next/link'
 import { RadialPattern } from '../../components/zen/RadialPattern'
@@ -46,8 +46,8 @@ export function BuildPromo() {
                 textAlign="center"
                 width="full"
               >
-                Start by creating your own pool — weighted, stable, or a launch pool. Or prototype
-                a custom AMM on the engine.
+                Start by creating your own pool — weighted, stable, or a launch pool. Or prototype a
+                custom AMM on the engine.
               </Text>
             </Stack>
             <Flex
@@ -61,17 +61,10 @@ export function BuildPromo() {
               <Button as={NextLink} flex={1} href="/create" size="lg" variant="primary">
                 Create a pool
               </Button>
-              <Button
-                as={NextLink}
-                flex={1}
-                href="#"
-                size="lg"
-                variant="tertiary"
-              >
+              <Button as={NextLink} flex={1} href="#" size="lg" variant="tertiary">
                 Explore pools
               </Button>
             </Flex>
-            
           </Flex>
         </FadeInOnView>
       </Center>

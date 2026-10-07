@@ -57,7 +57,6 @@ export function buildOnchainSwapPaths({
   tokenIn,
   tokenOut,
   inputAmountRaw,
-  swapType,
 }: {
   pool: OnchainPoolListItem
   tokenIn: { address: string; decimals: number; symbol?: string }

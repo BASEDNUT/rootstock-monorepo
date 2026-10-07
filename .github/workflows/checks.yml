@@ -131,7 +131,7 @@ jobs:
       - name: Set up foundry (includes anvil)
         uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
       - name: Start anvil fork in mainnet
-        run: anvil --mnemonic "${{ env.TEST_ACCOUNT_MNEMONIC }}" --fork-url "https://lb.drpc.live/ethereum/${{ env.NEXT_PRIVATE_DRPC_KEY }}" --fork-block-number ${{ env.E2E_FORK_BLOCK_NUMBER }} --fork-retry-backoff 1000 --no-rate-limit --port 8545 &
+        run: anvil --mnemonic "${{ env.TEST_ACCOUNT_MNEMONIC }}" --fork-url "https://eth.drpc.org" --fork-block-number ${{ env.E2E_FORK_BLOCK_NUMBER }} --fork-retry-backoff 1000 --no-rate-limit --port 8545 &
       - name: Run Playwright dev tests (Balancer shard ${{ matrix.shard }})
         run: pnpm test:e2e:dev:bal
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

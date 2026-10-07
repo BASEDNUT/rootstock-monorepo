@@ -117,9 +117,7 @@ export function SwapPreviewModal({
           currentStep={transactionSteps.currentStep}
           isSuccess={isSuccess}
           returnAction={onClose}
-          returnLabel={
-            isLbpSwap ? 'Return to lbp' : 'Swap again'
-          }
+          returnLabel={isLbpSwap ? 'Return to lbp' : 'Swap again'}
           urlTxHash={urlTxHash}
         />
       </ModalContent>
