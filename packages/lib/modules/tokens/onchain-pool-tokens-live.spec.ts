@@ -1,7 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeAll, afterAll } from 'vitest'
 import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
+import { mswServer } from '@repo/lib/test/msw/server'
 
+/*
+  LIVE spec: hits the real Base Sepolia RPC by design. Default msw handlers
+  stub public-RPC JSON-RPC (to keep background wagmi polls from leaking real
+  TLS sockets into unit teardown) — this spec needs the genuine network, so
+  interception is disabled for its duration and restored after.
+*/
 describe('onchain pool tokens (LIVE)', () => {
+  beforeAll(() => mswServer.close())
+  afterAll(() => mswServer.listen())
+
   it('fetches discovered pool tokens with onchain metadata', async () => {
     let tokens
 
