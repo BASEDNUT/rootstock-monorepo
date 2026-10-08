@@ -57,4 +57,4 @@ Balancer's architecture is their work — we keep it, credit it, and grow on it.
 ## Based Nut
 
 - The Orchard: https://orchard.basednut.com
-- X: 'https://x.com/BASEDNUT_'
+- [Twitter](https://x.com/BASEDNUT_)
