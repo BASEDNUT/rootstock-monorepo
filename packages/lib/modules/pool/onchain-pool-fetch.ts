@@ -273,6 +273,13 @@ const liveScanPromises = new Map<GqlChain, Promise<OnchainPoolListItem[]>>()
 export async function fetchDiscoveredPools(
   chain: GqlChain = GqlChainValues.BaseSepolia
 ): Promise<OnchainPoolListItem[]> {
+  // Integration suite gate: the live scan (~1,700 eth_getLogs POSTs to a
+  // public RPC per provider-mounted spec) rate-limits CI runner IPs (429
+  // storm) and kills the vitest worker pool mid-socket-write (libuv
+  // assertion, ERR_IPC_CHANNEL_CLOSED). vitest.integration.base.ts sets
+  // this env for the integration suite only — the dedicated live specs in
+  // the unit suite keep the real scans.
+  if (process.env.ROOTSTOCK_SKIP_ONCHAIN_SCANS === '1') return []
   // S109: baked registry is the Base Sepolia deployment snapshot — other
   // chains rely on the live scan only.
   const baked = chain === GqlChainValues.BaseSepolia ? getBakedPools() : []

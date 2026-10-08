@@ -99,6 +99,9 @@ async function scanFactoryLogs(factory: string, topic0: string): Promise<RawLog[
 }
 
 export async function fetchOnchainFactoryTokens(): Promise<GqlToken[]> {
+  // Integration suite gate (same rationale as fetchDiscoveredPools).
+  if (process.env.ROOTSTOCK_SKIP_ONCHAIN_SCANS === '1') return []
+
   const [tokenLogs, wrapperLogs] = await Promise.all([
     scanFactoryLogs(TOKEN_FACTORY, TOKEN_CREATED_TOPIC0),
     scanFactoryLogs(WRAPPER_FACTORY, WRAPPER_CREATED_TOPIC0),

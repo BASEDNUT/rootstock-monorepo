@@ -50,47 +50,6 @@ vi.mock('@repo/lib/modules/web3/transports', async importOriginal => {
 })
 
 /*
-  Rootstock onchain scans (pool discovery + pool tokens + factory tokens,
-  Base + Base Sepolia) are LIVE-RPC by design (onchain-only law, S100/S106).
-  In integration specs they are pure noise: no spec asserts on them (the real
-  scans are covered by dedicated live specs in the unit suite), yet every
-  provider mount fires ~1,700 eth_getLogs POSTs to public RPCs per spec file
-  (sepolia.base.org serves max 500-block ranges). On CI runners that is a 429
-  storm which trips a libuv teardown assertion and kills the worker pool
-  mid-run (ERR_IPC_CHANNEL_CLOSED — CI run 37714417136, 2026-10-08). Mocked to
-  empty results here; the unit suite keeps the real implementations.
-*/
-vi.mock('@repo/lib/modules/pool/onchain-pool-fetch', async importOriginal => {
-  const originalModule =
-    await importOriginal<typeof import('@repo/lib/modules/pool/onchain-pool-fetch')>()
-
-  return {
-    ...originalModule,
-    fetchDiscoveredPools: async () => [],
-  }
-})
-
-vi.mock('@repo/lib/modules/tokens/onchain-pool-tokens', async importOriginal => {
-  const originalModule =
-    await importOriginal<typeof import('@repo/lib/modules/tokens/onchain-pool-tokens')>()
-
-  return {
-    ...originalModule,
-    fetchOnchainPoolTokens: async () => [],
-  }
-})
-
-vi.mock('@repo/lib/modules/primitives/onchain-factory-tokens', async importOriginal => {
-  const originalModule =
-    await importOriginal<typeof import('@repo/lib/modules/primitives/onchain-factory-tokens')>()
-
-  return {
-    ...originalModule,
-    fetchOnchainFactoryTokens: async () => [],
-  }
-})
-
-/*
   Mocks getViemClient to use the test chain definitions,
   which use test rpcUrls ('http://127.0.0.1:port/poolId')
 */

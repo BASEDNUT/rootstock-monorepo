@@ -15,6 +15,13 @@ export function createIntegrationVitestConfig(monorepoRoot: string): ViteUserCon
 
   const integrationTestOptions: Partial<InlineConfig> = {
     include: ['./**/*.integration.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    // Integration specs never assert on the live onchain scans (pool
+    // discovery / factory tokens) — gated at source in onchain-pool-fetch.ts
+    // and onchain-factory-tokens.ts. The real scans stay covered by the
+    // dedicated live specs in the unit suite (this env is not set there).
+    env: {
+      ROOTSTOCK_SKIP_ONCHAIN_SCANS: '1',
+    },
     // Integration tests call third-party endpoints (Balancer API, raw.githubusercontent.com)
     // that do not answer a browser preflight. happy-dom's fetch enforces the same-origin
     // policy, which blocks those responses and doubles every cross-origin POST with an
