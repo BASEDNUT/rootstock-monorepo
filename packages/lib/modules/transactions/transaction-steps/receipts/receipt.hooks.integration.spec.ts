@@ -6,58 +6,82 @@ import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { Address, Hash } from 'viem'
 import { gnosis, polygon } from 'viem/chains'
-import { graphql, HttpResponse } from 'msw'
-import { setupServer } from 'msw/node'
-import { allFakeGqlTokens } from '@repo/lib/test/data/all-gql-tokens.fake'
+import { vi } from 'vitest'
+import type { ReactNode } from 'react'
 
 /*
-  Rootstock chains law (Base + Base Sepolia, both onchain-only) starves the
-  real GetTokens query — getToken() returns undefined and receipt-parsers fall
-  back to 18 decimals, mangling non-18-decimal tokens (Gnosis USDC.e is 6 —
-  1e4 raw became 0.00000000000001 instead of 0.01). Serve token metadata from
-  a dedicated msw server; bypass lets anvil fork RPC pass through untouched.
+  Socketless token metadata (S114). The chains law (Base + Base Sepolia,
+  both onchain-only) starves the live GetTokens query — getToken() returns
+  undefined and receipt-parsers fall back to 18 decimals, mangling
+  non-18-decimal tokens (Gnosis USDC.e is 6 — 1e4 raw became
+  0.00000000000001 instead of 0.01).
+
+  Previously served from an msw server living inside this spec. That
+  violated the integration suite's own no-msw law
+  (vitest.integration.base.ts strips setup-msw.ts): msw patches http and its
+  teardown races live wagmi polling — a socket with active IO watchers is
+  destroyed at worker teardown and the native uv__stream_destroy assertion
+  kills the worker (ERR_IPC_CHANNEL_CLOSED). Proven by the 2026-10-08
+  four-leg matrix: this spec crashed its worker under both Node 22 and 24,
+  while the msw-free upstream spec ran clean under identical infra.
+  Metadata now arrives via a hoisted vi.mock factory — pure module
+  substitution, zero sockets.
 */
-const gnosisToken = (address: string, symbol: string, name: string, decimals: number) => {
-  const template = structuredClone(allFakeGqlTokens[0])
-  return {
-    ...template,
-    address,
-    symbol,
-    name,
-    decimals,
-    chain: GqlChainValues.Gnosis,
-    chainId: 100,
+vi.mock('@repo/lib/modules/tokens/TokensProvider', async importOriginal => {
+  const actual = await importOriginal<typeof import('@repo/lib/modules/tokens/TokensProvider')>()
+  const { allFakeGqlTokens } = await import('@repo/lib/test/data/all-gql-tokens.fake')
+  const { GqlChainValues } = await import('@repo/lib/shared/services/api/graphql-enums')
+
+  const gnosisToken = (address: string, symbol: string, name: string, decimals: number) => {
+    const template = structuredClone(allFakeGqlTokens[0])
+    return {
+      ...template,
+      address,
+      symbol,
+      name,
+      decimals,
+      chain: GqlChainValues.Gnosis,
+      chainId: 100,
+    }
   }
-}
 
-/*
-  Inline graphql handler (operation name 'GetTokens' as sent by the app):
-  importing the shared msw handler module pulls the circular
-  utils -> server -> default-handlers -> handlers chain, whose module-init
-  order TDZ-crashes under the integration SSR transform. Built inline instead.
-*/
-const tokensServer = setupServer(
-  graphql.query('GetTokens', () =>
-    HttpResponse.json({
-      data: {
-        tokens: [
-          ...allFakeGqlTokens,
-          gnosisToken('0x2a22f9c3b484c3629090feed35f17ff8f88f76f0', 'USDC.e', 'USDC.e (PoS)', 6),
-          gnosisToken('0xe91d153e0b41518a2ce8dd3d7944fa863463a97d', 'WXDAI', 'Wrapped XDAI', 18),
-          gnosisToken(
-            '0xcb444e90d8198415266c6a2724b7900fb12fc56e',
-            'EURe',
-            'Monerium EUR eMoney',
-            18
-          ),
-        ],
-      },
-    })
-  )
-)
+  const tokens = [
+    ...allFakeGqlTokens,
+    gnosisToken('0x2a22f9c3b484c3629090feed35f17ff8f88f76f0', 'USDC.e', 'USDC.e (PoS)', 6),
+    gnosisToken('0xe91d153e0b41518a2ce8dd3d7944fa863463a97d', 'WXDAI', 'Wrapped XDAI', 18),
+    gnosisToken('0xcb444e90d8198415266c6a2724b7900fb12fc56e', 'EURe', 'Monerium EUR eMoney', 18),
+  ]
 
-beforeAll(() => tokensServer.listen({ onUnhandledRequest: 'bypass' }))
-afterAll(() => tokensServer.close())
+  const getToken = (address: string, chain: string | number) => {
+    const key = typeof chain === 'number' ? 'chainId' : 'chain'
+    return tokens.find(
+      token => token.address.toLowerCase() === address.toLowerCase() && token[key] === chain
+    )
+  }
+
+  return {
+    ...actual,
+    TokensProvider: ({ children }: { children?: ReactNode }) => children,
+    useTokens: () => ({
+      tokens,
+      prices: [],
+      isLoadingTokens: false,
+      isLoadingTokenPrices: false,
+      getToken,
+      getNativeAssetToken: () => undefined,
+      getWrappedNativeAssetToken: () => undefined,
+      priceFor: () => 0,
+      getTokensByChain: () => [],
+      usdValueForToken: () => '0',
+      usdValueForTokenAddress: () => '0',
+      calcWeightForBalance: () => '0',
+      calcTotalUsdValue: () => '0',
+      startTokenPricePolling: () => {},
+      stopTokenPricePolling: () => {},
+      vebalBptToken: undefined,
+    }),
+  }
+})
 
 import {
   useAddLiquidityReceipt,
