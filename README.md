@@ -28,10 +28,12 @@ Full setup including the static export path: [INIT.md](./INIT.md).
 
 ## For research
 
-- **Is this really Balancer's audited code?** Yes — every deployed contract is proven byte-identical to Balancer's officially-committed build artifacts. The proof is machine-checkable and rerunnable: [deployments/PROVENANCE.md](./deployments/PROVENANCE.md).
+- **Is this really Balancer's audited code?** Every deployed contract is proven byte-identical to Balancer's officially-committed build artifacts. Verify in [deployments/PROVENANCE.md](./deployments/PROVENANCE.md).
 - **What was audited, when, by whom?** The inherited architecture's audit reports (Spearbit, Trail of Bits, Certora, Cantina) are preserved verbatim in [audits/](./audits/AGENTS.md).
-- **What did Rootstock add?** Exactly two contracts: TokenFactory + WrapperFactory (permissionless primitives, audited 2026-09-27, 0 Critical/High/Medium), plus this frontend and the [patches/](./patches) SDK adaptation. Everything else is upstream.
+- **What did Rootstock add?** Exactly two contracts: TokenFactory + WrapperFactory, plus this frontend and the [patches/](./patches) SDK adaptation. Everything else is upstream.
 - **Hosting:** static export published to IPFS under a content-addressed CID. No DNS host exists.
+- For ROOTSTOCK Docs: https://docs.basednut.com/rootstock
+
 
 ## The engine
 
@@ -55,6 +57,6 @@ Full setup including the static export path: [INIT.md](./INIT.md).
 Balancer's architecture is their work — we keep it, credit it, and grow on it.
 
 ## Based Nut
-
+- ROOTSTOCK Docs: https://docs.basednut.com/rootstock
 - The Orchard: https://orchard.basednut.com
 - [Twitter](https://x.com/BASEDNUT_)
