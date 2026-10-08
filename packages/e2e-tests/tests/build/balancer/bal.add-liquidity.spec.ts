@@ -1,21 +1,21 @@
-import { test, expect } from '@playwright/test'
-import { balWeth8020 } from '@repo/lib/modules/pool/__mocks__/pool-examples/flat'
+import { expect, test } from '@playwright/test'
 
-test('Balancer: add liquidity page renders', async ({ page }) => {
-  await page.goto(`http://localhost:3000/pools/ethereum/v2/${balWeth8020.poolId}`)
+/*
+  Rootstock surface: add-liquidity flow reachable from the baked-registry
+  pool detail page (V3 weighted pool — proportional add supported).
+*/
+test('Rootstock: add liquidity page renders for the V3 pool', async ({ page }) => {
+  await page.goto('http://localhost:3000/pools')
+
+  // The table row renders token pills + version + type (pool-name display
+  // mode off by default) — 'v3' + 'Weighted' uniquely identify the table row
+  // (marketing band says 'Weighted pool' and carries no version tag).
+  const row = page.getByRole('group').filter({ hasText: 'v3' }).filter({ hasText: 'Weighted' })
+  await row.click()
 
   await page.getByRole('button', { name: 'Add liquidity' }).click()
 
-  // Proportional tab is disabled
-  await page.locator('#button-group-1').hover() //TODO: add id to the button to improve locator
-  await expect(
-    page.getByText('does not support liquidity to be added proportionally'),
-  ).toBeVisible()
-  await page.locator('#button-group-0').hover() //TODO: add id to the button to improve locator
-
-  // Form works for flexible tab
-  await expect(page.getByText('Flexible', { exact: true })).toBeVisible()
-  await page.getByPlaceholder('0.00').first().click()
-  await page.getByPlaceholder('0.00').first().fill('1')
-  await page.getByRole('button', { name: 'Connect' }).nth(2).click()
+  await expect(page).toHaveURL(/\/pools\/base-sepolia\/v3\/.+\/add-liquidity/)
+  // Form renders token inputs (V3 weighted pools support proportional add).
+  await expect(page.getByPlaceholder('0.00').first()).toBeVisible()
 })
