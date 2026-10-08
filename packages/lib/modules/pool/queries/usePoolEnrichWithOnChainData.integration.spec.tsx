@@ -2,7 +2,6 @@ import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { testHook } from '@repo/lib/test/utils/custom-renderers'
 import { waitFor } from '@testing-library/react'
 import { Pool } from '../pool.types'
-import { fetchPoolMock, poolEnrichQuery } from '../__mocks__/fetchPoolMock'
 import { usePoolEnrichWithOnChainData } from './usePoolEnrichWithOnChainData'
 import { balWeth8020 } from '../__mocks__/pool-examples/flat'
 import { getApiPoolMock } from '../__mocks__/api-mocks/api-mocks'
@@ -10,6 +9,7 @@ import { getApiPoolMock } from '../__mocks__/api-mocks/api-mocks'
 import { graphql, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { aTokenPriceMock } from '../../tokens/__mocks__/token.builders'
+import { allFakeGqlTokens } from '@repo/lib/test/data/all-gql-tokens.fake'
 
 /*
   Rootstock chains law: supportedNetworks = Base + Base Sepolia, both
@@ -27,7 +27,43 @@ const priceOf = (address: string) => aTokenPriceMock({ address, chain: GqlChainV
   utils -> server -> default-handlers -> handlers chain, whose module-init
   order TDZ-crashes under the integration SSR transform. Built inline instead.
 */
+/*
+  Cow AMM fixture (captured from the test API 2026-10-07): serves the V1 pool
+  hermetically — the old fetchPoolMock hit the live API, whose TLS sockets
+  tore down mid-write at teardown (unhandled ECANCELED failed the CI job even
+  with every test passing).
+*/
+const cowAmmPoolFixture = {
+  id: '0xf08d4dea369c456d26a3168ff0024b904f2d8b91',
+  address: '0xf08d4dea369c456d26a3168ff0024b904f2d8b91',
+  chain: 'MAINNET',
+  type: 'COW_AMM',
+  protocolVersion: 1,
+  dynamicData: { totalLiquidity: '5562.92', totalShares: '119.625287948505436366' },
+  poolTokens: [
+    {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      decimals: 6,
+      balance: '2364.863769',
+      hasNestedPool: false,
+      nestedPool: null,
+    },
+    {
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      decimals: 18,
+      balance: '1.2430599188778695',
+      hasNestedPool: false,
+      nestedPool: null,
+    },
+  ],
+}
+
 const tokenPricesServer = setupServer(
+  graphql.query('GetPool', () => HttpResponse.json({ data: { pool: cowAmmPoolFixture } })),
+  // GetTokens is otherwise the spec's last live-API TLS socket
+  // (TokensProvider polls it; torn down mid-write at teardown -> unhandled
+  // ECANCELED fails the CI job even with every test passing).
+  graphql.query('GetTokens', () => HttpResponse.json({ data: { tokens: allFakeGqlTokens } })),
   graphql.query('GetTokenPrices', () =>
     HttpResponse.json({
       data: {
@@ -81,13 +117,7 @@ test('enriches V2 pool with on-chain data', async () => {
 })
 
 test('enriches V1 Cow AMM pool with on-chain data', async () => {
-  const cowPoolId = '0xf08d4dea369c456d26a3168ff0024b904f2d8b91'
-
-  const pool = await fetchPoolMock({
-    poolId: cowPoolId,
-    chain: GqlChainValues.Mainnet,
-    query: poolEnrichQuery,
-  })
+  const pool = structuredClone(cowAmmPoolFixture) as unknown as Pool
 
   // delete values to ensure that onchain data is used
   pool.dynamicData.totalLiquidity = '0'
