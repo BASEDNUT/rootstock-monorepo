@@ -21,7 +21,7 @@ import { SaleStructureForm, SeedType, UserActions, WeightAdjustmentType } from '
 import { Control, Controller, SubmitHandler, UseFormSetValue } from 'react-hook-form'
 import { InputWithError } from '@repo/lib/shared/components/inputs/InputWithError'
 import { TokenSelectInput } from '../../tokens/TokenSelectInput'
-import { getNetworkConfig } from '@repo/lib/config/app.config'
+import { getNetworkConfig, shouldUseAnvilFork } from '@repo/lib/config/app.config'
 import { Percent } from 'lucide-react'
 import { useTokenMetadata, useTokenMetadataAcrossChains } from '../../tokens/useTokenMetadata'
 import { useEffect, useState } from 'react'
@@ -105,6 +105,14 @@ export function SaleStructureStep() {
   const launchTokenMetadata = useTokenMetadata(launchTokenAddress, selectedChain)
 
   useEffect(() => {
+    /*
+      S114b: under the E2E fork gate every chain's transport IS the anvil fork,
+      so cross-chain metadata reads succeed everywhere and first-match always
+      resolves to the list head (Base) — the auto-switch would fight the gated
+      defaultNetwork (ethereum fork chain). Skip it in fork builds.
+    */
+    if (shouldUseAnvilFork) return
+
     if (launchTokenMatch?.chain && launchTokenMatch.chain !== selectedChain) {
       setValue('selectedChain', launchTokenMatch.chain, { shouldDirty: true })
     }
