@@ -119,9 +119,12 @@ export class CreatePoolPage {
       S114b: the navbar trigger animates continuously (S84 wiggle class);
       playwright's actionability check never sees it stable. force skips the
       stability wait — the popover itself opens reliably.
+
+      S114b2: popover item label drifted upstream-side: our build renders
+      'CoW' (logo + short label), not 'CoW AMM'. Accept both.
     */
     await this.page.getByText('Build', { exact: true }).click({ force: true })
-    await this.page.getByText('CoW AMM', { exact: true }).click()
+    await this.page.getByText(/^CoW( AMM)?$/, { exact: true }).click()
     await expect(this.page).toHaveURL(this.urls.buildCow)
   }
 
