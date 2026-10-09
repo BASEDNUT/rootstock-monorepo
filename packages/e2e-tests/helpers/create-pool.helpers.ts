@@ -120,12 +120,22 @@ export class CreatePoolPage {
       playwright's actionability check never sees it stable. force skips the
       stability wait — the popover itself opens reliably.
 
+      S114b3: mid-wizard scroll state puts the fixed navbar trigger outside
+      the viewport (playwright scrolls but Chakra popover positioning misses
+      the synthetic hit) — return to top first.
+
       S114b2: popover item label drifted upstream-side: our build renders
       'CoW' (logo + short label), not 'CoW AMM'. Accept both.
     */
+    await this.page.evaluate(() => window.scrollTo(0, 0))
     await this.page.getByText('Build', { exact: true }).click({ force: true })
     await this.page.getByText(/^CoW( AMM)?$/, { exact: true }).click()
-    await expect(this.page).toHaveURL(this.urls.buildCow)
+    /*
+      S114b3: our step-router normalizes /create?protocol=cow to the saved-step
+      URL (query preserved) — assert the protocol query survived, the spec's
+      text assertion below proves the form state.
+    */
+    await expect(this.page).toHaveURL(/protocol=cow/)
   }
 
   async chooseProtocol(protocol: string) {

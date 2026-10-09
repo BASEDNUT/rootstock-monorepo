@@ -62,7 +62,13 @@ export function useFormSteps(config: UseFormStepsConfig) {
       const savedStep = steps[savedStepIndex]
 
       if (savedStep) {
-        router.replace(`${basePath}/${savedStep.id}`)
+        /*
+          S114b: preserve query params through the redirect — deep links like
+          /create?protocol=cow set form state via searchParams; dropping the
+          query erased the protocol selection before the provider read it.
+        */
+        const query = typeof window !== 'undefined' ? window.location.search : ''
+        router.replace(`${basePath}/${savedStep.id}${query}`)
       }
     }
 
