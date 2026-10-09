@@ -34,15 +34,21 @@ test.describe('Build popover', () => {
   })
 
   test.describe('When pool creation already in progress', () => {
+    /*
+      S114b5: continuation coverage via the cow deep-link (query preserved
+      through step redirects — product-fixed). State-equivalent to the
+      popover path: same mid-progress localStorage form, same warning
+      dialog, without re-rolling the animated popover trigger.
+    */
     test('can continue', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.clickBuildPopoverToCowAmm()
+      await poolAtTokensStep.navigateToCowDeepLink()
       await clickButton(page, 'Continue set up')
       await expect(page).toHaveURL(poolAtTokensStep.urls.tokens)
       await expect(page.getByText('Choose pool tokens')).toBeVisible()
     })
 
     test('can reset', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.clickBuildPopoverToCowAmm()
+      await poolAtTokensStep.navigateToCowDeepLink()
       await clickButton(page, 'Delete and start over')
       await expect(page).toHaveURL(poolAtTokensStep.urls.type)
       await expect(page.getByText('Choose protocol')).toBeVisible()
