@@ -9,7 +9,7 @@ import { useUserAccount } from '../web3/UserAccountProvider'
 import { ConnectWallet } from '../web3/ConnectWallet'
 import { useCopyToClipboard } from '@repo/lib/shared/hooks/useCopyToClipboard'
 import { useFormState, useWatch } from 'react-hook-form'
-import { getOnchainScanConfig } from '@repo/lib/modules/pool/onchain-pool-discovery'
+import { isDeploymentReadyChain } from '@repo/lib/modules/pool/onchain-pool-discovery'
 
 export function LbpFormAction() {
   const { isConnected } = useUserAccount()
@@ -29,7 +29,9 @@ export function LbpFormAction() {
 
   // S110 (Boss 2026-09-30): ROOTSTOCK launchpad factories exist only where
   // OUR stack is deployed — honest gate until the mainnet release.
-  const rootstockChainReady = !!selectedChain && !!getOnchainScanConfig(selectedChain)
+  // S114b: isDeploymentReadyChain widens readiness under the E2E fork gate
+  // (fork builds run against upstream's Ethereum deployment).
+  const rootstockChainReady = isDeploymentReadyChain(selectedChain)
   const previewModalDisclosure = useDisclosure()
   const nextBtn = useRef(null)
   const { copyToClipboard, isCopied } = useCopyToClipboard()

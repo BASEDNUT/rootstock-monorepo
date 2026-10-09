@@ -9,7 +9,7 @@ import { InvalidTotalWeightAlert } from './InvalidTotalWeightAlert'
 import { useCopyToClipboard } from '@repo/lib/shared/hooks/useCopyToClipboard'
 import { isAutoRangePool, isCowPool } from './helpers'
 import { useFormState, useWatch } from 'react-hook-form'
-import { getOnchainScanConfig } from '@repo/lib/modules/pool/onchain-pool-discovery'
+import { isDeploymentReadyChain } from '@repo/lib/modules/pool/onchain-pool-discovery'
 
 export function PoolCreationFormAction({ disabled }: { disabled?: boolean }) {
   const { poolAddress, poolCreationForm, goToNextStep, goToPreviousStep, isLastStep, isFirstStep } =
@@ -31,7 +31,9 @@ export function PoolCreationFormAction({ disabled }: { disabled?: boolean }) {
   // S110 (Boss 2026-09-30): ROOTSTOCK factories exist only where OUR stack
   // is deployed — creating through upstream's Base deployment would put
   // funds in pools that are not ROOTSTOCK. Honest gate until mainnet.
-  const rootstockChainReady = !!network && !!getOnchainScanConfig(network)
+  // S114b: isDeploymentReadyChain widens readiness under the E2E fork gate
+  // (fork builds run against upstream's Ethereum deployment).
+  const rootstockChainReady = isDeploymentReadyChain(network)
 
   useEffect(() => {
     // trigger modal close if AutoRange and token amounts have not been set

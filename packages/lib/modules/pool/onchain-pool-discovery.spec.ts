@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, afterEach } from 'vitest'
 import {
   FACTORY_TO_POOL_TYPE,
   POOL_REGISTERED_TOPIC0,
@@ -78,5 +78,43 @@ describe('onchain pool discovery', () => {
     expect(base?.rpcUrl).toBe('https://base.publicnode.com')
     // Both Rootstock networks carry scan configs
     expect(getOnchainScanConfig('BASESEP')).toBeDefined()
+  })
+
+  describe('isDeploymentReadyChain (S114b fork gate)', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    })
+
+    async function importHelper() {
+      const mod = await import('./onchain-pool-discovery')
+      return mod.isDeploymentReadyChain
+    }
+
+    it('ships the honest gate when the E2E fork gate is off', async () => {
+      vi.stubEnv('NEXT_PUBLIC_BALANCER_API_URL', 'https://test.invalid/graphql')
+      vi.stubEnv('NEXT_PUBLIC_PROJECT_ID', 'balancer')
+      vi.stubEnv('NEXT_PUBLIC_E2E_DEV', '')
+      const isDeploymentReadyChain = await importHelper()
+
+      // Shipped law unchanged: only OUR deployed chains are ready.
+      expect(isDeploymentReadyChain('BASE')).toBe(true)
+      expect(isDeploymentReadyChain('BASESEP')).toBe(true)
+      expect(isDeploymentReadyChain('MAINNET')).toBe(false)
+      expect(isDeploymentReadyChain(undefined)).toBe(false)
+    })
+
+    it('treats every chain as deployment-ready under the fork gate', async () => {
+      vi.stubEnv('NEXT_PUBLIC_BALANCER_API_URL', 'https://test.invalid/graphql')
+      vi.stubEnv('NEXT_PUBLIC_PROJECT_ID', 'balancer')
+      vi.stubEnv('NEXT_PUBLIC_E2E_DEV', '1')
+      const isDeploymentReadyChain = await importHelper()
+
+      // Fork builds run against the upstream Ethereum fork where the upstream
+      // factories DO exist — deployment-capable for spec flows.
+      expect(isDeploymentReadyChain('MAINNET')).toBe(true)
+      expect(isDeploymentReadyChain('BASE')).toBe(true)
+      expect(isDeploymentReadyChain(undefined)).toBe(false)
+    })
   })
 })

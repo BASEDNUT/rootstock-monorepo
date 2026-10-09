@@ -1,5 +1,6 @@
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
+import { shouldUseAnvilFork } from '@repo/lib/config/app.config'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import type { GqlPoolType } from '@repo/lib/shared/services/api/generated/graphql'
 
@@ -146,6 +147,21 @@ export const ONCHAIN_SCAN_CONFIGS: Partial<Record<GqlChain, OnchainScanConfig>> 
 
 export function getOnchainScanConfig(chain: GqlChain): OnchainScanConfig | undefined {
   return ONCHAIN_SCAN_CONFIGS[chain]
+}
+
+/*
+  S114b: deployment-readiness predicate for the create wizards (pool + LBP).
+  Shipped law (S110): ROOTSTOCK factories exist only where OUR stack is
+  deployed — honest gate until the Rootstock mainnet release. Under the
+  NEXT_PUBLIC_E2E_DEV fork gate the harness runs against the upstream ETHEREUM
+  fork where the upstream factories DO exist, so every defined chain is
+  deployment-capable for spec flows. Shipped builds never set the var:
+  predicate identical to the shipped law.
+*/
+export function isDeploymentReadyChain(chain?: GqlChain): boolean {
+  if (!chain) return false
+  if (shouldUseAnvilFork) return true
+  return !!getOnchainScanConfig(chain)
 }
 
 export function isOnchainDiscoveryNetwork(chain: GqlChain): boolean {
