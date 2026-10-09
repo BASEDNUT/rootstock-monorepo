@@ -1,7 +1,7 @@
 import { ProjectConfig } from '@repo/lib/config/config.types'
 import { PartnerVariant, PoolDisplayType, PoolFilterType } from '@repo/lib/modules/pool/pool.types'
 import { GqlChainValues, GqlPoolTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
-import { isProd, shouldUseAnvilFork } from '@repo/lib/config/app.config'
+import { isProd } from '@repo/lib/config/app.config'
 
 const prodHiddenPoolTypes = [GqlPoolTypeValues.LiquidityBootstrapping] satisfies PoolFilterType[]
 
@@ -10,25 +10,6 @@ const hiddenPoolTypes: PoolFilterType[] = [
   ...(isProd ? prodHiddenPoolTypes : []),
 ]
 
-/*
-  S114b: dev-E2E fork chain law. The dev harness forks ETHEREUM mainnet
-  (anvil eth.drpc.org; upstream pool mocks), but the shipped chain law is
-  Base + Base Sepolia (S110/S113d). Under the gate the fork chain joins the
-  law and becomes the wizard default, so token/token-price queries, the token
-  dialog, and the deploy CTA all operate on the forked chain exactly as the
-  upstream-derived dev specs expect. Gate matches the wagmi gate in
-  ChainConfig (S114). Shipped builds never set the var and stay byte-identical.
-*/
-const forkChainLaw = shouldUseAnvilFork
-  ? {
-      supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia, GqlChainValues.Mainnet],
-      defaultNetwork: GqlChainValues.Mainnet,
-    }
-  : {
-      supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
-      defaultNetwork: GqlChainValues.Base,
-    }
-
 export const ProjectConfigBalancer: ProjectConfig = {
   projectId: 'balancer',
   projectName: 'ROOTSTOCK',
@@ -36,15 +17,12 @@ export const ProjectConfigBalancer: ProjectConfig = {
   projectLogo: '/images/icons/nut.svg',
   acceptedPoliciesVersion: undefined,
   // S110 (Boss 2026-09-30): two chains for everything — Base Sepolia is
-  // our live Rootstock deployment, unconditionally selectable. S114b: under
-  // the NEXT_PUBLIC_E2E_DEV fork gate the ethereum fork chain joins the law
-  // (see forkChainLaw above) — shipped law unchanged.
-  supportedNetworks: forkChainLaw.supportedNetworks,
+  // our live Rootstock deployment, unconditionally selectable.
+  supportedNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   // S113d (2026-10-03): BOTH Rootstock networks are onchain-only — the
   // upstream API is never queried for our Base mainnet pools either (our
   // vault + 8 factories live 2026-10-03; THEIR pools must never display
-  // under our name on the Base chain selector). Rootstock chains stay
-  // onchain-only even under the S114b fork gate (spec-asserted).
+  // under our name on the Base chain selector).
   onchainOnlyNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   variantConfig: {
     [PartnerVariant.cow]: {
@@ -55,13 +33,10 @@ export const ProjectConfigBalancer: ProjectConfig = {
     },
   },
   corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
-  defaultNetwork: forkChainLaw.defaultNetwork,
+  defaultNetwork: GqlChainValues.Base,
   // S113d (2026-10-03): BOTH Rootstock networks are live (Base mainnet S113c
   // + Base Sepolia S95) — pools list preselects both, and every supported
   // network is onchain-only, so no upstream all-chains query ever runs.
-  // S114b: defaultPoolListNetworks stays Rootstock-only in BOTH modes —
-  // fork builds still list our pools by default; Ethereum appears only where
-  // fork specs need it (tokens/prices/wizard).
   defaultPoolListNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
   ensNetwork: GqlChainValues.Base,
   delegateOwner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
