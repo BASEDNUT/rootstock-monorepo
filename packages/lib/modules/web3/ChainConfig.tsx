@@ -106,12 +106,34 @@ const chainToFilter = PROJECT_CONFIG.defaultNetwork
 const customChain = gqlChainToWagmiChainMap[chainToFilter]
 if (!customChain) throw new Error(`Unable to find default chain ${chainToFilter}`)
 
-export const chains: readonly [Chain, ...Chain[]] = [
+/*
+  S114: the dev-E2E harness impersonates against the ETHEREUM-mainnet anvil fork
+  (CI forks eth.drpc.org; dev specs use ethereum pool mocks). The shipped chain
+  law stays Base + Base Sepolia (S110), but wagmi rejects the fork connect with
+  ChainNotConfiguredError when the fork chain is missing from this config — every
+  impersonating dev-E2E test silently dies waiting for the wallet Avatar. Gate:
+  NEXT_PUBLIC_E2E_DEV only; transports.ts builds per-chain fork transports under
+  the same gate, so the appended chain routes to 127.0.0.1:8545 automatically.
+  Shipped builds never set the var and are unchanged.
+*/
+const ethereumForkChain = gqlChainToWagmiChainMap[GqlChainValues.Mainnet]
+
+const assembledChains: Chain[] = [
   customChain,
   ...(supportedNetworks
     .filter(chain => chain !== chainToFilter)
     .map(gqlChain => gqlChainToWagmiChainMap[gqlChain]) as Chain[]),
 ]
+
+if (
+  shouldUseAnvilFork &&
+  ethereumForkChain &&
+  !assembledChains.some(c => c.id === ethereumForkChain.id)
+) {
+  assembledChains.push(ethereumForkChain)
+}
+
+export const chains: readonly [Chain, ...Chain[]] = assembledChains as [Chain, ...Chain[]]
 
 export const chainsByKey = keyBy(chains, 'id')
 
