@@ -4,6 +4,33 @@ import { daiAddress, wETHAddress } from '@repo/lib/debug-helpers'
 import { GqlChainValues, GqlSorSwapTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { defaultTestUserAccount } from '@repo/test/anvil/anvil-setup'
 import { apolloTestClient } from '@repo/test/utils/apollo-test-client'
+import { vi } from 'vitest'
+
+/*
+  Socketless SOR paths (S114): DefaultSwapHandler.simulate queries the live
+  SOR (sorGetSwapPaths) through the shared apollo test client — a live API
+  dependency that intermittently returns empty paths (CI run 37730863242:
+  'simulates exact in' failed 'Must contain at least 1 path' while sibling
+  tests in the same file passed; local runs the same day all-empty after
+  the IP had hammered the endpoint all night). The SDK swap math itself
+  still runs against the local anvil mainnet fork below — only the SOR
+  route lookup is pinned to captured responses
+  (__mocks__/sor-swap-fixtures.ts, keyed by serialized enum values).
+*/
+vi.mock('@repo/test/utils/apollo-test-client', async () => {
+  // Dynamic import inside the factory: vi.mock factories are hoisted above
+  // module-scope declarations — data they need must load here, not from
+  // module-scope consts.
+  const { sorFixtures } = await import('./__mocks__/sor-swap-fixtures')
+  return {
+    apolloTestClient: {
+      query: async ({ variables }: { variables: Record<string, unknown> }) => ({
+        data: { swaps: sorFixtures[variables.swapType as string] },
+      }),
+    },
+  }
+})
+
 import { fetchPoolMock, swapPoolQuery } from '../../pool/__mocks__/fetchPoolMock'
 import { SwapTokenInput } from '../swap.types'
 import { DefaultSwapHandler } from './DefaultSwap.handler'
