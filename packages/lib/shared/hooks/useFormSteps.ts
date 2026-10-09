@@ -77,8 +77,17 @@ export function useFormSteps(config: UseFormStepsConfig) {
 
   useEffect(() => {
     if (!isFormHydrated) return
+
     // if render attempt would crash page, redirect to first step
-    if (!canRenderStep) router.replace(`${basePath}/${steps[0]?.id || ''}`)
+    if (!canRenderStep) {
+      /*
+        S114b: preserve query params here too — the saved-step redirect above
+        keeps ?protocol=cow, this hydration-flip replace must not strip it.
+      */
+      const query = typeof window !== 'undefined' ? window.location.search : ''
+      router.replace(`${basePath}/${steps[0]?.id || ''}${query}`)
+    }
+
     const shouldSyncLocalStorage = stepIndexFromUrl !== null && stepIndexFromUrl !== savedStepIndex
     if (shouldSyncLocalStorage) setSavedStepIndex(stepIndexFromUrl)
   }, [stepIndexFromUrl, savedStepIndex, setSavedStepIndex, isFormHydrated, canRenderStep])

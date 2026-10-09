@@ -128,7 +128,12 @@ export class CreatePoolPage {
       'CoW' (logo + short label), not 'CoW AMM'. Accept both.
     */
     await this.page.evaluate(() => window.scrollTo(0, 0))
-    await this.page.getByText('Build', { exact: true }).click({ force: true })
+    /*
+      S114b3: dispatch bypasses hit-testing entirely — the wiggle-animated
+      trigger + Chakra popover positioning kept failing viewport/stability
+      actionability checks even after scroll-to-top.
+    */
+    await this.page.getByText('Build', { exact: true }).dispatchEvent('click')
     await this.page.getByText(/^CoW( AMM)?$/, { exact: true }).click()
     /*
       S114b3: our step-router normalizes /create?protocol=cow to the saved-step
