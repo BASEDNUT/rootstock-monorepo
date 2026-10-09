@@ -123,23 +123,19 @@ export class CreatePoolPage {
       S114b2: popover item label drifted upstream-side: our build renders
       'CoW' (logo + short label), not 'CoW AMM'. Accept both.
 
+      S114b7: viewport flake killed across runs 37961353748/37978194366 —
+      at mid-wizard scroll states playwright reported the fixed navbar
+      trigger outside the viewport (inner-container scroll + animated
+      transforms defeat both window.scrollTo and force). A tall viewport
+      makes that state unreachable: the trigger is always in-viewport.
+
       S114b5: no URL assertion here — our app legitimately strips the query
       after consuming it (upstream pattern); the spec's form-state text
       assertion is the real check (DOM-proven: CoW AMM: 50/50 renders).
     */
+    await this.page.setViewportSize({ width: 1280, height: 2400 })
     await this.page.getByText('Build', { exact: true }).click({ force: true })
     await this.page.getByText(/^CoW( AMM)?$/, { exact: true }).click()
-  }
-
-  /*
-    S114b5: state-equivalent navigation for continuation tests — the cow
-    deep-link lands mid-progress exactly like the popover path (form state
-    persists in localStorage), without re-rolling the animated popover dice.
-    Query preservation through both step redirects is product-fixed.
-  */
-  async navigateToCowDeepLink() {
-    await this.page.goto(this.urls.buildCow)
-    await expect(this.page).toHaveURL(/protocol=cow/)
   }
 
   async chooseProtocol(protocol: string) {

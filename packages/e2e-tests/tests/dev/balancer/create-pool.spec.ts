@@ -35,22 +35,20 @@ test.describe('Build popover', () => {
 
   test.describe('When pool creation already in progress', () => {
     /*
-      S114b6: popover path RESTORED — run 37974161208 proved the trigger +
-      menu mechanics green end-to-end (protocol-link test passed with
-      force-click + dual-label matcher). The deep-link detour failed its
-      dialog precondition (saved-step + mismatch state is not reproducible
-      via bare goto under hydration race).
+      S114b7: continuation flows driven through the Pool-preview 'Delete &
+      restart' trigger (visible on the tokens step — no navbar/popover
+      dependency). It opens the SAME RestartPoolCreationModal with the same
+      Continue/Delete buttons the popover path reaches. Popover-open proof
+      lives in the protocol-link test above (verified green).
     */
     test('can continue', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.clickBuildPopoverToCowAmm()
-      await clickButton(page, 'Continue set up')
+      await poolAtTokensStep.restartAndContinue()
       await expect(page).toHaveURL(poolAtTokensStep.urls.tokens)
       await expect(page.getByText('Choose pool tokens')).toBeVisible()
     })
 
     test('can reset', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.clickBuildPopoverToCowAmm()
-      await clickButton(page, 'Delete and start over')
+      await poolAtTokensStep.restartAndReset()
       await expect(page).toHaveURL(poolAtTokensStep.urls.type)
       await expect(page.getByText('Choose protocol')).toBeVisible()
     })
