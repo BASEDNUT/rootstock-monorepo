@@ -116,18 +116,17 @@ export class CreatePoolPage {
 
   async clickBuildPopoverToCowAmm() {
     /*
-      S114b: the navbar trigger animates continuously (S84 wiggle class);
-      playwright's actionability check never sees it stable. force skips the
-      stability wait — the popover itself opens reliably.
+      S114b: the navbar Build trigger repeatedly failed playwright actionability
+      at mid-wizard scroll states ('element is not stable' / 'outside of the
+      viewport'). Root mechanism NOT confirmed — no animation was found in the
+      NavBar source; do not assume one. force skips the stability wait.
 
       S114b2: popover item label drifted upstream-side: our build renders
       'CoW' (logo + short label), not 'CoW AMM'. Accept both.
 
-      S114b7: viewport flake killed across runs 37961353748/37978194366 —
-      at mid-wizard scroll states playwright reported the fixed navbar
-      trigger outside the viewport (inner-container scroll + animated
-      transforms defeat both window.scrollTo and force). A tall viewport
-      makes that state unreachable: the trigger is always in-viewport.
+      S114b7: tall viewport — at mid-wizard scroll states playwright reported
+      the fixed navbar trigger outside the viewport (inner-container scroll
+      defeats window.scrollTo). A tall viewport keeps it in-viewport.
 
       S114b5: no URL assertion here — our app legitimately strips the query
       after consuming it (upstream pattern); the spec's form-state text
@@ -136,6 +135,23 @@ export class CreatePoolPage {
     await this.page.setViewportSize({ width: 1280, height: 2400 })
     await this.page.getByText('Build', { exact: true }).click({ force: true })
     await this.page.getByText(/^CoW( AMM)?$/, { exact: true }).click()
+  }
+
+  /*
+    S114b7: continuation flows via the Pool-preview 'Delete & restart' trigger
+    — visible inside the wizard content (no navbar dependency). Opens the SAME
+    RestartPoolCreationModal with the same Continue/Delete buttons the popover
+    path reaches (RestartPoolCreationModal.tsx: 'Continue set up' / 'Delete
+    and start over').
+  */
+  async restartAndContinue() {
+    await this.page.getByRole('button', { name: 'Delete & restart' }).click()
+    await clickButton(this.page, 'Continue set up')
+  }
+
+  async restartAndReset() {
+    await this.page.getByRole('button', { name: 'Delete & restart' }).click()
+    await clickButton(this.page, 'Delete and start over')
   }
 
   async chooseProtocol(protocol: string) {
