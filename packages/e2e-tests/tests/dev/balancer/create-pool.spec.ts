@@ -35,20 +35,21 @@ test.describe('Build popover', () => {
 
   test.describe('When pool creation already in progress', () => {
     /*
-      S114b5: continuation coverage via the cow deep-link (query preserved
-      through step redirects — product-fixed). State-equivalent to the
-      popover path: same mid-progress localStorage form, same warning
-      dialog, without re-rolling the animated popover trigger.
+      S114b6: popover path RESTORED — run 37974161208 proved the trigger +
+      menu mechanics green end-to-end (protocol-link test passed with
+      force-click + dual-label matcher). The deep-link detour failed its
+      dialog precondition (saved-step + mismatch state is not reproducible
+      via bare goto under hydration race).
     */
     test('can continue', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.navigateToCowDeepLink()
+      await poolAtTokensStep.clickBuildPopoverToCowAmm()
       await clickButton(page, 'Continue set up')
       await expect(page).toHaveURL(poolAtTokensStep.urls.tokens)
       await expect(page.getByText('Choose pool tokens')).toBeVisible()
     })
 
     test('can reset', async ({ page, poolAtTokensStep }) => {
-      await poolAtTokensStep.navigateToCowDeepLink()
+      await poolAtTokensStep.clickBuildPopoverToCowAmm()
       await clickButton(page, 'Delete and start over')
       await expect(page).toHaveURL(poolAtTokensStep.urls.type)
       await expect(page.getByText('Choose protocol')).toBeVisible()
