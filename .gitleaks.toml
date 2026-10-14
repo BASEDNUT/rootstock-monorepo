@@ -1,0 +1,38 @@
+# Gitleaks configuration.
+#
+# Extends the default ruleset. Allowlists cover ONLY verified public on-chain
+# identifiers — the Base Sepolia primitive-factory addresses and their
+# TokenCreated / WrapperCreated event topics — plus the scanner config file
+# itself. Every entry is an exact value: a private key, API token, or any
+# other credential can never match these, so real leaks still fail the scan.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Scanner config file itself carries the public allowlist values as regexes"
+paths = ['''gitleaks\.toml$''']
+
+[[allowlists]]
+description = "TokenFactory - public Base Sepolia contract address (receipt 0x9b6e52fc)"
+regexes = ['''0xB27D38F0968C334C8B7D3496D5D8E7afB80f4b13''']
+
+[[allowlists]]
+description = "WrapperFactory - public Base Sepolia contract address (receipt 0x738f785d)"
+regexes = ['''0x678a8F6AD8887De4323CA49Bc261043E67850dC7''']
+
+[[allowlists]]
+description = "TokenFactory - public Base mainnet contract address (ledger: deployments/base.json)"
+regexes = ['''0xfA6172cF414d89b2F37fd8a5932385ed6f831b84''']
+
+[[allowlists]]
+description = "WrapperFactory - public Base mainnet contract address (ledger: deployments/base.json)"
+regexes = ['''0x1aF90D8E8130218503C2bb9f18e54782e1F4feD0''']
+
+[[allowlists]]
+description = "keccak256(TokenCreated(address,address,string,string,uint256)) - public event topic"
+regexes = ['''0x6e6ae68e7d7d45fbd855c40d1eaafa8de46c5fbec3ee26f1af88730e400bc92c''']
+
+[[allowlists]]
+description = "keccak256(WrapperCreated(address,address,address,string,string)) - public event topic"
+regexes = ['''0x5d2e6317a2308779da9f0a8be12031853fc4d99c08ca5b72d60fe80088be254e''']

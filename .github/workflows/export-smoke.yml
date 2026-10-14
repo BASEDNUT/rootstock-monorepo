@@ -1,0 +1,55 @@
+name: Export Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+env:
+  NEXT_PUBLIC_BALANCER_API_URL: https://test-api-v3.balancer.fi/graphql
+
+permissions:
+  contents: read
+
+jobs:
+  Export-Smoke:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Run static export build (stash script — no ipfs add, kubo never used)
+        run: bash apps/frontend-v3/scripts/build-ipfs.sh
+      - name: Assert out/index.html exists
+        run: test -f apps/frontend-v3/out/index.html
+      - name: Assert exported page count (regression guard)
+        run: |
+          # Current IPFS diet export = 49 pages. The guard catches a collapsed
+          # export (handful of pages), not an exact page budget.
+          PAGES=$(find apps/frontend-v3/out -name 'index.html' | wc -l)
+          echo "exported pages: $PAGES"
+          test "$PAGES" -gt 40
+      - name: Assert zero /api route artifacts in the export
+        run: |
+          API_DIR="apps/frontend-v3/out/api"
+          if [ -d "$API_DIR" ]; then
+            echo "ERROR: /api route artifacts leaked into the static export:"
+            find "$API_DIR"
+            exit 1
+          fi
+          echo "OK: no /api route artifacts in export"
+      - name: Assert IpfsLink rewrite actually baked (data-ipfs-link marker)
+        run: |
+          # The next/link -> IpfsLink rewrite once silently no-oped when the
+          # search roots collapsed to a bogus path. The export must prove the
+          # rewrite fired: full-page navigation anchors carry this marker.
+          if ! grep -rql 'data-ipfs-link' apps/frontend-v3/out/_next/static/chunks; then
+            echo "ERROR: no data-ipfs-link marker in exported chunks — link rewrite did not fire"
+            exit 1
+          fi
+          echo "OK: IpfsLink anchors baked into exported chunks"
+      - name: Run built-artifact export laws (vitest)
+        run: pnpm --filter frontend-v3 exec vitest run 'app/(marketing)/_lib/landing-v3/export-laws.spec.ts'

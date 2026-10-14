@@ -1,0 +1,56 @@
+import { ProjectConfigBalancer } from './projects/balancer'
+import { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { ProjectConfig } from './config.types'
+import { shouldUseAnvilFork } from './app.config'
+
+// 2026-09-29: beets is pruned from this repo — single-project config.
+const PROJECT_CONFIGS = {
+  [ProjectConfigBalancer.projectId]: ProjectConfigBalancer,
+}
+
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as ProjectConfig['projectId']
+
+export const isBalancer = projectId === ProjectConfigBalancer.projectId
+export const isBeets = false
+
+/*
+  dev-E2E fork chain law. The dev harness forks ETHEREUM mainnet (anvil
+  eth.drpc.org; upstream pool mocks), but the shipped chain law is Base + Base
+  Sepolia only (/, source-locked by homepage-laws). Under the gate the
+  fork chain joins the law at THIS consumption surface — what TokensProvider
+  (token/token-price queries), the token dialog, and the create wizard all
+  read — so fork flows operate on the forked chain exactly as the
+  upstream-derived dev specs expect. Gate matches the wagmi gate in
+  ChainConfig. Shipped builds never set the var: PROJECT_CONFIG here is
+  byte-identical to the shipped law, and balancer.ts stays untouched.
+*/
+const forkChainExtension = shouldUseAnvilFork
+  ? {
+      supportedNetworks: [
+        ...ProjectConfigBalancer.supportedNetworks,
+        GqlChainValues.Mainnet,
+      ] as ProjectConfig['supportedNetworks'],
+      defaultNetwork: GqlChainValues.Mainnet,
+    }
+  : undefined
+
+export const PROJECT_CONFIG: ProjectConfig =
+  forkChainExtension && PROJECT_CONFIGS[projectId] === ProjectConfigBalancer
+    ? { ...ProjectConfigBalancer, ...forkChainExtension }
+    : (PROJECT_CONFIGS[projectId] ?? ProjectConfigBalancer)
+
+/**
+ * Networks that can be queried from the remote API. Onchain-only networks
+ * (e.g. our Base Sepolia deployment) are excluded: the upstream API does not
+ * know them and must never receive them as query variables.
+ */
+export function toApiNetworks(chains: GqlChain[]): GqlChain[] {
+  const onchainOnly = new Set(PROJECT_CONFIG.onchainOnlyNetworks || [])
+  return chains.filter(chain => !onchainOnly.has(chain))
+}
+
+export function isOnchainOnlyNetwork(chain: GqlChain): boolean {
+  const onchainOnly = new Set(PROJECT_CONFIG.onchainOnlyNetworks || [])
+  return onchainOnly.has(chain)
+}

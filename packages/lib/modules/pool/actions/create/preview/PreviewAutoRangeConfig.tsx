@@ -1,0 +1,137 @@
+import {
+  Card,
+  CardBody,
+  SimpleGrid,
+  VStack,
+  Divider,
+  Text,
+  HStack,
+  Button,
+  Box,
+} from '@chakra-ui/react'
+import { usePoolCreationForm } from '../PoolCreationFormProvider'
+import { RefreshCcw } from 'lucide-react'
+import { formatNumber } from '../helpers'
+import ReactECharts from 'echarts-for-react'
+import { useAutoRangeChart } from '@repo/lib/modules/autorange/AutoRangeChartProvider'
+import { useWatch } from 'react-hook-form'
+
+type Props = {
+  isBeforeStep: boolean
+  lowerMarginValue: number | undefined
+  upperMarginValue: number | undefined
+}
+
+export function PreviewAutoRangeConfig({
+  isBeforeStep,
+  lowerMarginValue,
+  upperMarginValue,
+}: Props) {
+  const { options } = useAutoRangeChart()
+
+  const { autoRangeConfigForm, poolCreationForm, invertAutoRangePriceParams } =
+    usePoolCreationForm()
+
+  const [initialTargetPrice, initialMinPrice, initialMaxPrice, priceShiftDailyRate] = useWatch({
+    control: autoRangeConfigForm.control,
+    name: ['initialTargetPrice', 'initialMinPrice', 'initialMaxPrice', 'priceShiftDailyRate'],
+  })
+
+  const poolTokens = useWatch({ control: poolCreationForm.control, name: 'poolTokens' })
+
+  const autoRangeConfigCards = [
+    {
+      label: 'Min Price',
+      value: initialMinPrice ? formatNumber(initialMinPrice) : '-',
+    },
+    {
+      label: 'Lower Target',
+      value: upperMarginValue ? formatNumber(upperMarginValue.toString()) : '-',
+    },
+    {
+      label: 'Current Price',
+      value: initialTargetPrice ? formatNumber(initialTargetPrice) : '-',
+    },
+    {
+      label: 'Upper Target',
+      value: lowerMarginValue ? formatNumber(lowerMarginValue.toString()) : '-',
+    },
+    {
+      label: 'Max Price',
+      value: initialMaxPrice ? formatNumber(initialMaxPrice) : '-',
+    },
+  ]
+
+  const tokenSymbols = poolTokens.map(token => token.data?.symbol).filter(Boolean)
+  const tokenSymbolsString = tokenSymbols.join(' / ')
+
+  return (
+    <Card opacity={isBeforeStep ? 0.5 : 1}>
+      <CardBody>
+        <VStack spacing="lg">
+          <SimpleGrid columns={5} spacing={3} w="full">
+            {autoRangeConfigCards.map(({ label, value }) => (
+              <Card key={label} variant="subSection">
+                <Text color="font.secondary" fontSize="sm">
+                  {label}
+                </Text>
+                <Text fontSize="sm" fontWeight="bold">
+                  {value}
+                </Text>
+              </Card>
+            ))}
+          </SimpleGrid>
+
+          {!isBeforeStep && (
+            <>
+              <Divider />
+              <Box h={333} w="full">
+                <ReactECharts option={options} style={{ height: '100%', width: '100%' }} />
+              </Box>
+
+              <Divider />
+              <HStack justify="space-between" w="full">
+                <Button
+                  flexDirection="row"
+                  gap="2"
+                  onClick={invertAutoRangePriceParams}
+                  size="sm"
+                  variant="tertiary"
+                >
+                  <HStack>
+                    <RefreshCcw size={12} />
+                    <Text color="font.secondary" fontSize="sm">
+                      {tokenSymbolsString}
+                    </Text>
+                  </HStack>
+                </Button>
+
+                {priceShiftDailyRate && (
+                  <Box
+                    bg="linear-gradient(89.81deg, rgba(179, 174, 245, 0.1) -1.06%, rgba(215, 203, 231, 0.1) 27.62%, rgba(229, 200, 200, 0.1) 49.42%, rgba(234, 168, 121, 0.1) 98.68%);"
+                    borderRadius="md"
+                    p={2.5}
+                  >
+                    <Text
+                      fontSize="xs"
+                      sx={{
+                        background:
+                          'linear-gradient(89.81deg, #B3AEF5 -1.06%, #D7CBE7 27.62%, #E5C8C8 49.42%, #EAA879 98.68%)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        color: 'transparent',
+                      }}
+                    >
+                      Price re-adjustment rate: {priceShiftDailyRate}%
+                    </Text>
+                  </Box>
+                )}
+              </HStack>
+            </>
+          )}
+        </VStack>
+      </CardBody>
+    </Card>
+  )
+}

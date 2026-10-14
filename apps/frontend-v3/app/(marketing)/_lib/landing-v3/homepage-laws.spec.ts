@@ -1,0 +1,449 @@
+import { describe, expect, it } from 'vitest'
+import { readFileSync, existsSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+
+const HERE = dirname(fileURLToPath(import.meta.url))
+const ROOT = resolve(HERE, '../../../../../../')
+const read = (f: string) => readFileSync(`${HERE}/${f}`, 'utf8')
+
+// Approved copy is asserted on whitespace-collapsed text so prettier's line
+// wrapping never breaks the law.
+const flat = (s: string) => s.replace(/\s+/g, ' ')
+
+const hero = read('Hero.tsx')
+const grow = read('Grow.tsx')
+const atAGlance = read('AtAGlance.tsx')
+const codeStack = read('CodeStack.tsx')
+const code = read('Code.tsx')
+const features = read('Features.tsx')
+const landingSurface = [hero, grow, atAGlance, codeStack, code, features].join('')
+
+const buildPromo = readFileSync(
+  resolve(ROOT, 'packages/lib/shared/pages/PoolsPage/BuildPromo.tsx'),
+  'utf8'
+)
+
+const useNav = readFileSync(resolve(ROOT, 'packages/lib/shared/components/navs/useNav.tsx'), 'utf8')
+
+const navBar = readFileSync(resolve(ROOT, 'packages/lib/shared/components/navs/NavBar.tsx'), 'utf8')
+
+const config = readFileSync(resolve(ROOT, 'packages/lib/config/projects/balancer.ts'), 'utf8')
+
+const buildPopover = readFileSync(
+  resolve(ROOT, 'apps/frontend-v3/lib/components/navs/BuildPopover.tsx'),
+  'utf8'
+)
+
+const mobileBuildAccordion = readFileSync(
+  resolve(ROOT, 'apps/frontend-v3/lib/components/navs/MobileBuildAccordion.tsx'),
+  'utf8'
+)
+
+const nextConfig = readFileSync(resolve(ROOT, 'apps/frontend-v3/next.config.ts'), 'utf8')
+
+const sitemap = readFileSync(resolve(ROOT, 'apps/frontend-v3/app/sitemap.ts'), 'utf8')
+
+const marketingLayout = readFileSync(
+  resolve(ROOT, 'apps/frontend-v3/app/(marketing)/layout.tsx'),
+  'utf8'
+)
+
+const safeHooks = readFileSync(resolve(ROOT, 'packages/lib/modules/web3/safe.hooks.tsx'), 'utf8')
+
+const headerBanner = readFileSync(
+  resolve(ROOT, 'packages/lib/modules/pool/actions/create/header/HeaderBanner.tsx'),
+  'utf8'
+)
+
+const orbitalArtwork = resolve(
+  ROOT,
+  'apps/frontend-v3/public/images/landing/rootstock-orbital-root.webp'
+)
+
+const landingAll = [
+  landingSurface,
+  buildPromo,
+  useNav,
+  navBar,
+  config,
+  buildPopover,
+  mobileBuildAccordion,
+  marketingLayout,
+  headerBanner,
+].join('')
+
+describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction scope', () => {
+  it('zero Balancer anywhere on homepage surfaces', () => {
+    for (const surface of [
+      landingSurface,
+      buildPromo,
+      useNav,
+      navBar,
+      buildPopover,
+      mobileBuildAccordion,
+      marketingLayout,
+      headerBanner,
+    ]) {
+      expect(surface.match(/balancer/gi)).toBeNull()
+    }
+  })
+
+  it('zero v3 strings on homepage surfaces', () => {
+    for (const surface of [landingSurface, marketingLayout, headerBanner]) {
+      expect(surface.match(/v3/gi)).toBeNull()
+    }
+  })
+
+  it('no NUT/wNUT/orchard/graft tokens on homepage surfaces', () => {
+    for (const banned of [/\\bwNUT\\b/, /\\bNUT\\b/, /\\borchard\\b/i, /\\bgraft\\b/i]) {
+      expect(landingSurface.match(banned)).toBeNull()
+    }
+  })
+
+  it('no external balancer links, no fabricated URLs', () => {
+    for (const banned of [
+      'docs.balancer.fi',
+      'github.com/balancer',
+      'balancer.fi',
+      'dune.com/balancer',
+      'immunefi.com/bug-bounty/balancer',
+      'terminal.basednut.com',
+      'youtu.be',
+      'youtube.com',
+    ]) {
+      expect(landingAll).not.toContain(banned)
+      expect(nextConfig).not.toContain(banned)
+      expect(sitemap).not.toContain(banned)
+    }
+  })
+
+  it('pools/portfolio links may exist on surfaces (restored 2026-09-22); no upstream-domain links', () => {
+    for (const surface of [
+      landingSurface,
+      buildPromo,
+      useNav,
+      navBar,
+      buildPopover,
+      mobileBuildAccordion,
+    ]) {
+      expect(surface).not.toContain('balancer.fi/')
+    }
+  })
+
+  it('Test-Pools is gone from nav (Debug gone too — 2026-09-25)', () => {
+    expect(navBar).not.toContain('Test-Pools')
+    // Debug page is NOT necessary (2026-09-25) and the hardcoded
+    // NavBar block violated the nav law (config = sole nav source). Removed.
+    expect(navBar).not.toContain('"/debug"')
+  })
+
+  it('navbar CTA is Learn more -> docs; hero keeps Launch app -> /swap (2026-10-01)', () => {
+    expect(navBar).toContain('https://docs.basednut.com/rootstock')
+    expect(navBar).toContain('Learn more')
+    expect(hero).toContain('Launch app')
+    expect(hero).toContain('"/swap"')
+  })
+
+  it('Videos + Audits stay deleted; Grow is RESTORED (2026-10-01)', () => {
+    expect(existsSync(`${HERE}/Videos.tsx`)).toBe(false)
+    expect(existsSync(`${HERE}/Audits.tsx`)).toBe(false)
+    // Grow is back: real stats high on the page (live pool count from the
+    // onchain discovery scan; engine facts ledger-verified). IPFS static
+    // CAN fetch live data client-side — the removal premise was false.
+    expect(existsSync(`${HERE}/Grow.tsx`)).toBe(true)
+    const grow = read('Grow.tsx')
+    expect(grow).toContain('useOnchainPoolDiscovery')
+    expect(grow).toContain('Pools live')
+    expect(hero).not.toContain('youtu.be')
+    expect(hero).not.toContain('PlayVideoButton')
+    expect(existsSync(`${HERE}/images/video-createCustomAMMs.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-prototypePool.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-createHook.png`)).toBe(false)
+    expect(existsSync(`${HERE}/images/video-createRouter.png`)).toBe(false)
+  })
+
+  it('Contracts section is deleted (2026-10-01: 3-section approved copy)', () => {
+    expect(existsSync(`${HERE}/Contracts.tsx`)).toBe(false)
+  })
+
+  it('approved copy v1 (2026-10-01) — three sections, exact headlines', () => {
+    // Section 1 — Code Stack (CodeStack.tsx)
+    expect(flat(codeStack)).toContain('Build the market, not the machinery.')
+
+    expect(flat(codeStack)).toContain(
+      'Rootstock provides a shared foundation for execution, accounting, routing, liquidity, and extensibility.'
+    )
+
+    // Section 2 — Simplicity (Code.tsx)
+    expect(flat(code)).toContain('Minimal by design')
+    expect(flat(code)).toContain('Pools define the logic. Rootstock handles the rest.')
+
+    expect(flat(code)).toContain(
+      'A pool only needs to express how its market behaves. The Root Vault handles balances, accounting, fees, scaling, and settlement, leaving pool contracts focused on the math that makes them unique.'
+    )
+
+    // Section 3 — Built into the stack (Features.tsx)
+    expect(flat(features)).toContain('Built into the stack')
+
+    expect(flat(features)).toContain(
+      'Rootstock handles more of the difficult infrastructure at the protocol level, so every pool does not have to solve the same problems again.'
+    )
+  })
+
+  it('approved copy v1 — all nine stack features present', () => {
+    for (const title of [
+      'LVR / MEV Mitigation',
+      'Decimal Scaling',
+      'Rate Scaling',
+      'Liquidity Invariant Approximation',
+      'Transient Accounting',
+      'ERC20MultiToken',
+      'Swap Fee Management',
+      'Pool Creator Fees',
+      'Pool Pause Manager',
+    ]) {
+      expect(flat(features)).toContain(`'${title}'`)
+    }
+
+    // feature bodies carry the approved plain-English explanations
+    expect(flat(features)).toContain(
+      'The Root Vault normalizes their values before they reach the pool, giving pool math a consistent 18-decimal format to work with.'
+    )
+
+    expect(flat(features)).toContain(
+      'EIP-1153 makes this pattern efficient and enables more complex interactions without permanently storing every intermediate state.'
+    )
+
+    expect(flat(features)).toContain(
+      'This gives developers a native way to build sustainable economics around new market designs.'
+    )
+  })
+
+  it('banned Balancer marketing language stays dead (2026-10-01)', () => {
+    const sections = codeStack + code + features
+
+    for (const banned of [
+      'Code less, build more',
+      'Built for builders',
+      'Technical highlights',
+      'The engine',
+      'keyFeatures',
+      'stone-1.png',
+      'stone-2.png',
+    ]) {
+      expect(sections).not.toContain(banned)
+    }
+  })
+
+  it('AtAGlance full section (2026-10-01: artwork v2 + copy v2 + full port same day)', () => {
+    expect(atAGlance).toContain('The system at a glance')
+    // copy v2 (maintainer editorial 2026-10-01): upload's original lines, no verbatim
+    // of approved section copy, no 'Powered by Rootstock' (we ARE Rootstock —
+    // the upload header duplicated the Section 1 headline and carried that
+    // nonsensical h1; both permanently banned from this section).
+    expect(flat(atAGlance)).toContain('A smaller core. A wider design space.')
+
+    expect(flat(atAGlance)).toContain(
+      'Accounting, balances, fees, and scaling stay in the Root Vault.'
+    )
+
+    expect(flat(atAGlance)).toContain('Pools carry only their market math.')
+    expect(atAGlance).not.toContain('Powered by Rootstock')
+    expect(atAGlance).not.toContain('Build the market, not the machinery')
+    // artwork v2 (maintainer upload): Root Vault seed core + Pools/Edges/Markets nodes
+    expect(atAGlance).toContain('ROOT VAULT')
+    expect(atAGlance).toContain('SHARED CORE')
+    expect(atAGlance).toContain('Pools')
+    expect(atAGlance).toContain('Edges')
+    expect(atAGlance).toContain('Markets')
+    expect(atAGlance).toContain('pool * vaults')
+    expect(atAGlance).toContain('hooks · router')
+    expect(atAGlance).toContain('wrappers · LBP')
+    expect(atAGlance).toContain('<svg')
+    // full port (2026-10-01: 'add the whole thing'): copy column + layer
+    // list + three feature cards + closing bar with docs link
+    expect(atAGlance).toContain('Core responsibilities, edge rules')
+    expect(atAGlance).toContain("'Root Vault'")
+    expect(atAGlance).toContain("'Edge Extensions'")
+    expect(atAGlance).toContain("'Market Composition'")
+    expect(atAGlance).toContain("'Vault', 'Pools', 'Extensions'")
+
+    expect(flat(atAGlance)).toContain(
+      'One coherent foundation for building and extending Based Nut markets.'
+    )
+
+    expect(atAGlance).toContain('Read the docs')
+    expect(atAGlance).toContain('https://docs.basednut.com/rootstock')
+    // feature SVGs carry their own labels
+    expect(atAGlance).toContain('balances')
+    expect(atAGlance).toContain('scaling')
+    expect(atAGlance).toContain('launch')
+  })
+
+  it('long headlines wrap inside the page (2026-10-01 overflow fix)', () => {
+    // WordsPullUp renders an HStack — without flexWrap long headlines
+    // overflow the page ('Build the market...' shipped overflowing).
+    expect(codeStack).toContain('flexWrap="wrap"')
+    expect(code).toContain('flexWrap="wrap"')
+  })
+
+  it('hero orbital-root artwork overlay (2026-10-01)', () => {
+    // foreground overlay, right-anchored, masked fade toward the left,
+    // non-interactive, beneath the copy layer
+    expect(hero).toContain('rootstock-orbital-root.webp')
+    expect(hero).toContain('pointerEvents="none"')
+    expect(hero).toContain('maskImage')
+    expect(hero).toContain('WebkitMaskImage')
+    expect(hero).toContain('zIndex={1}')
+    expect(hero).toContain('zIndex={2}')
+    expect(existsSync(orbitalArtwork)).toBe(true)
+    // hero copy and CTA structure unchanged
+    expect(hero).toContain('Custom markets made simple')
+    expect(hero).toContain('Launch app')
+    expect(hero).toContain('Create a pool')
+    expect(hero).toContain('SoilBg')
+  })
+
+  /*
+    The upstream baseline — Balancer's landing files, frozen at fork import
+    (2026-09-20) — is vendored as .txt fixtures in upstream-baseline/ (MIT
+    upstream frontend). A git-history read would silently die in shallow
+    clones and after history rewrites; disk fixtures are deterministic
+    everywhere. A missing fixture is a hard failure — the detector never
+    quietly skips.
+  */
+  const UPSTREAM_BASELINE_FILES = ['Hero.tsx', 'Grow.tsx', 'Code.tsx', 'Features.tsx']
+
+  function readUpstreamBaseline(f: string): string {
+    const fixture = `${HERE}/upstream-baseline/${f}.txt`
+    if (!existsSync(fixture)) {
+      throw new Error(`missing vendored upstream baseline fixture: ${fixture}`)
+    }
+    return readFileSync(fixture, 'utf8')
+  }
+
+  it('NO VERBATIM COPY from upstream balancer landing files', () => {
+    // Extract string literals (>=6 words) from upstream versions of our live
+    // landing files and assert none appear verbatim in our live files.
+    for (const f of UPSTREAM_BASELINE_FILES) {
+      const upstream = readUpstreamBaseline(f)
+
+      const literals = [...upstream.matchAll(/'([^'\n]{30,})'|"([^"\n]{30,})"/g)]
+        .map(m => m[1] || m[2] || '')
+        .filter(
+          s =>
+            s.split(/\s+/).length >= 6 &&
+            !s.startsWith('/') &&
+            !s.includes('http') &&
+            !s.includes('{') &&
+            !s.includes('linear(') &&
+            !s.includes('gradient')
+        )
+
+      const ours = read(f)
+      const verbatim = literals.filter(s => s !== undefined && ours.includes(s))
+
+      expect(verbatim, `verbatim upstream copy in ${f}: ${verbatim.join(' || ')}`).toEqual([])
+    }
+  })
+
+  it('pool-swap URL hook is purged', () => {
+    expect(existsSync(resolve(ROOT, 'packages/lib/modules/swap/useIsPoolSwapUrl.tsx'))).toBe(false)
+  })
+
+  it('chains: Base mainnet + Base Sepolia only', () => {
+    const block = config.split('supportedNetworks: [')[1]?.split('],')[0] ?? ''
+    expect(block).toContain('GqlChainValues.Base')
+    expect(block).toContain('Sepolia')
+
+    for (const banned of [
+      'Mainnet',
+      'Arbitrum',
+      'Gnosis',
+      'Polygon',
+      'Avalanche',
+      'Optimism',
+      'Monad',
+      'Plasma',
+      'Hyperevm',
+    ]) {
+      expect(block).not.toContain(banned)
+    }
+
+    expect(config).toContain('defaultNetwork: GqlChainValues.Base,')
+  })
+
+  it('pools-page explainer: promoItems required (2026-09-30), partner cards banned', () => {
+    // (maintainer live E2E walk 2026-09-30): the pools page showed an EMPTY
+    // explainer band where upstream's 4 expandables render. maintainer directive:
+    // reuse the pattern, our copy — 4 ROOTSTOCK cards. Supersedes the old
+    // 'no promoItems' law (upstream-fingerprint ban).
+    expect(config).toContain('promoItems: [')
+    expect(config).not.toContain('partnerCards')
+  })
+
+  it('pools/portfolio surfaces RESTORED (2026-09-22): no redirects kill them; /vebal stays dead; no external destinations', () => {
+    expect(nextConfig).not.toContain("source: '/pools',")
+    expect(nextConfig).not.toContain("source: '/portfolio',")
+    expect(nextConfig).toContain("source: '/vebal',")
+    expect(nextConfig).not.toContain('legacy.balancer.fi')
+    expect(nextConfig).not.toContain('terminal.basednut.com')
+  })
+
+  it('sitemap is ours only', () => {
+    expect(sitemap).not.toContain('balancer.fi')
+    // fabricated URL banned; sitemap env-gated, empty in export
+    expect(sitemap).not.toContain('rootstock.basednut.com')
+    expect(sitemap).toContain('NEXT_PUBLIC_SITE_URL')
+  })
+
+  it('safe app link uses our project URL', () => {
+    expect(safeHooks).not.toContain('projectId}.fi')
+    expect(safeHooks).toContain('projectUrl')
+  })
+})
+
+// mobile-wrap law (2026-10-02): WordsPullUp renders words in a
+// nowrap HStack — every landing usage MUST carry flexWrap="wrap" or the
+// headline forces the hero column wider than small viewports and clips
+// (verified live: H1 min-width 476px at 375px, 'simple' cut off-screen).
+describe('landing-v3 mobile wrap laws', () => {
+  const wordsFiles = [hero, codeStack, code, features]
+  const wordsNames = ['Hero.tsx', 'CodeStack.tsx', 'Code.tsx', 'Features.tsx']
+
+  const wordsSources = wordsNames.map((name, i) => ({
+    name,
+    src: wordsFiles[i] as string,
+  }))
+
+  it.each(wordsSources)('%s: every WordsPullUp wraps on small screens', ({ src }) => {
+    const uses = src.split('<WordsPullUp').length - 1
+    if (uses === 0) return
+    const blocks = src.split('<WordsPullUp').slice(1)
+
+    for (const b of blocks) {
+      // props end at the tag's own first '/>' — parse exactly that span
+      const props = b.split('/>')[0]
+      // each WordsPullUp props block must include flexWrap="wrap"
+      expect(props).toContain('flexWrap="wrap"')
+    }
+  })
+
+  //  CTA law (2026-10-02 correction): TWO Launch-app buttons existed —
+  // navbar + hero. Desired end state (VERIFIED live): navbar CTA = 'Learn more'
+  // -> docs.basednut.com/rootstock; hero 'Launch app' -> /swap stays as is.
+  it('navbar CTA is Learn more -> rootstock docs; hero Launch app -> /swap (2026-10-02)', () => {
+    const navCtaBlock = navBar.slice(0, navBar.indexOf('Learn more')).slice(-400)
+    expect(navCtaBlock).toContain('https://docs.basednut.com/rootstock')
+    expect(navBar).toContain('Learn more')
+    expect(hero).toContain('Launch app')
+    const heroLaunch = hero.slice(hero.indexOf('Launch app') - 700, hero.indexOf('Launch app') + 30)
+    expect(heroLaunch).toContain('href="/swap"')
+  })
+
+  it('Hero H1 text fits small viewports when wrapped (no nowrap trap)', () => {
+    // the hero headline must not contain nbsp-joined words that defeat wrap
+    expect(hero).toContain('text="Custom markets made simple"')
+  })
+})

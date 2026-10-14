@@ -1,0 +1,413 @@
+'use client'
+
+import {
+  Box,
+  BoxProps,
+  Button,
+  HStack,
+  Input,
+  InputGroup,
+  InputProps,
+  InputRightAddon,
+  Skeleton,
+  Text,
+  VStack,
+  forwardRef,
+  useTheme,
+} from '@chakra-ui/react'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { useTokens } from '../TokensProvider'
+import { useTokenBalances } from '../TokenBalancesProvider'
+import { useTokenInput } from './useTokenInput'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import { blockInvalidNumberInput, bn, fNum } from '@repo/lib/shared/utils/numbers'
+import { TokenIcon } from '../TokenIcon'
+import { useTokenInputsValidation } from '../TokenInputsValidationProvider'
+import { ChevronDown } from 'lucide-react'
+import { WalletIcon } from '@repo/lib/shared/components/icons/WalletIcon'
+import { PriceImpactLevel } from '@repo/lib/modules/price-impact/PriceImpactProvider'
+import { useEffect } from 'react'
+import { useIsMounted } from '@repo/lib/shared/hooks/useIsMounted'
+import { isNativeAsset } from '@repo/lib/shared/utils/addresses'
+import { getPriceImpactLabel } from '../../price-impact/price-impact.utils'
+import { ApiOrCustomToken } from '../token.types'
+import { useUserAccount } from '../../web3/UserAccountProvider'
+import type BigNumber from 'bignumber.js'
+
+type TokenInputSelectorProps = {
+  token: ApiOrCustomToken | undefined
+  weight?: string
+  showWeight?: boolean
+  onToggleTokenClicked?: () => void
+}
+
+type TokenSelectorConfigProps = {
+  label: string
+  variant: string
+  showIcon: boolean
+}
+
+export function TokenInputSelector({
+  token,
+  weight,
+  onToggleTokenClicked,
+  showWeight = true,
+}: TokenInputSelectorProps) {
+  const DEFAULT_TOKEN_LABEL = 'Select token'
+
+  const tokenConfig: TokenSelectorConfigProps | undefined = token
+    ? { label: token.symbol, variant: 'tertiary', showIcon: true }
+    : onToggleTokenClicked
+      ? { label: DEFAULT_TOKEN_LABEL, variant: 'secondary', showIcon: false }
+      : undefined
+
+  const tokenSymbolColor = tokenConfig?.label === DEFAULT_TOKEN_LABEL ? 'font.dark' : 'font.primary'
+
+  return tokenConfig ? (
+    <Button
+      aria-label={tokenConfig.label}
+      cursor={onToggleTokenClicked ? 'pointer' : 'default'}
+      justifyContent="space-between"
+      onClick={() => onToggleTokenClicked?.()}
+      variant={tokenConfig.variant}
+      width="full"
+    >
+      {tokenConfig && (
+        <HStack spacing="sm">
+          {tokenConfig.showIcon && (
+            <Box>
+              <TokenIcon alt={tokenConfig.label} logoURI={token?.logoURI} size={22} />
+            </Box>
+          )}
+          {tokenConfig.label && (
+            <Text color={tokenSymbolColor} fontWeight="bold">
+              {tokenConfig.label}
+            </Text>
+          )}
+        </HStack>
+      )}
+      {weight && showWeight && (
+        <Text fontSize="sm" fontWeight="normal" ml="sm">
+          {fNum('weight', weight)}
+        </Text>
+      )}
+      {onToggleTokenClicked && (
+        <Box ml="sm">
+          <ChevronDown size={16} />
+        </Box>
+      )}
+    </Button>
+  ) : (
+    <Skeleton height="40px" width="110px" />
+  )
+}
+
+type PriceImpactProps = {
+  priceImpact: string | number | null | undefined
+  priceImpactColor: string
+  priceImpactLevel: PriceImpactLevel
+}
+
+type TokenInputFooterProps = {
+  token: ApiOrCustomToken | undefined
+  value?: string
+  updateValue: (value: string) => void
+  hasPriceImpact?: boolean
+  isLoadingPriceImpact?: boolean
+  priceMessage?: string
+  customUserBalance?: BigNumber
+  customMaxAmount?: string
+  isDisabled?: boolean
+  customUsdPrice?: number
+  priceImpactProps: PriceImpactProps | undefined
+  hideBalance?: boolean
+}
+
+function TokenInputFooter({
+  token,
+  value,
+  updateValue,
+  hasPriceImpact,
+  isLoadingPriceImpact,
+  priceMessage,
+  customUserBalance,
+  customMaxAmount,
+  isDisabled,
+  customUsdPrice,
+  priceImpactProps,
+  hideBalance = false,
+}: TokenInputFooterProps) {
+  const { balanceFor, isBalancesLoading } = useTokenBalances()
+  const { usdValueForToken } = useTokens()
+  const { toCurrency } = useCurrency()
+  const { hasValidationError, getValidationError } = useTokenInputsValidation()
+  const isMounted = useIsMounted()
+
+  const hasError = hasValidationError(token)
+  const inputLabelColor = hasError ? 'input.fontHintError' : 'grayText'
+
+  const balance = token ? balanceFor(token?.address) : undefined
+  const userBalance = customUserBalance || bn(token ? balance?.formatted || '0' : '0')
+
+  const usdValue =
+    value && customUsdPrice
+      ? bn(value).times(customUsdPrice).toString()
+      : value && token
+        ? usdValueForToken(token, value)
+        : '0'
+
+  const noBalance = token && bn(userBalance).isZero()
+  const _isNativeAsset = token && isNativeAsset(token.chain, token.address)
+
+  const showPriceImpact = !isLoadingPriceImpact && hasPriceImpact && priceImpactProps?.priceImpact
+  const hasDisabledInteraction = noBalance || _isNativeAsset || isDisabled
+
+  function handleBalanceClick() {
+    // We return for _isNativeAsset because you can't use your full native asset
+    // balance, you need to save some for a swap.
+    if (hasDisabledInteraction) return
+
+    const maxAmount = customMaxAmount || userBalance.toString()
+
+    if (value && bn(value).eq(maxAmount)) {
+      updateValue('')
+    } else {
+      updateValue(maxAmount)
+    }
+  }
+
+  return (
+    <HStack h="4" justify="space-between" w="full">
+      {isBalancesLoading || !isMounted ? (
+        <Skeleton h="full" w="12" />
+      ) : (
+        <Text
+          color={showPriceImpact ? priceImpactProps?.priceImpactColor : 'font.secondary'}
+          fontSize="sm"
+          opacity={!priceMessage && usdValue === '0' ? 0.5 : 1}
+          variant="secondary"
+        >
+          {priceMessage ? priceMessage : toCurrency(usdValue, { abbreviated: false })}
+          {showPriceImpact &&
+            priceImpactProps?.priceImpactLevel !== 'unknown' &&
+            getPriceImpactLabel(priceImpactProps?.priceImpact)}
+        </Text>
+      )}
+      {!isBalancesLoading && isMounted && hasError && (
+        <Text color="font.error" fontSize="sm">
+          {getValidationError(token)}
+        </Text>
+      )}
+      {isBalancesLoading || !isMounted ? (
+        <Skeleton h="full" w="12" />
+      ) : (
+        !hideBalance && (
+          <HStack
+            _hover={hasDisabledInteraction ? {} : { color: 'font.highlight' }}
+            color={inputLabelColor}
+            cursor={hasDisabledInteraction ? 'default' : 'pointer'}
+            gap="xs"
+            onClick={handleBalanceClick}
+            title="Use wallet balance"
+          >
+            <Text
+              color={!token ? 'font.secondary' : noBalance ? 'font.error' : 'inherit'}
+              fontSize="sm"
+              opacity={!token ? 0.5 : 1}
+            >
+              {!token ? '–' : fNum('token', userBalance, { abbreviated: false })}
+            </Text>
+            <Box
+              color={!token ? 'font.secondary' : noBalance ? 'font.error' : undefined}
+              opacity={!token ? 0.5 : 1}
+            >
+              <WalletIcon size={16} />
+            </Box>
+          </HStack>
+        )
+      )}
+    </HStack>
+  )
+}
+
+type Props = {
+  address?: string
+  apiToken?: ApiOrCustomToken
+  chain?: GqlChain | number
+  weight?: string
+  value?: string
+  boxProps?: BoxProps
+  onChange?: (event: { currentTarget: { value: string } }) => void
+  onToggleTokenClicked?: () => void
+  hasPriceImpact?: boolean
+  isLoadingPriceImpact?: boolean
+  priceMessage?: string
+  disableBalanceValidation?: boolean
+  customUserBalance?: BigNumber
+  customMaxAmount?: string
+  customUsdPrice?: number
+  priceImpactProps?: PriceImpactProps
+  hideBalance?: boolean
+}
+
+export const TokenInput = forwardRef(
+  (
+    {
+      address,
+      apiToken,
+      chain,
+      weight,
+      value,
+      boxProps,
+      onChange,
+      onToggleTokenClicked,
+      hasPriceImpact = false,
+      isLoadingPriceImpact = false,
+      priceMessage,
+      disableBalanceValidation = false,
+      customUserBalance,
+      customMaxAmount,
+      customUsdPrice,
+      priceImpactProps,
+      hideBalance = false,
+      ...inputProps
+    }: InputProps & Props,
+    ref
+  ) => {
+    const { userAddress } = useUserAccount()
+    const { isBalancesLoading } = useTokenBalances()
+
+    const { colors } = useTheme()
+    const { getToken } = useTokens()
+    const tokenFromAddress = address && chain ? getToken(address, chain) : undefined
+
+    const token = apiToken || tokenFromAddress
+
+    const { hasValidationError } = useTokenInputsValidation()
+
+    const { handleOnChange, updateValue, validateInput } = useTokenInput({
+      token,
+      onChange,
+      disableBalanceValidation,
+    })
+
+    const hasError = hasValidationError(token)
+
+    useEffect(() => {
+      if (!isBalancesLoading) {
+        validateInput(value || '')
+      }
+    }, [value, token?.address, isBalancesLoading, userAddress])
+
+    return (
+      <Box
+        _before={
+          hasError
+            ? {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                bg: 'red.500',
+                opacity: 0.05,
+                borderRadius: 'md',
+                pointerEvents: 'none',
+                zIndex: 0,
+              }
+            : undefined
+        }
+        _focusWithin={{
+          boxShadow: hasError ? 'input.innerError' : 'input.innerFocus',
+        }}
+        bg="background.level0"
+        border="white"
+        borderRadius="md"
+        boxShadow={hasError ? `0 0 0 1px ${colors.red[500]}` : undefined}
+        p={['ms', 'md']}
+        position="relative"
+        shadow={hasError ? undefined : 'innerBase'}
+        w="full"
+        {...boxProps}
+      >
+        <VStack align="start" spacing="md">
+          <InputGroup background="transparent" border="transparent">
+            <Box position="relative" w="full">
+              <Input
+                _focus={{
+                  outline: 'none',
+                  border: '0px solid transparent',
+                  boxShadow: 'none',
+                }}
+                _hover={{
+                  border: '0px solid transparent',
+                  boxShadow: 'none',
+                }}
+                autoComplete="off"
+                autoCorrect="off"
+                bg="transparent"
+                border="0px solid transparent"
+                boxShadow="none"
+                fontSize="3xl"
+                fontWeight="medium"
+                inputMode="decimal"
+                isDisabled={!token}
+                min={0}
+                onChange={handleOnChange}
+                onKeyDown={blockInvalidNumberInput}
+                onWheel={e => {
+                  // Avoid changing the input value when scrolling
+                  return e.currentTarget.blur()
+                }}
+                outline="none"
+                p="0"
+                placeholder="0.00"
+                ref={ref}
+                shadow="none"
+                step="any"
+                title={value || ''}
+                value={value}
+                {...inputProps}
+              />
+              {token && (
+                <Box
+                  bgGradient="linear(to-r, transparent, background.level0 70%)"
+                  h="full"
+                  position="absolute"
+                  right={0}
+                  top={0}
+                  w="8"
+                  zIndex={9999}
+                />
+              )}
+            </Box>
+
+            <InputRightAddon bg="transparent" border="none" p="0" pl="1">
+              <TokenInputSelector
+                onToggleTokenClicked={onToggleTokenClicked}
+                token={token}
+                weight={weight}
+              />
+            </InputRightAddon>
+          </InputGroup>
+
+          <TokenInputFooter
+            customMaxAmount={customMaxAmount}
+            customUsdPrice={customUsdPrice}
+            customUserBalance={customUserBalance}
+            hasPriceImpact={hasPriceImpact}
+            hideBalance={hideBalance}
+            isDisabled={inputProps.isDisabled}
+            isLoadingPriceImpact={isLoadingPriceImpact}
+            priceImpactProps={priceImpactProps}
+            priceMessage={priceMessage}
+            token={token}
+            updateValue={updateValue}
+            value={value}
+          />
+        </VStack>
+      </Box>
+    )
+  }
+)

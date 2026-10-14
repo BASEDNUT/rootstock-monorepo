@@ -1,0 +1,19 @@
+import MigratePoolClient from './MigratePoolClient'
+import { PoolPathProps } from '@repo/lib/modules/pool/migrations/PoolMigrationPage'
+
+// Rootstock (IPFS export): mirror the pool-detail static params.
+import bakedPoolRegistry from '@repo/lib/modules/pool/baked-pool-registry.json'
+
+export function generateStaticParams() {
+  const chains = ['base-sepolia']
+  const variants = ['v3']
+  const pools = (bakedPoolRegistry as { pools: { address: string }[] }).pools
+  return chains.flatMap(chain =>
+    variants.flatMap(variant => pools.map(pool => ({ chain, variant, id: pool.address })))
+  )
+}
+
+export default async function MigratePoolWrapper({ params }: { params: Promise<PoolPathProps> }) {
+  const { id, chain, variant } = await params
+  return <MigratePoolClient chain={chain} id={id} variant={variant} />
+}

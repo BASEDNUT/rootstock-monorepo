@@ -1,0 +1,154 @@
+import {
+  poolId,
+  wETHAddress,
+  wjAuraAddress,
+  aaveEthAddress,
+  wstEthAddress,
+  poolId2,
+} from '@repo/lib/debug-helpers'
+import {
+  aTokenExpandedMock,
+  someGqlTokenMocks,
+} from '@repo/lib/modules/tokens/__mocks__/token.builders'
+import type {
+  GqlPoolElement,
+  GqlPoolTokenDetail,
+  GqlPoolWeighted,
+} from '@repo/lib/shared/services/api/graphql-derived-types'
+import { GqlChainValues, GqlPoolTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { DeepPartial } from '@apollo/client/utilities'
+import { mock } from 'vitest-mock-extended'
+import { aGqlStakingMock } from './gqlStaking.builders'
+import { getPoolAddress } from '@balancer/sdk'
+import { Address, Hex } from 'viem'
+
+export function aBalWethPoolElementMock(...options: Partial<GqlPoolElement>[]): GqlPoolElement {
+  const poolId = '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014' // 80BAL-20WETH
+  const tokens = someGqlTokenMocks(['BAL', 'WETH'])
+
+  const options2: Partial<GqlPoolElement> = {
+    id: poolId,
+    address: getPoolAddress(poolId),
+    poolTokens: tokens as unknown as GqlPoolTokenDetail[],
+    protocolVersion: 2,
+    ...options,
+  }
+
+  return aGqlPoolElementMock(options2)
+}
+
+export function aWjAuraWethPoolElementMock(...options: Partial<GqlPoolElement>[]): GqlPoolElement {
+  const tokens = [
+    aTokenExpandedMock({ address: wjAuraAddress }),
+    aTokenExpandedMock({ address: wETHAddress }),
+  ]
+
+  const options2 = {
+    id: poolId,
+    address: getPoolAddress(poolId),
+    poolTokens: tokens as unknown as GqlPoolTokenDetail[],
+    protocolVersion: 2,
+    ...options,
+  }
+
+  return aGqlPoolElementMock(options2)
+}
+
+export function aWeightedV2PoolMock(...options: Partial<GqlPoolElement>[]): GqlPoolElement {
+  const tokens = [
+    aTokenExpandedMock({ address: wstEthAddress }),
+    aTokenExpandedMock({ address: aaveEthAddress }),
+  ]
+
+  const options2 = {
+    id: poolId2,
+    address: getPoolAddress(poolId2),
+    poolTokens: tokens as unknown as GqlPoolTokenDetail[],
+    protocolVersion: 2,
+    ...options,
+  }
+
+  return aGqlPoolElementMock(options2)
+}
+
+export function toGqlWeighedPoolMock(poolElement: GqlPoolElement): GqlPoolWeighted {
+  const pool: GqlPoolWeighted = {
+    ...poolElement,
+    __typename: 'GqlPoolWeighted',
+  }
+
+  return pool
+}
+
+export function aGqlPoolElementMock(...options: Partial<GqlPoolElement>[]): GqlPoolElement {
+  const defaultPool = mock<GqlPoolElement>()
+
+  const defaultPool1: DeepPartial<GqlPoolElement> = {
+    __typename: 'GqlPoolElement',
+    protocolVersion: 2,
+    address: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56',
+    poolTokens: someGqlTokenMocks(['BAL', 'WETH']),
+    chain: GqlChainValues.Mainnet,
+    createTime: 1620153071,
+    decimals: 18,
+    dynamicData: {
+      totalLiquidity: '176725796.079429',
+      totalShares: '13131700.67391808961378162',
+      // lifetimeVolume and lifetimeSwapFees removed - these fields are from GetPoolsQuery not GetPoolQuery dynamicData
+      volume24h: '545061.9941007149',
+      fees24h: '5450.619941007149',
+      holdersCount: '1917',
+      // swapsCount field removed - not in GetPoolQuery dynamicData for GqlPoolElement
+      swapFee: '0.01',
+    },
+    factory: '0xa5bf2ddf098bb0ef6d120c98217dd6b141c74ee0',
+    id: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
+    name: 'Balancer 80 BAL 20 WETH',
+    owner: '0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b',
+    symbol: 'B-80BAL-20WETH',
+    staking: aGqlStakingMock(),
+    type: GqlPoolTypeValues.Weighted,
+  }
+
+  return Object.assign({}, defaultPool, defaultPool1, ...options)
+}
+
+export function aPhantomStablePoolMock(): GqlPoolElement {
+  const poolId: Hex = '0x42ed016f826165c2e5976fe5bc3df540c5ad0af700000000000000000000058b' // wstETH-rETH-sfrxETH
+  const wstETH: Address = '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0'
+  const sfrxETH: Address = '0xac3e018457b222d93114458476f3e3416abbe38f'
+  const rETH: Address = '0xae78736cd615f374d3085123a210448e74fc6393'
+
+  const poolAddress = getPoolAddress(poolId) as Address
+
+  const tokens = [
+    {
+      address: poolAddress,
+      decimals: 18,
+      index: 0,
+    },
+    {
+      address: wstETH,
+      decimals: 18,
+      index: 1,
+    },
+    {
+      address: sfrxETH,
+      decimals: 18,
+      index: 2,
+    },
+    {
+      address: rETH,
+      decimals: 18,
+      index: 2,
+    },
+  ]
+
+  return aGqlPoolElementMock({
+    id: poolId,
+    address: poolAddress,
+    poolTokens: tokens as unknown as GqlPoolTokenDetail[],
+    type: GqlPoolTypeValues.ComposableStable,
+    protocolVersion: 2,
+  })
+}

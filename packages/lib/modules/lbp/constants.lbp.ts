@@ -1,0 +1,49 @@
+import { SaleStructureStep } from './steps/SaleStructureStep'
+import { ProjectInfoStep } from './steps/ProjectInfoStep'
+import { ReviewStep } from './steps/review/ReviewStep'
+import { FormStep } from '@repo/lib/shared/hooks/useFormSteps'
+import { SeedType, UserActions, WeightAdjustmentType } from './lbp.types'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { getNetworkConfig } from '@repo/lib/config/app.config'
+import { ProjectInfoForm, SaleStructureForm } from './lbp.types'
+import { GqlPoolTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
+
+export const LBP_FORM_STEPS: FormStep[] = [
+  { id: 'step-1-sale-structure', title: 'Sale structure', Component: SaleStructureStep },
+  { id: 'step-2-project-info', title: 'Project info', Component: ProjectInfoStep },
+  { id: 'step-3-review', title: 'Review', Component: ReviewStep },
+]
+
+const defaultNetworkConfig = getNetworkConfig(PROJECT_CONFIG.defaultNetwork)
+const defaultCollateralTokenAddress = defaultNetworkConfig?.lbps?.collateralTokens?.[0] ?? ''
+
+export const INITIAL_SALE_STRUCTURE: SaleStructureForm = {
+  selectedChain: PROJECT_CONFIG.defaultNetwork,
+  launchTokenAddress: '',
+  saleType: GqlPoolTypeValues.LiquidityBootstrapping,
+  userActions: UserActions.BUY_AND_SELL,
+  seedType: SeedType.SEEDLESS,
+  fee: 1.0,
+  startDateTime: '',
+  endDateTime: '',
+  collateralTokenAddress: defaultCollateralTokenAddress,
+  weightAdjustmentType: WeightAdjustmentType.LINEAR_90_10,
+  customStartWeight: 90,
+  customEndWeight: 10,
+  launchTokenRate: '',
+  saleTokenAmount: '',
+  collateralTokenAmount: '',
+}
+
+export const INITIAL_PROJECT_INFO: ProjectInfoForm = {
+  name: '',
+  description: '',
+  tokenIconUrl: '',
+  websiteUrl: '',
+  xHandle: '',
+  telegramHandle: '',
+  discordUrl: '',
+  owner: '',
+  poolCreator: '',
+  disclaimerAccepted: false,
+}

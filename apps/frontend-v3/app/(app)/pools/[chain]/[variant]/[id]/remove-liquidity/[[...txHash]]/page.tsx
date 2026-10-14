@@ -1,0 +1,24 @@
+import { RemoveLiquidityPage } from '@repo/lib/shared/pages/RemoveLiquidityPage'
+
+// Rootstock (IPFS export): mirror the pool-detail static params.
+import bakedPoolRegistry from '@repo/lib/modules/pool/baked-pool-registry.json'
+
+export function generateStaticParams() {
+  const chains = ['base-sepolia']
+  const variants = ['v3']
+  const pools = (bakedPoolRegistry as { pools: { address: string }[] }).pools
+  return chains.flatMap(chain =>
+    variants.flatMap(variant =>
+      pools.map(pool => ({ chain, variant, id: pool.address, txHash: [] }))
+    )
+  )
+}
+
+type Props = {
+  params: Promise<{ txHash?: string[] }>
+}
+
+export default async function RemoveLiquidityPageWrapper({ params }: Props) {
+  const resolvedParams = await params
+  return <RemoveLiquidityPage txHash={resolvedParams.txHash} />
+}

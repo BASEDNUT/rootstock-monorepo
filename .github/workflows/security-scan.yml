@@ -1,0 +1,43 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  Security-Scan:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      # gitleaks-action master @ bcfb9cce635345aac9996cedc19b2de8e01b894f (pinned)
+      - uses: gitleaks/gitleaks-action@bcfb9cce635345aac9996cedc19b2de8e01b894f
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          cache: pnpm
+          node-version: 24
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+      # Dependency audit — two gates:
+      # 1. PRODUCTION dependencies are BLOCKING: a critical/high advisory in the
+      #    shipped dependency graph fails CI. The production baseline is clear.
+      # 2. The full tree (dev tooling included) is REPORT-ONLY: dev-only advisories
+      #    are tracked for scheduled upgrades without blocking every change.
+      - name: Dependency audit — production (blocking)
+        run: pnpm audit --prod --audit-level=high
+      - name: Dependency audit — full tree (report-only, dev-tooling baseline)
+        continue-on-error: true
+        run: pnpm audit --audit-level=high

@@ -1,0 +1,16 @@
+query GetVeBalUser($address: String!, $chain: GqlChain!) {
+  veBalGetUser(address: $address, chain: $chain) {
+    balance
+    rank
+    lockSnapshots {
+      balance
+      timestamp
+      bias
+      slope
+    }
+  }
+}
+
+query GetVeBalTotalSupply($chain: GqlChain!) {
+  veBalGetTotalSupply(chain: $chain)
+}

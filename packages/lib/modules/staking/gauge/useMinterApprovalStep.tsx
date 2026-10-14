@@ -1,0 +1,84 @@
+import {
+  ManagedResult,
+  TransactionLabels,
+  TransactionStep,
+} from '@repo/lib/modules/transactions/transaction-steps/lib'
+import { ManagedTransactionInput } from '@repo/lib/modules/web3/contracts/useManagedTransaction'
+import { getNetworkConfig } from '@repo/lib/config/app.config'
+import { useHasMinterApproval } from './useHasMinterApproval'
+import { useState } from 'react'
+import { useUserAccount } from '@repo/lib/modules/web3/UserAccountProvider'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { sentryMetaForWagmiSimulation } from '@repo/lib/shared/utils/query-errors'
+import { ManagedTransactionButton } from '../../transactions/transaction-steps/TransactionButton'
+import { buildBatchableTxCall } from '../../transactions/transaction-steps/tx-batch.helpers'
+
+const approveMinterStepId = 'approve-minter'
+
+export function useApproveMinterStep(
+  chain: GqlChain,
+  hasUnclaimedBalRewards: boolean
+): {
+  isLoading: boolean
+  step: TransactionStep
+} {
+  const { isConnected } = useUserAccount()
+  const [transaction, setTransaction] = useState<ManagedResult | undefined>()
+
+  const { contracts, chainId } = getNetworkConfig(chain)
+
+  const { hasMinterApproval, isLoading, refetch } = useHasMinterApproval(hasUnclaimedBalRewards)
+
+  const labels: TransactionLabels = {
+    init: 'Approve relayer as minter',
+    title: 'Approve minter',
+    description: 'Approve relayer as minter',
+    confirming: 'Confirming approval...',
+    confirmed: `Relayer approved as minter!`,
+    tooltip: 'Approval relayer as minter',
+  }
+
+  const txSimulationMeta = sentryMetaForWagmiSimulation(
+    'Error in wagmi tx simulation (Minter approval transaction)',
+    {
+      minter: contracts.balancer.minter,
+    }
+  )
+
+  const props: ManagedTransactionInput = {
+    contractAddress: contracts.balancer.minter,
+    contractId: 'balancer.minter',
+    functionName: 'setMinterApproval',
+    labels,
+    chainId,
+    args: [contracts.balancer.relayerV6, true],
+    enabled: !isLoading && isConnected && !hasMinterApproval,
+    txSimulationMeta,
+    onTransactionChange: setTransaction,
+  }
+
+  const step: TransactionStep = {
+    id: approveMinterStepId,
+    stepType: 'minterApproval',
+    labels,
+    details: {
+      gasless: false,
+      type: 'Gas transaction',
+    },
+    isComplete: () => isConnected && hasMinterApproval,
+    renderAction: () => <ManagedTransactionButton id={approveMinterStepId} {...props} />,
+    batchableTxCall: buildBatchableTxCall(
+      'balancer.minter',
+      contracts.balancer.minter,
+      'setMinterApproval',
+      [contracts.balancer.relayerV6, true]
+    ),
+    onSuccess: () => refetch(),
+    transaction,
+  }
+
+  return {
+    isLoading,
+    step,
+  }
+}

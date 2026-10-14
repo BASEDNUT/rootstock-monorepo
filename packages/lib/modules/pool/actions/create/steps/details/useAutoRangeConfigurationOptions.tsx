@@ -1,0 +1,229 @@
+import { usePoolCreationForm } from '../../PoolCreationFormProvider'
+import { bn, isBnParseable } from '@repo/lib/shared/utils/numbers'
+import { useEffect, useRef } from 'react'
+import { formatNumber } from '../../helpers'
+import { usePoolSpotPriceWithoutRate } from './usePoolSpotPriceWithoutRate'
+import {
+  CurrentPriceMinusFivePercentSVG,
+  CurrentPriceSVG,
+  CurrentPricePlusFivePercentSVG,
+  TargetRangeNarrowSVG,
+  TargetRangeStandardSVG,
+  TargetRangeWideSVG,
+  MarginBufferNarrowSVG,
+  MarginBufferStandardSVG,
+  MarginBufferWideSVG,
+  PriceAdjustmentRateSlowSVG,
+  PriceAdjustmentRateStandardSVG,
+  PriceAdjustmentRateFastSVG,
+} from '@repo/lib/shared/components/imgs/AutoRangeConfigSvgs'
+import { useWatch } from 'react-hook-form'
+import { ConfigOptionsGroupProps } from './AutoRangeConfiguration'
+import { AutoRangeConfig } from '../../types'
+
+export function calculatePriceBounds(targetPrice: string, spread: string) {
+  if (!isBnParseable(targetPrice) || !isBnParseable(spread)) {
+    return { initialMinPrice: '', initialMaxPrice: '' }
+  }
+
+  const spreadValue = bn(spread)
+  const lowerBoundPercentage = (100 - spreadValue.toNumber()) / 100
+  const upperBoundPercentage = (100 + spreadValue.toNumber()) / 100
+  const targetPriceValue = bn(targetPrice)
+
+  return {
+    initialMinPrice: targetPriceValue.times(lowerBoundPercentage).toString(),
+    initialMaxPrice: targetPriceValue.times(upperBoundPercentage).toString(),
+  }
+}
+
+export function useAutoRangeConfigurationOptions(): ConfigOptionsGroupProps<AutoRangeConfig>[] {
+  const { poolCreationForm, autoRangeConfigForm } = usePoolCreationForm()
+  const lastCalculatedPriceBoundsRef = useRef({ minPrice: '', maxPrice: '' })
+
+  const poolTokens = useWatch({ control: poolCreationForm.control, name: 'poolTokens' })
+  const autoRangeConfig = useWatch({ control: autoRangeConfigForm.control })
+  const { initialTargetPrice, priceRangePercentage } = autoRangeConfig
+
+  const tokenSymbolsString = poolTokens.map(token => token.data?.symbol).join(' / ')
+
+  const { spotPriceWithoutRate } = usePoolSpotPriceWithoutRate()
+  const currentPriceMinus5 = spotPriceWithoutRate.times(0.95).toString()
+  const currentPricePlus5 = spotPriceWithoutRate.times(1.05).toString()
+
+  const updatePriceBounds = (targetPrice: string, spread: string) => {
+    const { initialMinPrice, initialMaxPrice } = calculatePriceBounds(targetPrice, spread)
+    autoRangeConfigForm.setValue('initialMinPrice', initialMinPrice, { shouldValidate: true })
+    autoRangeConfigForm.setValue('initialMaxPrice', initialMaxPrice, { shouldValidate: true })
+  }
+
+  const targetPrice: ConfigOptionsGroupProps<AutoRangeConfig> = {
+    name: 'initialTargetPrice',
+    control: autoRangeConfigForm.control,
+    label: `Target price: ${tokenSymbolsString}`,
+    customInputLabel: 'Custom target price',
+    options: [
+      {
+        label: 'Current price -5%',
+        displayValue: formatNumber(currentPriceMinus5),
+        rawValue: currentPriceMinus5,
+        svg: CurrentPriceMinusFivePercentSVG,
+      },
+      {
+        label: 'Current price',
+        displayValue: formatNumber(spotPriceWithoutRate.toString()),
+        rawValue: spotPriceWithoutRate.toString(),
+        svg: CurrentPriceSVG,
+      },
+      {
+        label: 'Current price +5%',
+        displayValue: formatNumber(currentPricePlus5),
+        rawValue: currentPricePlus5,
+        svg: CurrentPricePlusFivePercentSVG,
+      },
+    ],
+    tooltip: 'The initial target price of token A in terms of token B',
+    updateFn: (rawValue: string) => {
+      autoRangeConfigForm.setValue('initialTargetPrice', rawValue, { shouldValidate: true })
+
+      if (priceRangePercentage) {
+        updatePriceBounds(rawValue, priceRangePercentage)
+      }
+    },
+    validateFn: (value: string) => {
+      if (!Number(value)) return 'Invalid target price'
+      return true
+    },
+  }
+
+  const priceRangeBoundaries: ConfigOptionsGroupProps<AutoRangeConfig> = {
+    label: `Target concentration density of liquidity`,
+    name: 'priceRangePercentage',
+    control: autoRangeConfigForm.control,
+    customInputLabel: '???',
+    options: [
+      { label: 'Narrow', displayValue: '± 25.00%', rawValue: '25', svg: TargetRangeNarrowSVG },
+      { label: 'Standard', displayValue: '± 50.00%', rawValue: '50', svg: TargetRangeStandardSVG },
+      { label: 'Wide', displayValue: '± 75.00%', rawValue: '75', svg: TargetRangeWideSVG },
+    ],
+    tooltip: 'The target concentration density of liquidity',
+    updateFn: (rawValue: string) => {
+      autoRangeConfigForm.setValue('priceRangePercentage', rawValue, { shouldValidate: true })
+
+      if (rawValue) {
+        updatePriceBounds(initialTargetPrice || '', rawValue)
+      } else {
+        autoRangeConfigForm.setValue('initialMinPrice', '', { shouldValidate: true })
+        autoRangeConfigForm.setValue('initialMaxPrice', '', { shouldValidate: true })
+      }
+    },
+    validateFn: (value: string) => {
+      if (!Number(value)) return 'Invalid price range percentage'
+      return true
+    },
+  }
+
+  const marginBuffer: ConfigOptionsGroupProps<AutoRangeConfig> = {
+    name: 'centerednessMargin',
+    control: autoRangeConfigForm.control,
+    label: `Margin buffer`,
+    customInputLabel: 'Custom margin buffer',
+    options: [
+      { label: 'Narrow', displayValue: '10%', rawValue: '10', svg: MarginBufferNarrowSVG },
+      { label: 'Standard', displayValue: '25%', rawValue: '25', svg: MarginBufferStandardSVG },
+      { label: 'Wide', displayValue: '50%', rawValue: '50', svg: MarginBufferWideSVG },
+    ],
+    tooltip: 'How far the price can be from the center before the price range starts to move',
+    updateFn: (rawValue: string) => {
+      autoRangeConfigForm.setValue('centerednessMargin', rawValue, { shouldValidate: true })
+    },
+    validateFn: (value: string) => {
+      const numValue = Number(value)
+      if (numValue <= 0) return 'Margin buffer must be greater than 0%'
+      if (numValue >= 90) return 'Margin buffer must be less than or equal to 90%'
+      return true
+    },
+  }
+
+  const dailyPriceReadjustmentRate: ConfigOptionsGroupProps<AutoRangeConfig> = {
+    name: 'priceShiftDailyRate',
+    control: autoRangeConfigForm.control,
+    label: `Daily price re-adjustment rate, when out-of-range`,
+    customInputLabel: 'Custom rate',
+    options: [
+      { label: 'Slow', displayValue: '0.5%', rawValue: '0.5', svg: PriceAdjustmentRateSlowSVG },
+      {
+        label: 'Standard',
+        displayValue: '1%',
+        rawValue: '1',
+        svg: PriceAdjustmentRateStandardSVG,
+      },
+      {
+        label: 'Fast (higher MEV)',
+        displayValue: '5%',
+        rawValue: '5',
+        svg: PriceAdjustmentRateFastSVG,
+      },
+    ],
+    tooltip: 'Controls the speed of the price shift when out-of-range',
+    updateFn: (rawValue: string) => {
+      autoRangeConfigForm.setValue('priceShiftDailyRate', rawValue, { shouldValidate: true })
+    },
+    validateFn: (value: string) => {
+      const numValue = Number(value)
+      if (numValue <= 0) return 'The rate must be greater than 0%'
+      if (numValue > 100) return 'The rate must be less than or equal to 100%'
+      return true
+    },
+  }
+
+  const isInitialAutoRangeConfig = Object.values(autoRangeConfig).every(value => value === '')
+
+  // auto-fill config with default values
+  useEffect(() => {
+    if (isInitialAutoRangeConfig) {
+      const currentPrice = targetPrice.options[1]?.rawValue ?? ''
+      const priceRangePercentage = priceRangeBoundaries.options[1]?.rawValue ?? ''
+      const centerednessMargin = marginBuffer.options[1]?.rawValue ?? ''
+      const priceShiftDailyRate = dailyPriceReadjustmentRate.options[1]?.rawValue ?? ''
+
+      autoRangeConfigForm.setValue('initialTargetPrice', currentPrice, { shouldValidate: true })
+
+      autoRangeConfigForm.setValue('priceRangePercentage', priceRangePercentage, {
+        shouldValidate: true,
+      })
+
+      autoRangeConfigForm.setValue('centerednessMargin', centerednessMargin, {
+        shouldValidate: true,
+      })
+
+      autoRangeConfigForm.setValue('priceShiftDailyRate', priceShiftDailyRate, {
+        shouldValidate: true,
+      })
+
+      updatePriceBounds(currentPrice, priceRangePercentage)
+    }
+  }, [isInitialAutoRangeConfig])
+
+  useEffect(() => {
+    if (!initialTargetPrice || !priceRangePercentage) return
+
+    const { initialMinPrice, initialMaxPrice } = calculatePriceBounds(
+      initialTargetPrice,
+      priceRangePercentage
+    )
+
+    if (
+      lastCalculatedPriceBoundsRef.current.minPrice === initialMinPrice &&
+      lastCalculatedPriceBoundsRef.current.maxPrice === initialMaxPrice
+    ) {
+      return
+    }
+
+    lastCalculatedPriceBoundsRef.current = { minPrice: initialMinPrice, maxPrice: initialMaxPrice }
+
+    updatePriceBounds(initialTargetPrice, priceRangePercentage)
+  }, [initialTargetPrice, priceRangePercentage])
+
+  return [targetPrice, priceRangeBoundaries, marginBuffer, dailyPriceReadjustmentRate]
+}

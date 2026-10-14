@@ -1,0 +1,98 @@
+import { Address } from 'viem'
+import { OSwapAction, SdkSimulateSwapResponse, SwapAction, SwapState } from './swap.types'
+import type { GqlChain, GqlSorSwapType } from '@repo/lib/shared/services/api/generated/graphql'
+import { GqlSorSwapTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
+import {
+  getNativeAssetAddress,
+  getNetworkConfig,
+  getWrappedNativeAssetAddress,
+} from '@repo/lib/config/app.config'
+import { isSameAddress } from '@repo/lib/shared/utils/addresses'
+import { isMainnet } from '../chains/chain.utils'
+import { SwapSimulationQueryResult } from './queries/useSimulateSwapQuery'
+import { isBnParseable } from '@repo/lib/shared/utils/numbers'
+
+export function swapActionPastTense(action: SwapAction): string {
+  switch (action) {
+    case OSwapAction.WRAP:
+      return 'Wrapped'
+    case OSwapAction.UNWRAP:
+      return 'Unwrapped'
+    case OSwapAction.SWAP:
+      return 'Swapped'
+    default:
+      throw new Error('Unsupported swap action')
+  }
+}
+
+const swapErrorPatterns = [
+  {
+    pattern: /WrapAmountTooSmall/,
+    message: 'Your input is too small, please try a bigger amount.',
+  },
+]
+
+export function parseSwapError(msg?: string): string {
+  if (!msg) return 'Unknown error'
+  const pattern = swapErrorPatterns.find(p => p.pattern.test(msg))
+  return pattern ? pattern.message : msg
+}
+
+export function getAuraBalAddress(chainId: GqlChain) {
+  return getNetworkConfig(chainId).tokens.addresses.auraBal
+}
+
+export function getBalAddress(chainId: GqlChain) {
+  return getNetworkConfig(chainId).tokens.addresses.bal
+}
+
+export function isAuraBalSwap(
+  tokenIn: Address,
+  tokenOut: Address,
+  chain: GqlChain,
+  swapType: GqlSorSwapType
+) {
+  const auraBAL = getAuraBalAddress(chain)
+  if (!auraBAL) return false
+
+  const relevantTokens = [
+    getNativeAssetAddress(chain),
+    getWrappedNativeAssetAddress(chain),
+    getBalAddress(chain),
+  ]
+
+  const tokenInOrOutIsAuraBal = isSameAddress(tokenIn, auraBAL) || isSameAddress(tokenOut, auraBAL)
+
+  const tokenInOrOutIsRelevantToken = relevantTokens.some(
+    token => isSameAddress(tokenIn, token) || isSameAddress(tokenOut, token)
+  )
+
+  const isExactInSwap = swapType === GqlSorSwapTypeValues.ExactIn
+
+  return tokenInOrOutIsAuraBal && tokenInOrOutIsRelevantToken && isExactInSwap && isMainnet(chain)
+}
+
+export function isV3SwapRoute(simulationQuery: SwapSimulationQueryResult): boolean {
+  return orderRouteVersion(simulationQuery) === 3
+}
+
+export function orderRouteVersion(simulationQuery: SwapSimulationQueryResult): number {
+  const queryData = simulationQuery.data as SdkSimulateSwapResponse
+  const orderRouteVersion = queryData ? queryData.protocolVersion : 2
+  return orderRouteVersion
+}
+
+// Heals invalid persisted amounts (e.g. '.') that older versions could write
+// to localStorage, so affected users recover without clearing storage manually
+export function sanitizeSwapState(state: SwapState): SwapState {
+  const sanitizeToken = (token: SwapState['tokenIn']) =>
+    token.amount !== '' && !isBnParseable(token.amount)
+      ? { ...token, amount: '', scaledAmount: BigInt(0) }
+      : token
+
+  return {
+    ...state,
+    tokenIn: sanitizeToken(state.tokenIn),
+    tokenOut: sanitizeToken(state.tokenOut),
+  }
+}

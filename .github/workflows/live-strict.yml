@@ -1,0 +1,26 @@
+name: Live Strict
+
+on:
+  workflow_dispatch:
+  schedule:
+    # weekly — Friday 09:00 UTC
+    - cron: "0 9 * * 5"
+
+env:
+  NEXT_PUBLIC_BALANCER_API_URL: https://test-api-v3.balancer.fi/graphql
+
+permissions:
+  contents: read
+
+jobs:
+  Live-Strict:
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Run live suites in strict mode
+        env:
+          ROOTSTOCK_LIVE_STRICT: "1"
+        run: pnpm --filter @repo/lib test:unit -- modules/swap/handlers/onchain-swap-live.spec.ts modules/primitives/onchain-factory-tokens-live.spec.ts

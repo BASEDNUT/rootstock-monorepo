@@ -1,0 +1,44 @@
+import { Address, parseUnits } from 'viem'
+import { bn } from '@repo/lib/shared/utils/numbers'
+import { Pool } from '../../pool.types'
+import { useTokenApprovalSteps } from '@repo/lib/modules/tokens/approvals/useTokenApprovalSteps'
+import { RawAmount } from '@repo/lib/modules/tokens/approvals/approval-rules'
+import { BPT_DECIMALS } from '../../pool.constants'
+import { useMemo } from 'react'
+import { useStakeStep } from './useStakeStep'
+import { getUserWalletBalance } from '../../user-balance.helpers'
+import { useShouldBatchTransactions } from '@repo/lib/modules/transactions/transaction-steps/tx-batch.hooks'
+
+export function useStakeSteps(pool: Pool, stakeAmount = getUserWalletBalance(pool)) {
+  const rawAmount = parseUnits(bn(stakeAmount || '0').toFixed(), BPT_DECIMALS)
+
+  const amountToApprove: RawAmount = {
+    rawAmount,
+    address: pool.address as Address,
+  }
+
+  const { isLoading: isLoadingTokenApprovalSteps, steps: tokenApprovalSteps } =
+    useTokenApprovalSteps({
+      spenderAddress: pool.staking?.address as Address,
+      chain: pool.chain,
+      approvalAmounts: [amountToApprove],
+      actionType: 'Staking',
+      bptSymbol: 'LP token',
+    })
+
+  const shouldBatchTransactions = useShouldBatchTransactions()
+
+  // Approvals are executed inside the same atomic batch as the deposit, so they
+  // are hidden from the step list when batching (mirrors remove-liquidity).
+  const stakingStep = useStakeStep(pool, rawAmount, tokenApprovalSteps)
+
+  const steps = useMemo(
+    () => (shouldBatchTransactions ? [stakingStep] : [...tokenApprovalSteps, stakingStep]),
+    [shouldBatchTransactions, tokenApprovalSteps, stakingStep]
+  )
+
+  return {
+    isLoadingSteps: isLoadingTokenApprovalSteps,
+    steps,
+  }
+}

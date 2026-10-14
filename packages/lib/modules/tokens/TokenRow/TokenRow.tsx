@@ -1,0 +1,399 @@
+'use client'
+import {
+  Box,
+  Button,
+  HStack,
+  Heading,
+  Skeleton,
+  Text,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  VStack,
+  Flex,
+  Link,
+  Badge,
+} from '@chakra-ui/react'
+import { Address } from 'viem'
+import { useTokens } from '../TokensProvider'
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { ReactNode } from 'react'
+import { TokenIcon } from '../TokenIcon'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+import { Numberish, bn, fNum, formatFalsyValueAsDash } from '@repo/lib/shared/utils/numbers'
+import { Pool } from '../../pool/pool.types'
+import { TokenInfoPopover } from '../TokenInfoPopover'
+import { ChevronDown } from 'lucide-react'
+import { BullseyeIcon } from '@repo/lib/shared/components/icons/BullseyeIcon'
+import { isSameAddress } from '@repo/lib/shared/utils/addresses'
+import NextLink from 'next/link'
+import { getNestedPoolPath, getPoolTypeLabel } from '../../pool/pool.utils'
+import { ApiToken, CustomToken, ApiOrCustomToken } from '../token.types'
+import { getFlatUserReferenceTokens } from '../../pool/pool-tokens.utils'
+import { usePoolTokenPriceWarnings } from '../../pool/usePoolTokenPriceWarnings'
+import { TokenMissingPriceWarning } from '../TokenMissingPriceWarning'
+import { getTokenColor } from '@repo/lib/styles/token-colors'
+
+export type TokenInfoProps = {
+  address: Address
+  symbol?: string
+  chain: GqlChain
+  token?: ApiOrCustomToken
+  poolToken?: ApiToken
+  pool?: Pool
+  disabled?: boolean
+  showSelect?: boolean
+  showInfoPopover?: boolean
+  isBpt?: boolean
+  isNestedBpt?: boolean
+  isNestedToken?: boolean
+  iconSize?: number
+  logoURI?: string
+  isVirtual?: boolean
+}
+
+function TokenInfo({
+  address,
+  chain,
+  token,
+  poolToken,
+  symbol,
+  pool,
+  disabled,
+  showSelect = false,
+  showInfoPopover = true,
+  isBpt = false,
+  isNestedToken = false,
+  iconSize = 40,
+  logoURI,
+  isVirtual,
+}: TokenInfoProps) {
+  const tokenSymbol = isBpt ? '‘LP’ pool token' : poolToken?.symbol || token?.symbol || symbol
+  const tokenName = isBpt ? pool?.symbol : poolToken?.name || token?.name
+
+  const headingProps = {
+    as: 'h6' as const,
+    fontSize: isNestedToken ? 'sm' : 'md',
+    fontWeight: 'bold',
+    lineHeight: isNestedToken ? '18px' : '24px',
+    variant: disabled ? 'secondary' : 'primary',
+  }
+
+  const tokenNameProps = {
+    fontSize: isNestedToken ? 'xs' : 'sm',
+    fontWeight: 'medium',
+    lineHeight: isNestedToken ? '12px' : '18px',
+    variant: 'secondary',
+  }
+
+  const tokenColor = getTokenColor(chain, address as Address).from
+
+  return (
+    <HStack spacing={{ base: 'sm', md: 'ms' }}>
+      {!isBpt && (
+        <TokenIcon
+          address={address}
+          alt={token?.symbol || address}
+          border={isVirtual ? `1px dashed ${tokenColor}` : undefined}
+          chain={chain}
+          logoURI={poolToken?.logoURI || token?.logoURI || logoURI}
+          overflow="visible"
+          size={iconSize}
+        />
+      )}
+      <VStack alignItems="flex-start" spacing="none">
+        <HStack spacing="none">
+          {isBpt && pool ? (
+            <Link as={NextLink} href={getNestedPoolPath({ pool, nestedPoolAddress: address })}>
+              <Heading {...headingProps}>{tokenSymbol}</Heading>
+            </Link>
+          ) : (
+            <Heading {...headingProps}>{tokenSymbol}</Heading>
+          )}
+          {isVirtual && (
+            <Badge colorScheme="yellow" ml="1">
+              Virtual
+            </Badge>
+          )}
+          {showInfoPopover && (
+            <TokenInfoPopover chain={chain} isBpt={isBpt} tokenAddress={address} />
+          )}
+        </HStack>
+        <Text {...tokenNameProps}>{tokenName}</Text>
+      </VStack>
+      {showSelect && (
+        <Box ml="sm">
+          <ChevronDown size={16} />
+        </Box>
+      )}
+    </HStack>
+  )
+}
+
+export type TokenRowProps = {
+  label?: string | ReactNode
+  address?: Address
+  symbol?: string
+  chain: GqlChain
+  value: Numberish
+  actualWeight?: string
+  targetWeight?: string
+  usdValue?: string
+  disabled?: boolean
+  isLoading?: boolean
+  abbreviated?: boolean
+  isBpt?: boolean
+  isNestedBpt?: boolean
+  isNestedToken?: boolean
+  pool?: Pool
+  showZeroAmountAsDash?: boolean
+  toggleTokenSelect?: () => void
+  iconSize?: number
+  logoURI?: string
+  customToken?: CustomToken
+  customUsdPrice?: number
+  isVirtual?: boolean
+  showInfoPopover?: boolean
+}
+
+export default function TokenRow({
+  label,
+  address,
+  symbol,
+  value,
+  actualWeight,
+  targetWeight,
+  chain,
+  disabled,
+  isLoading,
+  isBpt,
+  isNestedBpt,
+  isNestedToken,
+  pool,
+  abbreviated = true,
+  showZeroAmountAsDash = true,
+  toggleTokenSelect,
+  iconSize,
+  logoURI,
+  customToken,
+  customUsdPrice,
+  isVirtual,
+  showInfoPopover = true,
+}: TokenRowProps) {
+  const { getToken, usdValueForToken, usdValueForTokenAddress } = useTokens()
+  const { toCurrency } = useCurrency()
+
+  const { isAnyTokenWithoutPrice, tokenPriceTip, tokensWithoutPrice, tokenWeightTip } =
+    usePoolTokenPriceWarnings(pool)
+
+  const token = customToken || (address ? getToken(address, chain) : undefined)
+  const userReferenceTokens = pool ? getFlatUserReferenceTokens(pool) : []
+
+  const poolToken = address
+    ? userReferenceTokens.find(t => isSameAddress(t.address, address))
+    : undefined
+
+  const priceCheckAddress = token?.address ?? poolToken?.address ?? address
+
+  const isTokenPriceMissing =
+    !!priceCheckAddress &&
+    Object.keys(tokensWithoutPrice ?? {}).some(a => isSameAddress(a as Address, priceCheckAddress))
+
+  // TokenRowTemplate default props
+  let usdValue: string | undefined
+
+  if (!value) {
+    usdValue = undefined
+  } else if (customUsdPrice) {
+    usdValue = bn(customUsdPrice).times(value).toString()
+  } else if ((isBpt || isNestedBpt) && pool && address) {
+    usdValue = usdValueForTokenAddress(address, chain, value)
+  } else if (token) {
+    usdValue = usdValueForToken(token, value)
+  } else if (poolToken) {
+    usdValue = usdValueForToken(poolToken, value)
+  } else {
+    usdValue = undefined
+  }
+
+  const headingProps = {
+    as: 'h6' as const,
+    fontSize: isNestedToken ? 'sm' : 'md',
+    fontWeight: isNestedToken ? 'medium' : 'bold',
+    lineHeight: isNestedToken ? '18px' : '24px',
+  }
+
+  const subTextProps = {
+    fontSize: isNestedToken ? 'xs' : 'sm',
+    fontWeight: 'medium',
+    lineHeight: isNestedToken ? '12px' : '18px',
+    variant: 'secondary',
+  }
+
+  const tokenInfo = (() => {
+    if (!address) {
+      return (
+        <HStack spacing={{ base: 'sm', md: 'ms' }}>
+          <Skeleton borderRadius="full" boxSize="40px" flexShrink={0} />
+          <VStack alignItems="flex-start" spacing="1">
+            <Skeleton h="4" w="16" />
+            <Skeleton h="3" w="12" />
+          </VStack>
+        </HStack>
+      )
+    }
+
+    const props: TokenInfoProps = {
+      address,
+      chain,
+      token,
+      poolToken,
+      pool,
+      disabled,
+      iconSize,
+      isNestedToken,
+      symbol,
+      logoURI,
+    }
+
+    if (toggleTokenSelect) {
+      return (
+        <Button cursor="pointer" onClick={toggleTokenSelect} p="2" size="xl" variant="tertiary">
+          <TokenInfo {...props} showInfoPopover={false} showSelect />
+        </Button>
+      )
+    }
+
+    return (
+      <TokenInfo
+        {...props}
+        isBpt={isBpt || isNestedBpt}
+        isVirtual={isVirtual}
+        showInfoPopover={showInfoPopover}
+      />
+    )
+  })()
+
+  return (
+    <VStack align="start" spacing="md" w="full">
+      {label && typeof label === 'string' ? <Text color="grayText">{label}</Text> : label}
+      <HStack justifyContent="space-between" width="full">
+        {tokenInfo}
+        <HStack align="start" spacing="none">
+          <VStack alignItems="flex-end" spacing="none" textAlign="right">
+            {isLoading ? (
+              <>
+                <Skeleton h="4" w="10" />
+                <Skeleton h="4" w="10" />
+              </>
+            ) : (
+              <>
+                <Heading {...headingProps} title={value.toString()}>
+                  {formatFalsyValueAsDash(value, val => fNum('token', val), {
+                    showZeroAmountAsDash,
+                  })}
+                </Heading>
+                {isTokenPriceMissing ? (
+                  <TokenMissingPriceWarning message={tokenPriceTip} />
+                ) : (
+                  <Text {...subTextProps}>
+                    {formatFalsyValueAsDash(usdValue, toCurrency, {
+                      abbreviated,
+                      showZeroAmountAsDash,
+                    })}
+                  </Text>
+                )}
+              </>
+            )}
+          </VStack>
+          {actualWeight && (
+            <VStack alignItems="flex-end" spacing="none" w="24">
+              {isLoading ? (
+                <>
+                  <Skeleton h="4" w="10" />
+                  <Skeleton h="4" w="10" />
+                </>
+              ) : (
+                <>
+                  <Heading {...headingProps}>
+                    {isAnyTokenWithoutPrice ? (
+                      <TokenMissingPriceWarning message={tokenWeightTip} />
+                    ) : (
+                      fNum('weight', actualWeight, { abbreviated: false })
+                    )}
+                  </Heading>
+                  <HStack align="center" spacing="xs">
+                    {targetWeight ? (
+                      <>
+                        <Text {...subTextProps}>{fNum('weight', targetWeight)}</Text>
+                        <Popover trigger="hover">
+                          <PopoverTrigger>
+                            <Box
+                              _hover={{ opacity: 1 }}
+                              opacity="0.5"
+                              position="relative"
+                              top="1px"
+                              transition="opacity 0.2s var(--ease-out-cubic)"
+                            >
+                              <BullseyeIcon />
+                            </Box>
+                          </PopoverTrigger>
+                          <PopoverContent maxW="300px" p="sm" w="auto">
+                            <Text fontSize="sm" variant="secondary">
+                              The target weight percentage set for this token in the context of a{' '}
+                              {pool ? getPoolTypeLabel(pool.type) : 'this'} pool.
+                            </Text>
+                          </PopoverContent>
+                        </Popover>
+                      </>
+                    ) : (
+                      <>
+                        <Popover trigger="hover">
+                          <PopoverTrigger>
+                            <HStack cursor="default" data-group>
+                              <Flex alignItems="center" height="24px">
+                                <Text
+                                  _groupHover={{ color: 'font.maxContrast' }}
+                                  fontSize="sm"
+                                  fontWeight="medium"
+                                  position="relative"
+                                  top="1px"
+                                  transition="color 0.2s var(--ease-out-cubic)"
+                                  variant="secondary"
+                                >
+                                  N/A
+                                </Text>
+                              </Flex>
+
+                              <Box
+                                _groupHover={{ color: 'font.highlight' }}
+                                _hover={{ opacity: 1 }}
+                                opacity="0.5"
+                                position="relative"
+                                top="1px"
+                                transition="opacity 0.2s var(--ease-out-cubic)"
+                              >
+                                <BullseyeIcon />
+                              </Box>
+                            </HStack>
+                          </PopoverTrigger>
+                          <PopoverContent p="sm">
+                            <Text fontSize="sm" variant="secondary">
+                              There is no concept of a target weight for tokens within{' '}
+                              {pool ? getPoolTypeLabel(pool.type) : 'this'} pools. Target weights
+                              only apply to tokens within Weighted pools.
+                            </Text>
+                          </PopoverContent>
+                        </Popover>
+                      </>
+                    )}
+                  </HStack>
+                </>
+              )}
+            </VStack>
+          )}
+        </HStack>
+      </HStack>
+    </VStack>
+  )
+}

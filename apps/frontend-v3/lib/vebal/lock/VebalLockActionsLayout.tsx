@@ -1,0 +1,33 @@
+'use client'
+
+import { HStack, Text } from '@chakra-ui/react'
+import { FocussedActionLayout } from '@repo/lib/shared/components/layout/FocussedActionLayout'
+import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
+import { PropsWithChildren } from 'react'
+import { VebalLockProvider } from './VebalLockProvider'
+import { useVeBalRedirectPath } from '../vebal-navigation'
+import { TokenInputsValidationProvider } from '@repo/lib/modules/tokens/TokenInputsValidationProvider'
+
+type Props = PropsWithChildren
+
+export function VebalLockActionsLayout({ children }: Props) {
+  const { redirectPath } = useVeBalRedirectPath()
+
+  return (
+    <FocussedActionLayout
+      chain={GqlChainValues.Mainnet}
+      leftSlot={
+        <HStack px="sm">
+          <Text color="font.light" lineHeight="1">
+            Manage veBAL
+          </Text>
+        </HStack>
+      }
+      redirectPath={redirectPath}
+    >
+      <TokenInputsValidationProvider>
+        <VebalLockProvider>{children}</VebalLockProvider>
+      </TokenInputsValidationProvider>
+    </FocussedActionLayout>
+  )
+}

@@ -1,0 +1,267 @@
+import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import { NoisyCard } from '@repo/lib/shared/components/containers/NoisyCard'
+import { Box, VStack, useTheme } from '@chakra-ui/react'
+import EChartsReactCore from 'echarts-for-react/lib/core'
+import { motion } from 'motion/react'
+import { useRef, useMemo } from 'react'
+import PoolWeightChartLegend from './PoolWeightChartLegend'
+import Image from 'next/image'
+import ReactECharts from 'echarts-for-react'
+import * as echarts from 'echarts/core'
+import { useTokens } from '@repo/lib/modules/tokens/TokensProvider'
+import { fNum } from '@repo/lib/shared/utils/numbers'
+import { PoolToken } from '../../pool.types'
+import { getTokenColor } from '@repo/lib/styles/token-colors'
+import { Address } from 'viem'
+
+interface PoolWeightChartProps {
+  displayTokens: PoolToken[]
+  chain: GqlChain
+  totalLiquidity: string
+  hasLegend?: boolean
+  isSmall?: boolean
+}
+
+export interface ChartSizeValues {
+  chartHeight: string
+  boxWidth: number
+  boxHeight: number
+  haloTop: string
+  haloLeft: string
+  haloWidth: string
+  haloHeight: string
+}
+
+const smallSize: ChartSizeValues = {
+  chartHeight: '140px',
+  boxWidth: 140,
+  boxHeight: 140,
+  haloTop: '40%',
+  haloLeft: '55px',
+  haloWidth: '40px',
+  haloHeight: '40px',
+}
+
+const normalSize: ChartSizeValues = {
+  chartHeight: '250px',
+  boxWidth: 250,
+  boxHeight: 250,
+  haloTop: '49%',
+  haloLeft: '95px',
+  haloWidth: '60px',
+  haloHeight: '60px',
+}
+
+function OuterSymbolCircle({ opacity, isSmall }: { opacity: string; isSmall: boolean }) {
+  const theme = useTheme()
+  const chartOuter = isSmall ? '' : theme.semanticTokens.shadows.chartIconOuter
+  return (
+    <Box
+      alignItems="center"
+      display="flex"
+      filter={chartOuter}
+      height="55%"
+      justifyContent="center"
+      opacity={opacity}
+      overflow="hidden"
+      position="absolute"
+      rounded="full"
+      top="50%"
+      transform="translateY(-50%)"
+      width="55%"
+    >
+      <Box bg="background.level3" filter={chartOuter} height="full" shadow="2xl" width="full" />
+    </Box>
+  )
+}
+
+function InnerSymbolCircle({ opacity }: { opacity: string; isSmall: boolean }) {
+  return (
+    <Box
+      height="45%"
+      opacity={opacity}
+      overflow="hidden"
+      position="absolute"
+      rounded="full"
+      top="50%"
+      transform="translateY(-50%)"
+      width="45%"
+    >
+      <Box
+        alignItems="center"
+        bg="background.level4"
+        display="flex"
+        height="full"
+        justifyContent="center"
+        position="relative"
+        width="full"
+      />
+    </Box>
+  )
+}
+
+export function PoolWeightChart({
+  displayTokens,
+  chain,
+  hasLegend,
+  isSmall,
+  totalLiquidity,
+}: PoolWeightChartProps) {
+  const chartSizeValues = isSmall ? smallSize : normalSize
+  const eChartsRef = useRef<EChartsReactCore | null>(null)
+  const theme = useTheme()
+  const { calcWeightForBalance } = useTokens()
+
+  const chartOption = useMemo(() => {
+    return {
+      ...(chartSizeValues.chartHeight && { height: chartSizeValues.chartHeight }),
+      tooltip: {
+        trigger: 'item',
+        valueFormatter: (value: string) => fNum('weight', value, { abbreviated: false }),
+      },
+      animation: false,
+      legend: {
+        show: false,
+      },
+      grid: {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      },
+      series: [
+        {
+          name: 'Pool composition',
+          type: 'pie',
+          radius: ['70%', '99%'],
+          itemStyle: {
+            borderColor: theme.colors['chartBorder'],
+            borderWidth: 1.5,
+          },
+          label: {
+            show: false,
+            position: 'center',
+          },
+          labelLine: {
+            show: false,
+          },
+          emphasis: {
+            scale: false,
+          },
+          data: displayTokens.map((token, i) => ({
+            value: calcWeightForBalance(token.address, token.balance, totalLiquidity, chain),
+            name: token.symbol,
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                {
+                  offset: 1,
+                  color: getTokenColor(chain, token.address as Address, i).from,
+                },
+                {
+                  offset: 0,
+                  color: getTokenColor(chain, token.address as Address, i).to,
+                },
+              ]),
+            },
+          })),
+        },
+      ],
+    }
+  }, [
+    chartSizeValues,
+    displayTokens,
+    totalLiquidity,
+    chain,
+    calcWeightForBalance,
+    theme.colors.chartBorder,
+  ])
+
+  return (
+    <VStack justifyContent="center">
+      <Box
+        _groupHover={{ transform: 'translateY(0) scale(1.05)' }}
+        height={`${chartSizeValues.boxHeight}`}
+        position="relative"
+        transition="all 0.2s var(--ease-out-cubic)"
+        width={`${chartSizeValues.boxWidth}px`}
+      >
+        <Box height="full" position="absolute" rounded="full" shadow="md" top="0" width="full" />
+        <Box
+          alignItems="center"
+          as={motion.div}
+          bottom="0"
+          display="flex"
+          height={`${chartSizeValues.boxHeight * 0.7}px`}
+          justifyContent="center"
+          left="0"
+          mx="auto"
+          position="absolute"
+          right="0"
+          rounded="full"
+          top="50%"
+          transform="translateY(-50%)"
+          width={`${chartSizeValues.boxWidth * 0.7}px`}
+          zIndex={4}
+        >
+          <NoisyCard
+            cardProps={{
+              rounded: 'full',
+            }}
+            contentProps={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'relative',
+              shadow: 'innerXl',
+              rounded: 'full',
+            }}
+            shadowContainerProps={{ shadow: 'none' }}
+          >
+            <Box
+              _groupHover={{ transform: 'scale(1.15) translateY(-50%)' }}
+              position="absolute"
+              top="50%"
+              transform="translateY(-50%)"
+              transformOrigin="center"
+              transition="all 0.2s ease-out"
+              zIndex={5}
+            >
+              <Image
+                alt={`Chain icon for ${chain.toLowerCase()}`}
+                height={isSmall ? 28 : 36}
+                src={`/images/chains/${chain}.svg`}
+                width={isSmall ? 28 : 36}
+              />
+            </Box>
+
+            {/* Since these triangles utilise clip-path, we cannot use box-shadow, we need to utilise css filters */}
+            {/* Simply applying an opacity to the background color will achieve weird effects, so to match the designs */}
+            {/* We utilise layers of the same component! */}
+            <OuterSymbolCircle isSmall={isSmall || false} opacity="10%" />
+            <OuterSymbolCircle isSmall={isSmall || false} opacity="20%" />
+            <OuterSymbolCircle isSmall={isSmall || false} opacity="20%" />
+            <InnerSymbolCircle isSmall={isSmall || false} opacity="30%" />
+            <InnerSymbolCircle isSmall={isSmall || false} opacity="30%" />
+            <InnerSymbolCircle isSmall={isSmall || false} opacity="30%" />
+          </NoisyCard>
+        </Box>
+        <Box
+          height={`${chartSizeValues.boxHeight}`}
+          position="relative"
+          width={`${chartSizeValues.boxWidth}`}
+        >
+          <ReactECharts
+            onEvents={{}}
+            option={chartOption}
+            ref={eChartsRef}
+            style={{
+              width: `${chartSizeValues.boxWidth}px`,
+              height: `${chartSizeValues.boxHeight}px`,
+            }}
+          />
+        </Box>
+      </Box>
+      {hasLegend && <PoolWeightChartLegend displayTokens={displayTokens} />}
+    </VStack>
+  )
+}

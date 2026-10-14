@@ -1,0 +1,122 @@
+import {
+  Box,
+  Button,
+  ButtonProps,
+  Checkbox,
+  Divider,
+  HStack,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Radio,
+  Tag,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
+import { ReactNode } from 'react'
+import { ChevronDown } from 'lucide-react'
+import useMeasure from 'react-use-measure'
+
+type Props<Value> = {
+  label: string
+  options: Option<Value>[]
+  toggleOption: (checked: boolean, value: Value) => void
+  isChecked: (value: Value) => boolean
+  toggleAll?: () => void
+} & ButtonProps
+
+type Option<Value> = {
+  label: ReactNode
+  value: Value
+  selectedLabel?: ReactNode
+  icon?: ReactNode
+}
+
+export function MultiSelect<Value = string>({
+  label,
+  options,
+  toggleOption,
+  isChecked,
+  toggleAll,
+  ...buttonProps
+}: Props<Value>) {
+  const [ref, { width }] = useMeasure()
+
+  const contentWidth = width > 200 ? `${width}px` : 'auto'
+
+  const selectedOptions = options.filter(option => isChecked(option.value))
+
+  const hasSelectedOptions = selectedOptions.length > 0
+
+  return (
+    <Popover isLazy placement="bottom-start" preventOverflow variant="multiSelect">
+      <PopoverTrigger>
+        <Button h="auto" py="sm" ref={ref} variant="tertiary" w="full" {...buttonProps}>
+          <HStack justify="space-between" w="full">
+            {hasSelectedOptions ? (
+              <HStack overflow="hidden" spacing="6px" w="full">
+                <HStack spacing="xs">
+                  {selectedOptions.map(option =>
+                    option.selectedLabel ? (
+                      <Box key={`selected-option-label-${option.value}`}>
+                        {option.selectedLabel}
+                      </Box>
+                    ) : (
+                      <Tag key={`selected-label-${option.value}`}>{option.label}</Tag>
+                    )
+                  )}
+                </HStack>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  isTruncated
+                  noOfLines={1}
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  whiteSpace="nowrap"
+                >
+                  {selectedOptions.map(option => option.label).join(', ')}
+                </Text>
+              </HStack>
+            ) : (
+              <Box fontWeight="medium">{label}</Box>
+            )}
+            <ChevronDown size={16} />
+          </HStack>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent motionProps={{ animate: { scale: 1, opacity: 1 } }} w={contentWidth}>
+        <PopoverBody>
+          <VStack align="start" spacing="sm" w="full">
+            {!!toggleAll && (
+              <>
+                <Radio isChecked={!hasSelectedOptions} onChange={toggleAll} py="xs">
+                  <Text fontSize="sm" fontWeight="medium">
+                    All networks
+                  </Text>
+                </Radio>
+                <Divider />
+              </>
+            )}
+            <VStack align="start" py="xs" spacing="ms" w="full">
+              {options.map(option => (
+                <Checkbox
+                  fontWeight="medium"
+                  isChecked={isChecked(option.value)}
+                  key={`checkbox-${String(option.value)}`}
+                  onChange={e => toggleOption(e.target.checked, option.value)}
+                >
+                  <HStack>
+                    {option.icon}
+                    <Text fontSize="sm">{option.label}</Text>
+                  </HStack>
+                </Checkbox>
+              ))}
+            </VStack>
+          </VStack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  )
+}

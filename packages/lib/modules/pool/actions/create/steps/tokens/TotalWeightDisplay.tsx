@@ -1,0 +1,36 @@
+import { HStack, Icon, Text } from '@chakra-ui/react'
+import { AlertTriangle } from 'lucide-react'
+import { validatePoolTokens } from '../../validatePoolCreationForm'
+import { usePoolCreationForm } from '../../PoolCreationFormProvider'
+import { useWatch } from 'react-hook-form'
+
+export function TotalWeightDisplay() {
+  const { poolCreationForm } = usePoolCreationForm()
+  const poolTokens = useWatch({ control: poolCreationForm.control, name: 'poolTokens' })
+  const isTotalWeightTooLow = validatePoolTokens.isTotalWeightTooLow(poolTokens)
+  const isTotalWeightTooHigh = validatePoolTokens.isTotalWeightTooHigh(poolTokens)
+  const totalWeight = validatePoolTokens.totalWeight(poolTokens)
+
+  const isInvalidTotalWeight = isTotalWeightTooLow || isTotalWeightTooHigh
+
+  let totalWeightColor = 'font.maxContrast'
+  if (isTotalWeightTooLow) totalWeightColor = 'font.warning'
+  if (isTotalWeightTooHigh) totalWeightColor = 'font.error'
+
+  return (
+    <HStack justify="space-between" w="full">
+      <Text color={totalWeightColor} fontWeight="bold">
+        Total pool weight
+      </Text>
+      <HStack>
+        {isInvalidTotalWeight && (
+          <Icon as={AlertTriangle} boxSize="18px" color={totalWeightColor} />
+        )}
+        <Text color={totalWeightColor} fontWeight="bold">
+          {totalWeight}
+        </Text>
+        <Text color="font.secondary">%</Text>
+      </HStack>
+    </HStack>
+  )
+}

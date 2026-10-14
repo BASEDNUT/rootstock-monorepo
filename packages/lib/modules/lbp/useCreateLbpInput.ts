@@ -1,0 +1,128 @@
+import { useLbpForm } from './LbpFormProvider'
+import { getNetworkConfig } from '@repo/lib/config/app.config'
+import { useLbpWeights } from './useLbpWeights'
+import { useTokenMetadata } from '../tokens/useTokenMetadata'
+import { LBPParams, PoolType } from '@balancer/sdk'
+import { zeroAddress } from 'viem'
+import { Address } from 'viem'
+import { useUserAccount } from '../web3/UserAccountProvider'
+import { DEFAULT_DECIMALS, PERCENTAGE_DECIMALS } from '../pool/actions/create/constants'
+import { UserActions } from '@repo/lib/modules/lbp/lbp.types'
+import { useWatch } from 'react-hook-form'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+
+import { CreatePoolInput } from '@repo/lib/modules/pool/actions/create/types'
+import { dateTimeToUnixTimestampBigInt } from '@repo/lib/shared/utils/time'
+import { parseAmount } from '@repo/lib/shared/utils/numbers'
+
+export function useCreateLbpInput(): CreatePoolInput {
+  const { saleStructureForm, projectInfoForm, isCollateralNativeAsset, isFixedSale, isSeedless } =
+    useLbpForm()
+
+  const [
+    launchTokenAddress,
+    collateralTokenAddress,
+    collateralTokenAmount,
+    startDateTime,
+    endDateTime,
+    selectedChain,
+    userActions,
+    fee,
+    launchTokenRate,
+  ] = useWatch({
+    control: saleStructureForm.control,
+    name: [
+      'launchTokenAddress',
+      'collateralTokenAddress',
+      'collateralTokenAmount',
+      'startDateTime',
+      'endDateTime',
+      'selectedChain',
+      'userActions',
+      'fee',
+      'launchTokenRate',
+    ],
+  })
+
+  const [name, owner, poolCreator] = useWatch({
+    control: projectInfoForm.control,
+    name: ['name', 'owner', 'poolCreator'],
+  })
+
+  const { userAddress } = useUserAccount()
+  const { tokens, chainId } = getNetworkConfig(selectedChain)
+
+  const chain = selectedChain || PROJECT_CONFIG.defaultNetwork
+  let reserveTokenAddress = collateralTokenAddress || ''
+
+  if (isCollateralNativeAsset) {
+    // pool must be created with wrapped native asset
+    reserveTokenAddress = tokens.addresses.wNativeAsset
+  }
+
+  const {
+    projectTokenStartWeight,
+    reserveTokenStartWeight,
+    projectTokenEndWeight,
+    reserveTokenEndWeight,
+  } = useLbpWeights()
+
+  const blockProjectTokenSwapsIn = userActions === UserActions.BUY_ONLY
+
+  const { symbol: launchTokenSymbol } = useTokenMetadata(launchTokenAddress || '', chain)
+
+  const { symbol: reserveTokenSymbol, decimals: reserveTokenDecimals } = useTokenMetadata(
+    reserveTokenAddress,
+    chain
+  )
+
+  const baseLbpProps = {
+    owner: (owner as Address) || userAddress,
+    projectToken: launchTokenAddress as Address,
+    reserveToken: reserveTokenAddress as Address,
+    startTimestamp: dateTimeToUnixTimestampBigInt(startDateTime),
+    endTimestamp: dateTimeToUnixTimestampBigInt(endDateTime),
+  }
+
+  const lbpParams: LBPParams = {
+    ...baseLbpProps,
+    blockProjectTokenSwapsIn,
+    projectTokenStartWeight: parseAmount(`${projectTokenStartWeight}`, PERCENTAGE_DECIMALS),
+    reserveTokenStartWeight: parseAmount(`${reserveTokenStartWeight}`, PERCENTAGE_DECIMALS),
+    projectTokenEndWeight: parseAmount(`${projectTokenEndWeight}`, PERCENTAGE_DECIMALS),
+    reserveTokenEndWeight: parseAmount(`${reserveTokenEndWeight}`, PERCENTAGE_DECIMALS),
+  }
+
+  if (isSeedless) {
+    lbpParams.reserveTokenVirtualBalance = parseAmount(
+      collateralTokenAmount,
+      reserveTokenDecimals || 0
+    )
+  }
+
+  const basePoolProps = {
+    protocolVersion: 3 as const,
+    symbol: `${launchTokenSymbol}-${reserveTokenSymbol}-LBP`,
+    name: `${name} ${isFixedSale ? 'Fixed' : 'Dynamic'} Price Liquidity Bootstrapping Pool`,
+    swapFeePercentage: parseAmount(`${fee}`, PERCENTAGE_DECIMALS),
+    chainId,
+    poolCreator: (poolCreator as Address) || zeroAddress,
+  }
+
+  if (isFixedSale) {
+    return {
+      ...basePoolProps,
+      poolType: PoolType.LiquidityBootstrappingFixedPrice,
+      fixedPriceLbpParams: {
+        ...baseLbpProps,
+        projectTokenRate: parseAmount(`${launchTokenRate}`, DEFAULT_DECIMALS),
+      },
+    }
+  } else {
+    return {
+      ...basePoolProps,
+      poolType: PoolType.LiquidityBootstrapping,
+      lbpParams,
+    }
+  }
+}

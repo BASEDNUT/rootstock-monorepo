@@ -1,0 +1,185 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+'use client'
+
+import { Box, Button, Center, Heading, HStack, Stack, Text, VStack, Link } from '@chakra-ui/react'
+import Noise from '@repo/lib/shared/components/layout/Noise'
+import { motion, useInView } from 'motion/react'
+import { DefaultPageContainer } from '@repo/lib/shared/components/containers/DefaultPageContainer'
+import { ArrowUpRight } from 'lucide-react'
+
+// @ts-ignore
+import { SoilBg } from './shared/SoilBg'
+import { PlayVideoButton } from '@repo/lib/shared/components/btns/PlayVideoButton'
+import { SandBg } from './shared/SandBg'
+import { useRef } from 'react'
+import { WordsPullUp } from '@repo/lib/shared/components/animations/WordsPullUp'
+import { MotionButtonProps, MotionBoxProps } from './types'
+
+const MotionText = motion(Text)
+const MotionHeading = motion(Heading)
+const MotionButton = motion(Button) as React.FC<MotionButtonProps>
+const MotionBox = motion(Box) as React.FC<MotionBoxProps>
+
+export function Hero() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+
+  return (
+    <Noise position="relative">
+      <Box bottom={0} h="100vh" left={0} minH="600px" position="absolute" right={0} top={0}>
+              <SoilBg />
+      </Box>
+
+      <DefaultPageContainer flex="1" h="100vh" minH="600px" noVerticalPadding position="relative">
+        <Center h="full" justifyContent="start" ref={ref}>
+          <VStack alignItems="start" spacing="xl">
+            <MotionText
+              animate={
+                isInView
+                  ? {
+                      opacity: 1,
+                      filter: 'blur(0px)',
+                      willChange: 'opacity, filter',
+                    }
+                  : {}
+              }
+              background="font.special"
+              backgroundClip="text"
+              fontSize="sm"
+              initial={{ opacity: 0, filter: 'blur(3px)' }}
+              transition={{ delay: 0.7, duration: 0.3, delayChildren: 0.5, ease: 'easeInOut' }}
+              variant="eyebrow"
+            >
+              ROOTSTOCK · TESTNET LIVE
+            </MotionText>
+
+            <WordsPullUp
+              as="h1"
+              color="font.primary"
+              delay={0.7}
+              fontSize={{ base: '4xl', md: '6xl' }}
+              fontWeight="bold"
+              letterSpacing="-2px"
+              lineHeight={1}
+              pr="2"
+              text="Custom markets made simple"
+            />
+            <MotionHeading
+              animate={
+                isInView
+                  ? {
+                      opacity: 1,
+                      y: 0,
+                      filter: 'blur(0px)',
+                      willChange: 'transform, opacity, filter',
+                    }
+                  : {}
+              }
+              as="h2"
+              color="font.secondary"
+              fontSize={{ base: 'xl', md: '2xl' }}
+              fontWeight="thin"
+              initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+              maxW="700px"
+              transition={{ duration: 1, delay: 0.9, ease: 'easeInOut' }}
+              w="full"
+            >
+              Swap, provide liquidity, or build markets with flexible onchain infrastructure.
+            </MotionHeading>
+            <MotionText
+              animate={isInView ? { opacity: 1 } : {}}
+              color="font.secondary"
+              fontSize="md"
+              initial={{ opacity: 0 }}
+              maxW="700px"
+              transition={{ duration: 1, delay: 1.1, ease: 'easeInOut' }}
+            >
+              One engine for pools, hooks, and routing — giving users and developers the tools to
+              create and interact with custom liquidity without unnecessary complexity.
+            </MotionText>
+            <Stack alignItems={{ base: 'start', md: 'center' }} direction="row" mt="0" spacing="ms">
+              <MotionButton
+                animate={
+                  isInView
+                    ? {
+                        opacity: 1,
+                        willChange: 'opacity',
+                      }
+                    : {}
+                }
+                as={Link}
+                href="/swap"
+                initial={{ opacity: 0 }}
+                rightIcon={<ArrowUpRight size="14px" />}
+                size="lg"
+                transition={{ duration: 2, delay: 1.2 }}
+                variant="primary"
+              >
+                Launch app
+              </MotionButton>
+
+              <MotionButton
+                animate={
+                  isInView
+                    ? {
+                        opacity: 1,
+                        willChange: 'opacity',
+                      }
+                    : {}
+                }
+                as={Link}
+                href="/create"
+                initial={{ opacity: 0 }}
+                rightIcon={<ArrowUpRight size="14px" />}
+                size="lg"
+                transition={{ duration: 2, delay: 1.2 }}
+                variant="secondary"
+              >
+                Create a pool
+              </MotionButton>
+            </Stack>
+            <HStack alignItems="center" mt="xl" spacing="md">
+              <MotionBox
+                animate={isInView ? { opacity: 1 } : {}}
+                as={Link}
+                h="56px"
+                href="https://youtu.be/vjB2cogaO-c?si=E3q4o82JfPz-Hwkk"
+                initial={{ opacity: 0 }}
+                overflow="hidden"
+                position="relative"
+                rel="noopener"
+                rounded="lg"
+                shadow="md"
+                target="_blank"
+                transition={{ duration: 2, delay: 1.4 }}
+                w="90px"
+              >
+                <SandBg variant={1} />
+
+                <Center h="full" position="relative" w="full">
+                  <PlayVideoButton size={10} />
+                </Center>
+              </MotionBox>
+              <MotionText
+                animate={isInView ? { opacity: 1 } : {}}
+                initial={{ opacity: 0 }}
+                transition={{ duration: 2, delay: 1.4 }}
+              >
+                Learn about ROOTSTOCK
+              </MotionText>
+            </HStack>
+          </VStack>
+        </Center>
+      </DefaultPageContainer>
+      <Box
+        bgGradient="linear(transparent 0%, background.level0 50%, transparent 100%)"
+        bottom="0"
+        h="200px"
+        left="0"
+        mb="-100px"
+        position="absolute"
+        w="full"
+      />
+    </Noise>
+  )
+}

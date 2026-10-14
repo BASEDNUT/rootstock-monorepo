@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "chain": "BASESEP",
+  "chainId": 84532,
+  "generatedAt": "2026-09-26T00:44:08.786Z",
+  "fromBlock": 46984000,
+  "pools": [
+    {
+      "address": "0x1aba4e89fd64e41fe3081fabf6ce33cb613977c7",
+      "factory": "0x277d7dde3c6762c31cfb438c9331376fe8887a7c",
+      "blockNumber": 47265032,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1790298352,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "name": "Rootstock WETH/BAL Pool",
+      "symbol": "rks-WETH-BAL",
+      "tokens": [
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        },
+        {
+          "address": "0x8c6487b86A73554431d514371184916B0B61B876",
+          "symbol": "BAL",
+          "name": "Balancer Governance Token",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "447703478623893394"
+    }
+  ]
+}

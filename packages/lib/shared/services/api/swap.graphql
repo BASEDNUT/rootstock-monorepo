@@ -1,0 +1,82 @@
+query SorGetSwapPaths(
+  $tokenIn: String!
+  $tokenOut: String!
+  $swapType: GqlSorSwapType!
+  $swapAmount: AmountHumanReadable!
+  $chain: GqlChain!
+  $poolIds: [String!]
+) {
+  swaps: sorGetSwapPaths(
+    tokenIn: $tokenIn
+    tokenOut: $tokenOut
+    swapType: $swapType
+    swapAmount: $swapAmount
+    chain: $chain
+    poolIds: $poolIds
+    considerPoolsWithHooks: true
+  ) {
+    effectivePrice
+    effectivePriceReversed
+    swapType
+    paths {
+      inputAmountRaw
+      outputAmountRaw
+      pools
+      isBuffer
+      protocolVersion
+      tokens {
+        address
+        decimals
+      }
+    }
+    priceImpact {
+      priceImpact
+      error
+    }
+    returnAmount
+    routes {
+      hops {
+        poolId
+        tokenIn
+        tokenInAmount
+        tokenOut
+        tokenOutAmount
+      }
+      share
+      tokenInAmount
+      tokenInAmount
+      tokenOut
+      tokenOutAmount
+    }
+    swapAmount
+    swaps {
+      amount
+      assetInIndex
+      assetOutIndex
+      poolId
+      userData
+    }
+    tokenIn
+    tokenInAmount
+    tokenOut
+    tokenOutAmount
+    protocolVersion
+  }
+}
+
+fragment GqlTokenDynamicData on GqlTokenDynamicData {
+  id
+  tokenAddress
+  ath
+  atl
+  marketCap
+  fdv
+  priceChange24h
+  priceChangePercent24h
+  priceChangePercent7d
+  priceChangePercent14d
+  priceChangePercent30d
+  high24h
+  low24h
+  updatedAt
+}
