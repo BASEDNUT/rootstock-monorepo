@@ -83,7 +83,7 @@ export function Hero() {
               transition={{ delay: 0.7, duration: 0.3, delayChildren: 0.5, ease: 'easeInOut' }}
               variant="eyebrow"
             >
-              ROOTSTOCK · TESTNET LIVE
+              ROOTSTOCK · LIVE ON BASE
             </MotionText>
 
             <WordsPullUp
