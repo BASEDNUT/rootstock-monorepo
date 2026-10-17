@@ -11,9 +11,9 @@ describe('Pool list state query', () => {
       wrapper: withNuqsTestingAdapter({ searchParams: '?first=20&skip=0' }),
     })
 
-    // default networks = both Rootstock chains (Base + BaseSepolia)
+    // default networks = Base mainnet only (2026-10-17: Sepolia off default view)
     expect(result.current.joinablePools).toBe(false)
-    expect(result.current.totalFilterCount).toBe(2)
+    expect(result.current.totalFilterCount).toBe(1)
     expect(result.current.pagination.pageSize).toBe(20)
     expect(result.current.pagination.pageIndex).toBe(0)
 
@@ -22,7 +22,7 @@ describe('Pool list state query', () => {
     })
 
     expect(result.current.joinablePools).toBe(true)
-    expect(result.current.totalFilterCount).toBe(3)
+    expect(result.current.totalFilterCount).toBe(2)
     expect(result.current.pagination.pageSize).toBe(100)
     expect(result.current.pagination.pageIndex).toBe(0)
 
@@ -80,12 +80,13 @@ describe('Pool list state query', () => {
     expect(result.current.joinablePools).toBe(false)
   })
 
-  it('returns both-chains default totalFilterCount with no filters', () => {
+  it('returns mainnet-only default totalFilterCount with no filters', () => {
     const { result } = testHook(() => usePoolListQueryState(), {
       wrapper: withNuqsTestingAdapter(),
     })
 
-    // default networks = [Base, BaseSepolia] (both live Rootstock chains)
-    expect(result.current.totalFilterCount).toBe(2)
+    // default networks = [Base] (2026-10-17: mainnet pools are the product;
+    // Base Sepolia stays selectable but is not preselected)
+    expect(result.current.totalFilterCount).toBe(1)
   })
 })
