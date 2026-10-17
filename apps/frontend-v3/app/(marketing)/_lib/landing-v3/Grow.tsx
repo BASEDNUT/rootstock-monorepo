@@ -10,14 +10,14 @@ import { useOnchainPoolDiscovery } from '@repo/lib/modules/pool/useOnchainPoolDi
 const MotionGrid = motion(Grid)
 const MotionGridItem = motion(GridItem)
 
-// Grow section (2026-10-01): live engine facts, high on
+// Grow section: live engine facts, high on
 // the page so new users see traction immediately. Pool count is LIVE from
 // the onchain discovery scan; engine facts are deployment-ledger verified.
 const engineFacts = [
   {
-    stat: '42',
+    stat: '55',
     title: 'Contracts live',
-    subTitle: 'Deployed on Base Sepolia',
+    subTitle: 'Deployed on Base mainnet',
   },
   {
     stat: '8',
@@ -76,7 +76,7 @@ export function Grow() {
       <DefaultPageContainer noVerticalPadding py={['3xl', '10rem']}>
         <VStack alignItems="center" spacing="md" textAlign="center">
           <Text background="font.special" backgroundClip="text" fontSize="sm" variant="eyebrow">
-            Live on testnet
+            Live on Base mainnet
           </Text>
           <Text
             color="font.primary"
@@ -87,8 +87,7 @@ export function Grow() {
             Growing from the root.
           </Text>
           <Text color="font.secondary" fontSize="lg" maxW="2xl">
-            Live on Base Sepolia while it grows. Every number below is real — counted from the chain
-            itself.
+            Rootstock is live on Base. Every number below is real — counted from the chain itself.
           </Text>
         </VStack>
         <MotionGrid

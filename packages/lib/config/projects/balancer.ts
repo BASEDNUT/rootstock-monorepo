@@ -31,10 +31,11 @@ export const ProjectConfigBalancer: ProjectConfig = {
   },
   corePoolId: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
   defaultNetwork: GqlChainValues.Base,
-  // 2026-10-03: BOTH Rootstock networks are live (Base mainnet
-  // + Base Sepolia S95) — pools list preselects both, and every supported
-  // network is onchain-only, so no upstream all-chains query ever runs.
-  defaultPoolListNetworks: [GqlChainValues.Base, GqlChainValues.BaseSepolia],
+  // 2026-10-17: pools list defaults to Base MAINNET (our 8 live RPT pools;
+  // registry baked 2026-10-17). Base Sepolia stays selectable for dev but is
+  // no longer preselected (testnet pools are not the product). Every
+  // supported network is onchain-only, so no upstream all-chains query runs.
+  defaultPoolListNetworks: [GqlChainValues.Base],
   ensNetwork: GqlChainValues.Base,
   // FIX-2 (F-03b): delegateOwner 0xba1ba1… is upstream's fixed-fee
   // display marker — KEEP (do not zero): our pools' swapFeeManager = 0x0 ≠

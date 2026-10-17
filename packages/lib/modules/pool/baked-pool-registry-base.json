@@ -2,7 +2,244 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-13T20:09:44.637Z",
+  "generatedAt": "2026-10-17T03:52:58.111Z",
   "fromBlock": 52131550,
-  "pools": []
+  "pools": [
+    {
+      "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707742,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792204831,
+      "swapFee": "0.003",
+      "name": "Inference Twin Graft",
+      "symbol": "gtINF",
+      "tokens": [
+        {
+          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
+          "symbol": "VVV",
+          "name": "Venice Token",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xF4d97F2da56e8c3098f3a8D538DB630A2606a024",
+          "symbol": "DIEM",
+          "name": "Diem",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "1793555416953319"
+    },
+    {
+      "address": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707742,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792204831,
+      "swapFee": "0.003",
+      "name": "Agent Twin Graft",
+      "symbol": "gtAGT",
+      "tokens": [
+        {
+          "address": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+          "symbol": "VIRTUAL",
+          "name": "Virtual Protocol",
+          "decimals": 18
+        },
+        {
+          "address": "0x7431aDa8a591C955a994a21710752EF9b882b8e3",
+          "symbol": "MOR",
+          "name": "MOR",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "93343407688403415"
+    },
+    {
+      "address": "0x98443d8704112d166c89d800e4264318db38e05a",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707792,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792204931,
+      "swapFee": "0.003",
+      "name": "Ether Twin Graft",
+      "symbol": "gtETH",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "symbol": "wstETH",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "185966298626682"
+    },
+    {
+      "address": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707792,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792204931,
+      "swapFee": "0.003",
+      "name": "Bitcoin Twin Graft",
+      "symbol": "gtBTC",
+      "tokens": [
+        {
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "symbol": "tBTC",
+          "name": "Base tBTC v2",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "13494103140943"
+    },
+    {
+      "address": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707813,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792204973,
+      "swapFee": "0.003",
+      "name": "FX Twin Graft",
+      "symbol": "gtFX",
+      "tokens": [
+        {
+          "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+          "symbol": "EURC",
+          "name": "EURC",
+          "decimals": 6
+        },
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "105127125624769554"
+    },
+    {
+      "address": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 52707813,
+      "type": "RECLAMM",
+      "blockTimestamp": 1792204973,
+      "swapFee": "0.003",
+      "name": "NUT/SALT reCLAMM",
+      "symbol": "nutSALT-rCLP",
+      "tokens": [
+        {
+          "address": "0x1EDe2AFC985F6D7aEb3F4c84B95A103c00D5dE81",
+          "symbol": "SALT",
+          "name": "SALT",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "641291499607955645076"
+    },
+    {
+      "address": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 52707828,
+      "type": "RECLAMM",
+      "blockTimestamp": 1792205003,
+      "swapFee": "0.01",
+      "name": "PIPS/USDC reCLAMM",
+      "symbol": "pipsUSDC-rCLP",
+      "tokens": [
+        {
+          "address": "0x3F2327221Dd4f0BAE660172606D6b288A1cf8aD9",
+          "symbol": "PIPS",
+          "name": "Pipshell by Virtuals",
+          "decimals": 18
+        },
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6
+        }
+      ],
+      "totalSupply": "251450761831912198249218056"
+    },
+    {
+      "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707828,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792205003,
+      "swapFee": "0.003",
+      "name": "Silicon Twin Graft",
+      "symbol": "gtSIL",
+      "tokens": [
+        {
+          "address": "0xb20000000000000000000078ee7ce2fE4908108C",
+          "symbol": "NVDAc",
+          "name": "NVIDIA Corporation",
+          "decimals": 8
+        },
+        {
+          "address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
+          "symbol": "AAPLc",
+          "name": "Apple Inc.",
+          "decimals": 8
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "1253412168013012"
+    }
+  ]
 }
