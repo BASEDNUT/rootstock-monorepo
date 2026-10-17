@@ -11,7 +11,12 @@ test('Rootstock: pool detail page renders', async ({ page }) => {
   // VVV + DIEM together uniquely identify the gtINF mainnet row — the
   // default pools view is Base mainnet (8 live RPT pools, registry baked
   // 2026-10-17); Base Sepolia stays selectable but is not preselected.
-  const row = page.getByRole('group').filter({ hasText: 'VVV' }).filter({ hasText: 'DIEM' })
+  // Scope to the table row LINK — the 'Discovered onchain' preview bands
+  // also render token pills, so a bare role=group filter over-matches.
+  const row = page
+    .locator('a[href*="/pools/base/v3/"]')
+    .filter({ hasText: 'VVV' })
+    .filter({ hasText: 'DIEM' })
   await row.click()
 
   await expect(page).toHaveURL(/\/pools\/base\/v3\//)

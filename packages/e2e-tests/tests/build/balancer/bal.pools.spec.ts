@@ -14,6 +14,11 @@ test('Rootstock: pools page renders with the baked-registry pool', async ({ page
   // Pool-name display mode is off by default: rows render TOKEN PILLS, so
   // VVV + DIEM together identify the gtINF mainnet row (no other pool has
   // both; wNUT appears in every graft so it is not selective alone).
-  const row = page.getByRole('group').filter({ hasText: 'VVV' }).filter({ hasText: 'DIEM' })
+  // Scope to the table row LINK — the 'Discovered onchain' preview bands
+  // also render token pills, so a bare role=group filter over-matches.
+  const row = page
+    .locator('a[href*="/pools/base/v3/"]')
+    .filter({ hasText: 'VVV' })
+    .filter({ hasText: 'DIEM' })
   await expect(row).toBeVisible()
 })
