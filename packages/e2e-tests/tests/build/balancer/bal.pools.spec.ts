@@ -11,8 +11,9 @@ test('Rootstock: pools page renders with the baked-registry pool', async ({ page
   await expect(page.getByRole('heading', { name: 'Liquidity pools' })).toBeVisible()
 
   // Baked pool rows are served without any network dependency.
-  // Default mainnet view carries the graft pools — gtINF (v3 Weighted,
-  // VVV/wNUT/DIEM) uniquely identifies a mainnet RPT row.
-  const row = page.getByRole('group').filter({ hasText: 'gtINF' })
+  // Pool-name display mode is off by default: rows render TOKEN PILLS, so
+  // VVV + DIEM together identify the gtINF mainnet row (no other pool has
+  // both; wNUT appears in every graft so it is not selective alone).
+  const row = page.getByRole('group').filter({ hasText: 'VVV' }).filter({ hasText: 'DIEM' })
   await expect(row).toBeVisible()
 })
