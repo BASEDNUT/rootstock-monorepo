@@ -23,7 +23,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { PoolListSearch } from './PoolListSearch'
-import { PROTOCOL_VERSION_TABS } from './usePoolListQueryState'
 import {
   PoolFilterType,
   poolHookTagFilters,
@@ -43,11 +42,7 @@ import { getChainShortName } from '@repo/lib/config/app.config'
 import { usePoolList } from './PoolListProvider'
 import { MultiSelect } from '@repo/lib/shared/components/inputs/MultiSelect'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
-import { GqlPoolTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
 import Image from 'next/image'
-import ButtonGroup, {
-  ButtonGroupOption,
-} from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
 import { useCow } from '../../cow/useCow'
 import { isBeets, PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 import { poolTypeLabel } from '../pool.helpers'
@@ -300,7 +295,6 @@ export function FilterTags({
   joinablePools,
   toggleJoinablePools,
   protocolVersion,
-  setProtocolVersion,
 }: FilterTagsPops) {
   const { toCurrency } = useCurrency()
 
@@ -321,14 +315,6 @@ export function FilterTags({
   return (
     <HStack spacing="sm" wrap="wrap">
       <AnimatePresence>
-        {protocolVersion && setProtocolVersion && (
-          <AnimatedTag
-            key="protocolVersion"
-            label={protocolVersion === 1 ? 'CoW' : `v${protocolVersion}`}
-            onClose={() => setProtocolVersion(null)}
-          />
-        )}
-
         {poolTypes.map(poolType => (
           <AnimatedTag
             key={poolType}
@@ -434,53 +420,6 @@ export const FilterButton = forwardRef<ButtonProps & { totalFilterCount: number 
   }
 )
 
-export interface ProtocolVersionFilterProps {
-  setProtocolVersion: (version: number | null) => any
-  protocolVersion: number | null
-  poolTypes: PoolFilterType[]
-  hideProtocolVersion?: string[]
-}
-
-export function ProtocolVersionFilter({
-  setProtocolVersion,
-  protocolVersion,
-  poolTypes,
-  hideProtocolVersion,
-}: ProtocolVersionFilterProps) {
-  const tabs = PROTOCOL_VERSION_TABS
-
-  const activeProtocolVersionTab =
-    protocolVersion === 3
-      ? PROTOCOL_VERSION_TABS[2]
-      : protocolVersion === 2
-        ? PROTOCOL_VERSION_TABS[1]
-        : poolTypes.includes(GqlPoolTypeValues.CowAmm) || protocolVersion === 1
-          ? PROTOCOL_VERSION_TABS[3]
-          : PROTOCOL_VERSION_TABS[0]
-
-  function toggleTab(option: ButtonGroupOption) {
-    if (option.value === 'v3') {
-      setProtocolVersion(3)
-    } else if (option.value === 'v2') {
-      setProtocolVersion(2)
-    } else if (option.value === 'cow') {
-      setProtocolVersion(1)
-    } else {
-      setProtocolVersion(null)
-    }
-  }
-
-  return (
-    <ButtonGroup
-      currentOption={activeProtocolVersionTab}
-      groupId="protocol-version"
-      onChange={toggleTab}
-      options={tabs.filter(tab => !(hideProtocolVersion ?? []).includes(tab.value))}
-      size="xxs"
-    />
-  )
-}
-
 export function PoolListFilters() {
   const { isConnected } = useUserAccount()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
@@ -495,8 +434,6 @@ export function PoolListFilters() {
       setNetworks,
       togglePoolType,
       poolTypes,
-      setProtocolVersion,
-      protocolVersion,
     },
   } = usePoolList()
 
@@ -582,19 +519,6 @@ export function PoolListFilters() {
                             setNetworks={setNetworks}
                             toggledNetworks={toggledNetworks}
                             toggleNetwork={toggleNetwork}
-                          />
-                        </Box>
-                      )}
-                      {!isCowPath && (
-                        <Box as={motion.div} variants={staggeredFadeInUp}>
-                          <Heading as="h3" mb="sm" size="sm">
-                            Protocol version
-                          </Heading>
-                          <ProtocolVersionFilter
-                            hideProtocolVersion={PROJECT_CONFIG.options.hideProtocolVersion}
-                            poolTypes={poolTypes}
-                            protocolVersion={protocolVersion}
-                            setProtocolVersion={setProtocolVersion}
                           />
                         </Box>
                       )}

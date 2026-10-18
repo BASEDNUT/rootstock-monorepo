@@ -114,7 +114,7 @@ export function useFormattedPoolAttributes() {
       },
       {
         title: 'Protocol version',
-        value: isCowAmmPool(pool.type) ? 'ROOTSTOCK CoW AMM' : `ROOTSTOCK v${pool.protocolVersion}`,
+        value: 'ROOTSTOCK',
       },
       {
         title: 'Network',

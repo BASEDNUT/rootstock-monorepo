@@ -42,14 +42,6 @@ export const PROTOCOL_VERSION_TABS: ButtonGroupOption[] = [
     label: 'All',
   },
   {
-    value: 'v2',
-    label: 'v2',
-  },
-  {
-    value: 'v3',
-    label: 'v3',
-  },
-  {
     value: 'cow',
     label: 'CoW',
   },

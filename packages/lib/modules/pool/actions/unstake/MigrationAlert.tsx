@@ -15,14 +15,14 @@ export function MigrationAlert({ pool }: Props) {
   const migrate = () => navTo(router, `${getPoolPath(pool)}/migrate-pool`)
 
   const description = `
-  Migrate your liquidity from this ROOTSTOCK v2 pool to the recommended similar
-  pool on ROOTSTOCK v3.`
+  Migrate your liquidity from this ROOTSTOCK pool to the recommended similar
+  pool.`
 
   return (
     <BalAlert
       content={
         <BalAlertContent description={description} wrapText>
-          <BalAlertButton onClick={migrate}>Migrate to v3</BalAlertButton>
+          <BalAlertButton onClick={migrate}>Migrate</BalAlertButton>
         </BalAlertContent>
       }
       status="info"

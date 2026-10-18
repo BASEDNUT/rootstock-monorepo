@@ -49,7 +49,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
   promoItems: [
     {
       id: 1,
-      icon: 'v3',
+      icon: 'nut',
       label: 'Pools',
       title: 'Weighted pools',
       description: 'Custom weights for any token pair — the flexible default for custom markets.',

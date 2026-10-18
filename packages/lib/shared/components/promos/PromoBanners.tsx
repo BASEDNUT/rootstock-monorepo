@@ -16,7 +16,6 @@ import NextLink from 'next/link'
 import { Picture } from '../other/Picture'
 import { PromoHookIcon } from '../icons/promos/PromoHookIcon'
 import { PromoMonadIcon } from '../icons/promos/PromoMonadIcon'
-import { PromoVThreeIcon } from '../icons/promos/PromoVThreeIcon'
 import { PromoBoostedIcon } from '../icons/promos/PromoBoostedIcon'
 import { PromoAutoRangeIcon } from '../icons/promos/PromoAutoRangeIcon'
 import { PromoItem } from '@repo/lib/config/config.types'
@@ -27,8 +26,8 @@ function getIconElement(icon: string) {
   switch (icon) {
     case 'boosted':
       return <PromoBoostedIcon size={44} />
-    case 'v3':
-      return <PromoVThreeIcon size={44} />
+    case 'nut':
+      return <img alt="Rootstock" height={44} src="/images/icons/nut.svg" width={44} />
     case 'monad':
       return <PromoMonadIcon size={44} />
     case 'hook':

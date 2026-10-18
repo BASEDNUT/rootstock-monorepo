@@ -31,7 +31,7 @@ export function ChooseProtocol({ control }: { control: Control<PoolCreationForm>
       </Text>
       <SimpleGrid columns={2} spacing="md" w="full">
         {BALANCER_PROTOCOL_OPTIONS.map(({ name, imageSrc }) => {
-          const displayName = name === BALANCER_PROTOCOL_ID ? 'ROOTSTOCK v3' : name
+          const displayName = name === BALANCER_PROTOCOL_ID ? 'ROOTSTOCK' : name
 
           const cardProps = {
             cursor: 'pointer',

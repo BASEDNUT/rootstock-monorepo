@@ -27,11 +27,7 @@ export type PoolMetadata = {
   pool?: Pool
 }
 
-export async function generatePoolMetadata({
-  id,
-  chain,
-  variant,
-}: PoolLayoutProps): Promise<PoolMetadata> {
+export async function generatePoolMetadata({ id, chain }: PoolLayoutProps): Promise<PoolMetadata> {
   // Rootstock (F7, 2026-09-23): onchain-only chains (BASESEP) bypass
   // the remote API for metadata too — the API does not know our pools, and
   // prerender-time metadata calls (~90 pages/build) triggered Cloudflare 429
@@ -67,8 +63,8 @@ export async function generatePoolMetadata({
 
   return {
     metadata: {
-      title: `Liquidity Pool (${variant}): ${pool.name}`,
-      description: `${poolSymbol} is a ROOTSTOCK ${variant} ${getPoolTypeLabel(
+      title: `Liquidity Pool: ${pool.name}`,
+      description: `${poolSymbol} is a ROOTSTOCK ${getPoolTypeLabel(
         pool.type
       )} liquidity pool which contains ${poolTokenString}.`,
     },
