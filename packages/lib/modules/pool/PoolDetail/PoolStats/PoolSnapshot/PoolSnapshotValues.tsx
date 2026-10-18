@@ -9,7 +9,6 @@ import { isCowAmmPool } from '../../../pool.helpers'
 import { useGetPoolRewards } from '../../../useGetPoolRewards'
 import FadeInOnView from '@repo/lib/shared/components/containers/FadeInOnView'
 import { LabelWithTooltip } from '@repo/lib/shared/components/tooltips/LabelWithTooltip'
-import { isBalancer } from '@repo/lib/config/getProjectConfig'
 import { PoolTotalLiquidityDisplay } from '../../PoolTotalLiquidityDisplay'
 import { poolMetricDisplay } from '@repo/lib/modules/pool/pool-metrics'
 
@@ -72,7 +71,7 @@ export function PoolSnapshotValues() {
         <VStack align="flex-start" spacing="xxs" w="full">
           <LabelWithTooltip
             label="Swap vol (24h)"
-            tooltip={`The swap volume routing through this pool over the last 24 hours from this UI and aggregator partners${isBalancer ? ' (like CowSwap)' : ''}. Unlike the daily chart, which tracks volume since the last UTC midnight, this number always reflects a full 24 hour period.`}
+            tooltip={`The swap volume routing through this pool over the last 24 hours from this UI and aggregator partners. Unlike the daily chart, which tracks volume since the last UTC midnight, this number always reflects a full 24 hour period.`}
           />
           {poolStatsValues ? (
             <Heading size="h4">{poolStatsValues.volume24h}</Heading>
@@ -85,7 +84,7 @@ export function PoolSnapshotValues() {
         <VStack align="flex-start" spacing="xxs" w="full">
           <LabelWithTooltip
             label="APR for LPs"
-            tooltip={`The APR for Liquidity Providers (LPs) based on the last 24h performance of the pool. It includes yield from various sources, including swap fees, staking incentives${isBalancer ? ', yield-bearing tokens and Merkl incentives.' : ' and yield-bearing tokens.'}`}
+            tooltip={`The APR for Liquidity Providers (LPs) based on the last 24h performance of the pool. It includes yield from various sources, including swap fees, staking incentives and yield-bearing tokens.`}
           />
           <MemoizedMainAprTooltip
             aprItems={pool.dynamicData.aprItems}
@@ -105,7 +104,7 @@ export function PoolSnapshotValues() {
         <VStack align="flex-start" spacing="xxs" w="full">
           <LabelWithTooltip
             label={incomeLabel}
-            tooltip={`The swap fees from trades routed through this pool over the last 24 hours from this UI and aggregator partners${isBalancer ? ' (like CowSwap)' : ''}. Unlike the daily fee chart, which tracks swap fees since the last UTC midnight, this number always reflects a full 24 hour period.`}
+            tooltip={`The swap fees from trades routed through this pool over the last 24 hours from this UI and aggregator partners. Unlike the daily fee chart, which tracks swap fees since the last UTC midnight, this number always reflects a full 24 hour period.`}
           />
 
           {poolStatsValues ? (
@@ -119,7 +118,7 @@ export function PoolSnapshotValues() {
         <VStack align="flex-start" spacing="xxs" w="full">
           <LabelWithTooltip
             label="Weekly incentives"
-            tooltip={`The weekly liquidity mining incentives for this pool. It includes incentives from ${isBalancer ? 'the Balancer Protocol (as determined by veBAL voting)' : 'Beets'} and from unaffiliated third parties. Users must stake to get these.`}
+            tooltip={`The weekly liquidity mining incentives for this pool. It includes incentives from the ROOTSTOCK protocol and from unaffiliated third parties. Users must stake to get these.`}
           />
           {poolStatsValues ? (
             <HStack>

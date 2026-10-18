@@ -165,7 +165,7 @@ export function PoolSettings() {
           name="poolCreator"
           options={poolRoleAccountOptions}
           title="Pool creator"
-          tooltip="The address empowered to set a pool creator fee. Choose the Balancer DAO option to give all fees to the protocol and LPs."
+          tooltip="The address empowered to set a pool creator fee. Choose the ROOTSTOCK protocol option to give all fees to the protocol and LPs."
           validate={validatePoolSettings.poolRoleAccount}
         />
       )}

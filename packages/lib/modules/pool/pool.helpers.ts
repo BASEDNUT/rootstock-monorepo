@@ -413,7 +413,7 @@ export function getPoolAddBlockedReason(pool: Pool, metadata?: PoolMetadata): st
   if (pool.hook?.reviewData?.summary === 'unsafe') reasons.push('Unsafe hook')
 
   if (isChainDeprecated(pool.chain)) {
-    reasons.push(`${getChainName(pool.chain)} is being sunset on Balancer`)
+    reasons.push(`${getChainName(pool.chain)} is being sunset on ROOTSTOCK`)
   }
 
   const poolTokens = pool.poolTokens as GqlPoolTokenDetail[]

@@ -2,7 +2,7 @@ import { usePoolCreationForm } from '../../PoolCreationFormProvider'
 import { HStack, Text, Checkbox } from '@chakra-ui/react'
 import { InfoIconPopover } from '../../InfoIconPopover'
 import { BalAlert } from '@repo/lib/shared/components/alerts/BalAlert'
-import { isBalancer, PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 
 export function ShareYieldFeesCheckbox({
   tokenIndex,
@@ -38,17 +38,10 @@ export function ShareYieldFeesCheckbox({
         />
       )}
       {!paysYieldFees && !isMarketRateProvider ? (
-        isBalancer ? (
-          <BalAlert
-            content="Pools that don’t share yield fees with Balancer are unlikely to receive approval for a BAL liquidity mining gauge due to misalignment with the Balancer ecosystem."
-            status="warning"
-          />
-        ) : (
-          <BalAlert
-            content={`Pools that don’t share yield fees with ${PROJECT_CONFIG.projectName} are unlikely to receive approval for a ${PROJECT_CONFIG.projectName} liquidity mining gauge due to misalignment with the ${PROJECT_CONFIG.projectName} ecosystem.`}
-            status="warning"
-          />
-        )
+        <BalAlert
+          content={`Pools that don’t share yield fees with ${PROJECT_CONFIG.projectName} are unlikely to receive approval for a ${PROJECT_CONFIG.projectName} liquidity mining gauge due to misalignment with the ${PROJECT_CONFIG.projectName} ecosystem.`}
+          status="warning"
+        />
       ) : null}
     </>
   )

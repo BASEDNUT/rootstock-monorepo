@@ -144,7 +144,7 @@ function StakingIcons({ pool, showIcon }: { pool: ExpandedPoolInfo; showIcon: bo
 
   return (
     showBalIcon && (
-      <TooltipWithTouch label="Balancer">
+      <TooltipWithTouch label="ROOTSTOCK">
         <ProtocolIcon protocol={Protocol.Balancer} />
       </TooltipWithTouch>
     )

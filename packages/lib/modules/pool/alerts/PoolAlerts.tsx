@@ -85,7 +85,7 @@ function V2ExploitContentWarning() {
 
 function DeprecatedChainWarningContent({ chain }: { chain: GqlChain }) {
   const chainName = getChainName(chain)
-  const problem = `The ${chainName} network is being sunset on Balancer.`
+  const problem = `The ${chainName} network is being sunset on ROOTSTOCK.`
 
   const learnMoreLink =
     'https://forum.balancer.fi/t/bip-906-deprecation-of-polygon-zkevm-fraxtal-and-mode/6951'

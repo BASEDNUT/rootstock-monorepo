@@ -108,7 +108,7 @@ function tooltipApprovalLabelFor(actionType: ApprovalAction, symbol: string) {
     case 'Unwrapping':
       return `You must approve ${symbol} to unwrap this token. Approvals are required once per token, per wallet.`
     case 'AddLiquidity':
-      return `You must approve ${symbol} to add liquidity for this token on Balancer.
+      return `You must approve ${symbol} to add liquidity for this token on ROOTSTOCK.
 Approvals are required once per token, per wallet.`
     default:
       return `You must approve ${symbol} to use this token. Approvals are required once per token, per wallet.`

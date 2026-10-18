@@ -285,7 +285,7 @@ function AnimatedAlert({ children }: { children: ReactNode }) {
 function getCardTitle(itemType: string) {
   switch (itemType) {
     case 'protocol':
-      return 'Balancer protocol revenue'
+      return 'ROOTSTOCK protocol revenue'
     default:
       return undefined
   }

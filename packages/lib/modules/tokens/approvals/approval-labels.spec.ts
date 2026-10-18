@@ -17,7 +17,7 @@ test('Token approval labels for add liquidity', () => {
       "error": "Error approving WETH",
       "init": "Approve WETH to add",
       "title": "Approve WETH",
-      "tooltip": "You must approve WETH to add liquidity for this token on Balancer.
+      "tooltip": "You must approve WETH to add liquidity for this token on ROOTSTOCK.
     Approvals are required once per token, per wallet.",
     }
   `)
@@ -74,7 +74,7 @@ test('Token approval labels for permit2', () => {
       "error": "Error approving WETH",
       "init": "WETH: Approve Permit",
       "title": "WETH: Approve Permit",
-      "tooltip": "You must approve WETH to add liquidity for this token on Balancer.
+      "tooltip": "You must approve WETH to add liquidity for this token on ROOTSTOCK.
     Approvals are required once per token, per wallet.",
     }
   `)

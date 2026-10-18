@@ -180,7 +180,7 @@ export default function StakedBalanceDistributionChart({
         <HStack>
           <Box bg="chart.stakedBalance" height="12px" rounded="full" width="12px" />
           <Text color="font.secondary" whiteSpace="nowrap">
-            Staked on Balancer
+            Staked on ROOTSTOCK
           </Text>
         </HStack>
       </VStack>

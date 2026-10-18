@@ -36,8 +36,8 @@ export function MigrateLiquiditySummary() {
         title="You're migrating"
         totalAmount={totalUSDValue}
       />
-      <PoolCard pool={oldPool} title="From Balancer v2" />
-      <PoolCard pool={newPool} title="To Balancer v3" />
+      <PoolCard pool={oldPool} title="From ROOTSTOCK v2" />
+      <PoolCard pool={newPool} title="To ROOTSTOCK v3" />
       <PriceImpactCard />
     </AnimateHeightChange>
   )

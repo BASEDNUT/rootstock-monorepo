@@ -15,8 +15,8 @@ export function MigrationAlert({ pool }: Props) {
   const migrate = () => navTo(router, `${getPoolPath(pool)}/migrate-pool`)
 
   const description = `
-  Migrate your liquidity from this Balancer v2 pool to the recommended similar
-  pool on Balancer v3 for BAL liquidity incentives.`
+  Migrate your liquidity from this ROOTSTOCK v2 pool to the recommended similar
+  pool on ROOTSTOCK v3.`
 
   return (
     <BalAlert

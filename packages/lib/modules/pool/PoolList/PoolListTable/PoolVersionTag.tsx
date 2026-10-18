@@ -75,7 +75,7 @@ export function PoolVersionTag({
   const isCow = isCowAmmPool(pool.type)
 
   return (
-    <TooltipWithTouch label={isCow ? 'CoW AMM' : isV3 ? 'Balancer v3' : 'Balancer v2'}>
+    <TooltipWithTouch label={isCow ? 'CoW AMM' : isV3 ? 'ROOTSTOCK v3' : 'ROOTSTOCK v2'}>
       <BalBadge
         color="font.secondary"
         cursor="default"

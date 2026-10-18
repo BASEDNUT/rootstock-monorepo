@@ -23,7 +23,7 @@ export function UnstakeWarningModal({
 
   const title = 'Before you can migrate, Unstake'
 
-  const content = `Before you can migrate to the recommended pool on Balancer v3, you need to unstake
+  const content = `Before you can migrate to the recommended pool on ROOTSTOCK v3, you need to unstake
     your existing position. Once that is completed return to this pool page to migrate.`
 
   const unstake = () => {

@@ -98,7 +98,7 @@ type BodyProps = {
 function RecoveryModeBody({ isMobile, pool, transactionSteps }: BodyProps) {
   const pausedBy =
     pool.pauseManager === zeroAddress || !pool.pauseManager ? (
-      <Text fontWeight="bold">Balancer Governance</Text>
+      <Text fontWeight="bold">ROOTSTOCK governance</Text>
     ) : (
       <Link href={getBlockExplorerAddressUrl(pool.pauseManager, pool.chain)} isExternal>
         <HStack gap="xss">
@@ -114,11 +114,11 @@ function RecoveryModeBody({ isMobile, pool, transactionSteps }: BodyProps) {
 
       <VStack p="ms">
         <HStack w="full">
-          <Text fontWeight="bold">{`This Balancer v3 pool has been paused by`}</Text>
+          <Text fontWeight="bold">{`This ROOTSTOCK v3 pool has been paused by`}</Text>
           {pausedBy}
         </HStack>
         <Text color="font.secondary">
-          Pool pausing in Balancer is a critical emergency mechanism designed to protect user funds
+          Pool pausing in ROOTSTOCK is a critical emergency mechanism designed to protect user funds
           during security incidents, external protocol issues or vulnerabilities. Pausing a pool is
           typically a temporary first step to assess the situation before unpausing or enabling
           recovery mode.
@@ -128,7 +128,7 @@ function RecoveryModeBody({ isMobile, pool, transactionSteps }: BodyProps) {
           About recovery mode
         </Text>
         <Text color="font.secondary">
-          After a pool is paused, recovery mode can be enabled by anyone in Balancer v3. This
+          After a pool is paused, recovery mode can be enabled by anyone in ROOTSTOCK v3. This
           guarantees user funds cannot be permanently locked by governance. In recovery mode, only
           proportional withdrawals are allowed, enabling simple, safe exits.
         </Text>
