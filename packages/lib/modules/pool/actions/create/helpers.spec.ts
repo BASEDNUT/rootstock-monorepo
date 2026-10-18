@@ -175,12 +175,12 @@ describe('protocol predicates', () => {
   it('detects CoW protocol case-insensitively', () => {
     expect(isCowProtocol('CoW')).toBe(true)
     expect(isCowProtocol('cow')).toBe(true)
-    expect(isCowProtocol('Balancer v3')).toBe(false)
+    expect(isCowProtocol('ROOTSTOCK')).toBe(false)
   })
 
   it('detects Balancer protocol case-insensitively', () => {
-    expect(isBalancerProtocol('Balancer v3')).toBe(true)
-    expect(isBalancerProtocol('balancer v3')).toBe(true)
+    expect(isBalancerProtocol('ROOTSTOCK')).toBe(true)
+    expect(isBalancerProtocol('rootstock')).toBe(true)
     expect(isBalancerProtocol('CoW')).toBe(false)
   })
 })

@@ -6,7 +6,7 @@ export function NutLogoType(props: SVGProps<SVGSVGElement>) {
   const { width, height, ...rest } = props
   return (
     <svg
-      aria-labelledby="logoTitle logoDesc"
+      aria-labelledby="logoTitle"
       className="logo-svg"
       height={height}
       viewBox="0 0 128 21"
@@ -15,7 +15,6 @@ export function NutLogoType(props: SVGProps<SVGSVGElement>) {
       {...rest}
     >
       <title id="logoTitle">ROOTSTOCK</title>
-      <desc id="logoDesc">ROOTSTOCK — liquidity that grows</desc>
       <g transform="translate(0,0.5)">
         <NutLogo width="19" />
       </g>

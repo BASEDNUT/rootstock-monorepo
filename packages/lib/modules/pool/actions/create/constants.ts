@@ -90,7 +90,7 @@ export const POOL_TYPES: Record<SupportedPoolTypes, PoolTypeDetails> = {
   },
 }
 
-export const BALANCER_PROTOCOL_ID = 'Balancer v3'
+export const BALANCER_PROTOCOL_ID = 'ROOTSTOCK'
 export const COW_PROTOCOL_ID = 'CoW'
 
 export const BALANCER_PROTOCOL_OPTIONS = [
