@@ -138,10 +138,11 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     expect(navBar).not.toContain('"/debug"')
   })
 
-  it('navbar CTA is Learn more -> docs; hero keeps Launch app -> /swap (2026-10-01)', () => {
+  it('navbar CTA is Learn more -> docs; hero CTAs are View pools + Swap tokens (2026-10-19)', () => {
     expect(navBar).toContain('https://docs.basednut.com/rootstock')
     expect(navBar).toContain('Learn more')
-    expect(hero).toContain('Launch app')
+    expect(hero).toContain('View pools')
+    expect(hero).toContain('"/pools"')
     expect(hero).toContain('"/swap"')
   })
 
@@ -298,10 +299,12 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
     expect(hero).toContain('zIndex={1}')
     expect(hero).toContain('zIndex={2}')
     expect(existsSync(orbitalArtwork)).toBe(true)
-    // hero copy and CTA structure unchanged
+    // hero copy law (2026-10-19 CTA swap): View pools primary, Swap tokens secondary
     expect(hero).toContain('Custom markets made simple')
-    expect(hero).toContain('Launch app')
-    expect(hero).toContain('Create a pool')
+    expect(hero).toContain('View pools')
+    expect(hero).toContain('Swap tokens')
+    expect(hero).not.toContain('Launch app')
+    expect(hero).not.toContain('Create a pool')
     expect(hero).toContain('SoilBg')
   })
 
@@ -317,9 +320,11 @@ describe('homepage laws v8 — approved copy + orbital hero + IPFS interaction s
 
   function readUpstreamBaseline(f: string): string {
     const fixture = `${HERE}/upstream-baseline/${f}.txt`
+
     if (!existsSync(fixture)) {
       throw new Error(`missing vendored upstream baseline fixture: ${fixture}`)
     }
+
     return readFileSync(fixture, 'utf8')
   }
 
@@ -430,16 +435,22 @@ describe('landing-v3 mobile wrap laws', () => {
     }
   })
 
-  //  CTA law (2026-10-02 correction): TWO Launch-app buttons existed —
-  // navbar + hero. Desired end state (VERIFIED live): navbar CTA = 'Learn more'
-  // -> docs.basednut.com/rootstock; hero 'Launch app' -> /swap stays as is.
-  it('navbar CTA is Learn more -> rootstock docs; hero Launch app -> /swap (2026-10-02)', () => {
+  //  CTA law (2026-10-19 UX correction): hero = discovery-first. Primary
+  // 'View pools' -> /pools, secondary 'Swap tokens' -> /swap. 'Create a pool'
+  // intentionally NOT in the hero — served by nav top-menu + Earn section
+  // links + footer (5 remaining paths). Navbar CTA unchanged.
+  it('hero CTAs: View pools primary -> /pools; Swap tokens secondary -> /swap (2026-10-19)', () => {
     const navCtaBlock = navBar.slice(0, navBar.indexOf('Learn more')).slice(-400)
     expect(navCtaBlock).toContain('https://docs.basednut.com/rootstock')
     expect(navBar).toContain('Learn more')
-    expect(hero).toContain('Launch app')
-    const heroLaunch = hero.slice(hero.indexOf('Launch app') - 700, hero.indexOf('Launch app') + 30)
-    expect(heroLaunch).toContain('href="/swap"')
+    const heroPools = hero.slice(hero.indexOf('View pools') - 700, hero.indexOf('View pools') + 30)
+    expect(heroPools).toContain('href="/pools"')
+    expect(heroPools).toContain('variant="primary"')
+    const heroSwap = hero.slice(hero.indexOf('Swap tokens') - 700, hero.indexOf('Swap tokens') + 30)
+    expect(heroSwap).toContain('href="/swap"')
+    expect(heroSwap).toContain('variant="secondary"')
+    expect(hero).not.toContain('Launch app')
+    expect(hero).not.toContain('Create a pool')
   })
 
   it('Hero H1 text fits small viewports when wrapped (no nowrap trap)', () => {

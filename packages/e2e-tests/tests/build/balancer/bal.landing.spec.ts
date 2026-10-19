@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test'
 */
 test('Rootstock: landing page renders and launches the app', async ({ page }) => {
   await page.goto('http://localhost:3000/')
-  await page.getByRole('link', { name: 'Launch app' }).click()
+  await page.getByRole('link', { name: 'View pools' }).click()
 
-  await expect(page).toHaveURL(/swap/)
+  await expect(page).toHaveURL(/pools/)
 })

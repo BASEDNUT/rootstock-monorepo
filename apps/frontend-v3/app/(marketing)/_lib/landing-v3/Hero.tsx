@@ -143,14 +143,14 @@ export function Hero() {
                     : {}
                 }
                 as={Link}
-                href="/swap"
+                href="/pools"
                 initial={{ opacity: 0 }}
                 rightIcon={<ArrowUpRight size="14px" />}
                 size="lg"
                 transition={{ duration: 2, delay: 1.2 }}
                 variant="primary"
               >
-                Launch app
+                View pools
               </MotionButton>
 
               <MotionButton
@@ -163,14 +163,14 @@ export function Hero() {
                     : {}
                 }
                 as={Link}
-                href="/create"
+                href="/swap"
                 initial={{ opacity: 0 }}
                 rightIcon={<ArrowUpRight size="14px" />}
                 size="lg"
                 transition={{ duration: 2, delay: 1.2 }}
                 variant="secondary"
               >
-                Create a pool
+                Swap tokens
               </MotionButton>
             </Stack>
           </VStack>
