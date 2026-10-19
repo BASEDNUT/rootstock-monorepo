@@ -159,7 +159,8 @@ export async function fetchTokenPrices(
 ): Promise<Record<string, number>> {
   const network = GT_NETWORK[chain]
   if (!network || addresses.length === 0) return {}
-  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/multi/${addresses.join(',')}`
+  // lowercase canonical form — checksummed addresses can miss on GT.
+  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/multi/${addresses.map(a => a.toLowerCase()).join(',')}`
 
   try {
     const res = await fetch(url)

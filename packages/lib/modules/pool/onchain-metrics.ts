@@ -255,9 +255,13 @@ export function computePoolMetrics(input: PoolMetricsInput): PoolMetrics {
     volume24h = agg.volumeUsd === null ? null : roundUsd(agg.volumeUsd)
     fees24h = agg.feesUsd === null ? null : roundUsd(agg.feesUsd)
 
-    if (totalLiquidity !== null && fees24h !== null && Number(totalLiquidity) > 0) {
+    // APR must use RAW fees — the display-rounded fees24h string loses
+    // sub-cent precision and would zero small-pool APRs (live-caught:
+    // pipsUSDC $0.46 volume x 1% fee = $0.0046 fees -> rounded '0' ->
+    // APR 0.00% instead of ~9.2%).
+    if (totalLiquidity !== null && agg.feesUsd !== null && Number(totalLiquidity) > 0) {
       // APR (percent) = fees24h * 365 / TVL * 100 — GqlPoolAprItem units.
-      const apr = (Number(fees24h) * 365 * 100) / Number(totalLiquidity)
+      const apr = (agg.feesUsd * 365 * 100) / Number(totalLiquidity)
 
       aprItems = [
         {
