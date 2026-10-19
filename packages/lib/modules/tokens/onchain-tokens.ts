@@ -1,6 +1,7 @@
 import type { GqlToken } from '@repo/lib/shared/services/api/graphql-derived-types'
 import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
 import { getNetworkConfig } from '@repo/lib/config/app.config'
+import { tokenAssetsLogoUri } from './token-logo-uri'
 
 /**
  * Rootstock: onchain-only networks (e.g. our Base Sepolia deployment) are not
@@ -20,7 +21,7 @@ export function getOnchainOnlyTokens(): GqlToken[] {
       __typename: 'GqlToken' as const,
       chain,
       chainId: networkConfig.chainId,
-      logoURI: '',
+      logoURI: tokenAssetsLogoUri(networkConfig.chainId, nativeAsset.address) ?? '',
       priority: 0,
       tradable: true,
       isErc4626: false,
@@ -31,6 +32,7 @@ export function getOnchainOnlyTokens(): GqlToken[] {
 
     tokens.push({
       ...base,
+      logoURI: tokenAssetsLogoUri(networkConfig.chainId, nativeAsset.address) ?? '',
       address: nativeAsset.address,
       name: nativeAsset.name,
       symbol: nativeAsset.symbol,
@@ -39,6 +41,7 @@ export function getOnchainOnlyTokens(): GqlToken[] {
 
     tokens.push({
       ...base,
+      logoURI: tokenAssetsLogoUri(networkConfig.chainId, addresses.wNativeAsset) ?? '',
       address: addresses.wNativeAsset,
       name: 'Wrapped Ether',
       symbol: 'WETH',

@@ -1,4 +1,5 @@
 import { erc20Abi, type Address } from 'viem'
+import { tokenAssetsLogoUri } from './token-logo-uri'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import type { GqlToken } from '@repo/lib/shared/services/api/graphql-derived-types'
 import { getGqlChain } from '@repo/lib/config/app.config'
@@ -88,6 +89,8 @@ export async function fetchOnchainPoolTokens(chainId: number): Promise<GqlToken[
       name: name.result,
       symbol: symbol.result,
       decimals: decimals.result,
+      // Rootstock logos: BASEDNUT/tokenAssets raw (our repo, winddown-proof)
+      logoURI: tokenAssetsLogoUri(chainId, list[i] as string) ?? '',
     })
   }
 
