@@ -68,7 +68,15 @@ export async function fetchPoolState(
         name: 'getPoolTokenInfo',
         outputs: [
           { name: 'tokens', type: 'address[]' },
-          { name: 'tokenInfo', type: 'tuple[]' },
+          {
+            name: 'tokenInfo',
+            type: 'tuple[]',
+            components: [
+              { name: 'tokenType', type: 'uint8' },
+              { name: 'rateProvider', type: 'address' },
+              { name: 'paysYieldFees', type: 'bool' },
+            ],
+          },
           { name: 'balancesRaw', type: 'uint256[]' },
           { name: 'lastBalancesLiveScaled18', type: 'uint256[]' },
         ],
@@ -78,9 +86,14 @@ export async function fetchPoolState(
     ],
     functionName: 'getPoolTokenInfo',
     args: [pool],
-  })) as unknown as { tokens: string[]; balancesRaw: bigint[] }
+  })) as unknown as { tokens: string[]; balancesRaw: bigint[] } | [string[], unknown[], bigint[], bigint[]]
 
-  const tokens: MetricToken[] = info.tokens.map(address => ({
+  // viem returns MULTIPLE outputs positionally (array) for this ABI —
+  // normalize both shapes (named + positional).
+  const tokensOut: string[] = Array.isArray(info) ? info[0] : info.tokens
+  const balancesOut: bigint[] = Array.isArray(info) ? info[2] : info.balancesRaw
+
+  const tokens: MetricToken[] = tokensOut.map(address => ({
     address,
     decimals: decimalsByAddress[address.toLowerCase()] ?? 18,
   }))
@@ -132,7 +145,7 @@ export async function fetchPoolState(
     staticSwapFee = null
   }
 
-  return { poolId: pool, tokens, balancesRaw: info.balancesRaw, weights, staticSwapFee }
+  return { poolId: pool, tokens, balancesRaw: balancesOut, weights, staticSwapFee }
 }
 
 /**
