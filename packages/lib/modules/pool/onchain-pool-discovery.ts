@@ -2,6 +2,7 @@ import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { shouldUseAnvilFork } from '@repo/lib/config/app.config'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
+import type { GqlPoolAprItem } from '@repo/lib/shared/services/api/graphql-derived-types'
 import type { GqlPoolType } from '@repo/lib/shared/services/api/generated/graphql'
 
 /**
@@ -90,7 +91,7 @@ export interface OnchainPoolListItem {
     totalLiquidity: string | null
     volume24h: string | null
     fees24h: string | null
-    aprItems: never[]
+    aprItems: GqlPoolAprItem[]
   }
 }
 

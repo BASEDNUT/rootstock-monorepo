@@ -16,8 +16,10 @@ import { PoolDisplayType } from '../pool.types'
 import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { removeHookDataFromPoolIfNecessary } from '../pool.utils'
 import { PoolListItem } from '../pool.types'
+import type { OnchainPoolListItem } from '../onchain-pool-discovery'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { useOnchainPoolDiscovery } from '../useOnchainPoolDiscovery'
+import { useOnchainPoolMetrics } from '../useOnchainPoolMetrics'
 import { compareByTotalLiquidityDesc } from '../pool-metrics'
 import { useTokens } from '../../tokens/TokensProvider'
 import { useWalletTokenBalances } from '../../tokens/useWalletTokenBalances'
@@ -32,7 +34,7 @@ export function usePoolListLogic({
   const queryState = usePoolListQueryState()
   const { userAddress, isConnected } = useUserAccount()
   const apolloClient = useApolloClient()
-  const { isLoadingTokens, isLoadingTokenPrices } = useTokens()
+  const { tokens, isLoadingTokens, isLoadingTokenPrices } = useTokens()
 
   const [poolDisplayType, setPoolDisplayType] = useState<PoolDisplayType>(
     PROJECT_CONFIG.options.poolDisplayType
@@ -64,6 +66,29 @@ export function usePoolListLogic({
   const selectedOnchainChains = selectedNetworksForDiscovery.filter(isOnchainOnlyNetwork)
   const { data: onchainPools } = useOnchainPoolDiscovery(hasOnchainOnlyChain, selectedOnchainChains)
 
+  // Rootstock: live onchain metrics enrichment (TVL, volume, fees, APR)
+  // for onchain-sourced pools. Unavailable metrics stay null ('—').
+  const onchainPoolList = (onchainPools || []) as OnchainPoolListItem[]
+
+  const decimalsByAddress = useMemo(() => {
+    const map: Record<string, number> = {}
+
+    for (const token of tokens) {
+      if (token?.address && typeof token.decimals === 'number') {
+        map[token.address.toLowerCase()] = token.decimals
+      }
+    }
+
+    return map
+  }, [tokens])
+
+  const { data: metricsData } = useOnchainPoolMetrics(
+    hasOnchainOnlyChain,
+    selectedOnchainChains,
+    onchainPoolList,
+    decimalsByAddress
+  )
+
   const { data, loading, previousData, refetch, networkStatus, error } = useQuery(
     GetPoolsDocument,
     {
@@ -77,7 +102,7 @@ export function usePoolListLogic({
   const apiPools = loading && previousData ? previousData.pools : data?.pools || []
 
   const pools = hasOnchainOnlyChain
-    ? [...(onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
+    ? [...(metricsData?.pools || onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
     : apiPools
 
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
