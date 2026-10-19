@@ -308,8 +308,8 @@ describe('computePoolMetrics', () => {
     // volume = 100*10 (25h-old bucket is OUTSIDE 24h window; only 100 counts)
     expect(m.volume24h).toBe('1000')
     expect(m.fees24h).toBe('3')
-    // APR% = feesUsd*365/TVL*100 = 3*365/20*100 = 5475
-    expect(m.aprItems[0]?.apr).toBeCloseTo(5475, 2)
+    // APR fraction = feesUsd*365/TVL = 3*365/20 = 54.75
+    expect(m.aprItems[0]?.apr).toBeCloseTo(54.75, 4)
     expect(m.aprItems[0]?.type).toBe('SWAP_FEE_24H')
     expect(m.aprItems[0]?.id).toBe(`${pool}-swap-fee-24h`)
   })

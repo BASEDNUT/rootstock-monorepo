@@ -259,9 +259,12 @@ export function computePoolMetrics(input: PoolMetricsInput): PoolMetrics {
     // sub-cent precision and would zero small-pool APRs (live-caught:
     // pipsUSDC $0.46 volume x 1% fee = $0.0046 fees -> rounded '0' ->
     // APR 0.00% instead of ~9.2%).
+    // GqlPoolAprItem.apr is a FRACTION (0.052 = 5.2%) — fNum('apr')
+    // multiplies by 100 at display. Live-caught round 2: shipping percent
+    // units (9.2) displayed as 924.04% — the x100 here double-scales.
     if (totalLiquidity !== null && agg.feesUsd !== null && Number(totalLiquidity) > 0) {
-      // APR (percent) = fees24h * 365 / TVL * 100 — GqlPoolAprItem units.
-      const apr = (agg.feesUsd * 365 * 100) / Number(totalLiquidity)
+      // APR (fraction) = fees24h * 365 / TVL — GqlPoolAprItem units.
+      const apr = (agg.feesUsd * 365) / Number(totalLiquidity)
 
       aprItems = [
         {
