@@ -35,6 +35,19 @@ const chainIdToDrpcName: Partial<Record<number, string | undefined>> = {
   [ChainId.MONAD]: 'monad',
 }
 
+/**
+ * Public CORS-verified RPCs for the chains this app serves. Used by the
+ * /api/rpc proxy when no operator-funded DRPC key is configured — the
+ * app's own read flows (initialize / add-liquidity build calls) must
+ * never hard-fail on an optional integration key. Same URLs the wagmi
+ * transports use (verified from browsers: publicnode echoes ACAO *,
+ * sepolia.base.org echoes origin).
+ */
+export const publicRpcByChain: Partial<Record<GqlChain, string>> = {
+  [GqlChainValues.Base]: 'https://base.publicnode.com',
+  [GqlChainValues.BaseSepolia]: 'https://sepolia.base.org',
+}
+
 export function drpcUrl(chain: GqlChain, privateKey: string) {
   const chainSlug = chainToDrpcName[chain]
   if (!chainSlug) throw new Error(`Invalid chain: ${chain}`)

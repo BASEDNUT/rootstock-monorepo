@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import type { GqlChain } from '../../services/api/generated/graphql'
-import { drpcUrl } from '../rpc'
+import { drpcUrl, publicRpcByChain } from '../rpc'
 
 const DRPC_KEY = process.env.NEXT_PRIVATE_DRPC_KEY || ''
 
@@ -19,9 +19,15 @@ function methodOf(body: unknown): string | undefined {
 }
 
 export async function postRpcCall(request: NextRequest, chain: GqlChain): Promise<Response> {
-  if (!DRPC_KEY) {
-    return new Response(JSON.stringify({ error: 'NEXT_PRIVATE_DRPC_KEY is missing' }), {
-      status: 500,
+  // Resolve upstream: the operator-funded DRPC relay when configured, else
+  // the public CORS-verified RPC for the served chains. The app's own read
+  // flows (initialize / add-liquidity build calls) must never hard-fail on
+  // an optional integration key.
+  const upstreamUrl = DRPC_KEY ? drpcUrl(chain, DRPC_KEY) : publicRpcByChain[chain]
+
+  if (!upstreamUrl) {
+    return new Response(JSON.stringify({ error: `No RPC upstream for chain: ${chain}` }), {
+      status: 404,
     })
   }
 
@@ -47,12 +53,10 @@ export async function postRpcCall(request: NextRequest, chain: GqlChain): Promis
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 403 })
   }
 
-  const rpcUrl = drpcUrl(chain, DRPC_KEY)
-
   // Return the upstream Response directly — status and body pass through
   // unchanged. The caller must never re-wrap this through Response.json(),
   // which rebuilds a 200 and swallows upstream error statuses.
-  return fetch(rpcUrl, {
+  return fetch(upstreamUrl, {
     method: 'POST',
     body: rawBody,
     next: {
