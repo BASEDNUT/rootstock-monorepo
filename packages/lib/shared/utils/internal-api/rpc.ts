@@ -53,14 +53,27 @@ export async function postRpcCall(request: NextRequest, chain: GqlChain): Promis
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 403 })
   }
 
-  // Return the upstream Response directly — status and body pass through
-  // unchanged. The caller must never re-wrap this through Response.json(),
-  // which rebuilds a 200 and swallows upstream error statuses.
-  return fetch(upstreamUrl, {
+  // Buffer the upstream body and rebuild the Response. Returning the raw
+  // fetch() Response forwards stale Content-Encoding headers negotiated
+  // with the upstream — browsers read status + headers, then the body
+  // stream fails decoding (TypeError on .text(), reproduced 5/5 in-page
+  // 2026-10-21) while curl without encoding negotiation succeeds. Buffer
+  // through undici (it decompresses) and rebuild so the edge negotiates
+  // encoding fresh. Status passes through unchanged — never a 200 re-wrap.
+  const upstream = await fetch(upstreamUrl, {
     method: 'POST',
     body: rawBody,
     next: {
       revalidate: 0,
+    },
+  })
+
+  const body = await upstream.text()
+  return new Response(body, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers: {
+      'Content-Type': upstream.headers.get('content-type') || 'application/json',
     },
   })
 }

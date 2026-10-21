@@ -30,7 +30,8 @@ describe('rpc proxy laws', () => {
   })
 
   it('preserves upstream statuses (no Response.json re-wrap)', () => {
-    expect(SRC).toContain('Return the upstream Response directly')
+    expect(SRC).toContain('status: upstream.status')
+    expect(SRC).not.toContain('Response.json(')
   })
 
   it('never 500s on a missing optional DRPC key — falls back to the public CORS-verified RPC (app zero-error law)', () => {
@@ -50,5 +51,18 @@ describe('rpc proxy laws', () => {
     expect(SRC2).toContain('publicRpcByChain')
     expect(SRC2).toContain("'https://base.publicnode.com'")
     expect(SRC2).toContain("'https://sepolia.base.org'")
+  })
+
+  it('never returns the raw upstream Response — buffers the body and rebuilds (browser body-stream law)', () => {
+    // Live defect 2026-10-21: returning the raw upstream fetch() Response
+    // from the route handler forwarded stale Content-Encoding headers
+    // negotiated with the upstream. Browsers read status + headers, then
+    // the body stream fails decoding (TypeError: Failed to fetch on
+    // .text(), reproduced 5/5 in-page) while curl without Accept-Encoding
+    // negotiation succeeds — masking the bug from server-side checks.
+    // Buffer the body through undici (it decompresses) and return a
+    // rebuilt Response so the edge negotiates encoding fresh.
+    expect(SRC).toContain('const body = await upstream.text()')
+    expect(SRC).toContain('new Response(body')
   })
 })
