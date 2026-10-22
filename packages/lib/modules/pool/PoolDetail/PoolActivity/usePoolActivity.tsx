@@ -7,6 +7,13 @@ import { PoolVariant } from '../../pool.types'
 import { usePool } from '../../PoolProvider'
 import { GqlPoolEventTypeValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { usePoolEvents } from '../../usePoolEvents'
+// B2c (live-caught 2026-10-21): onchain-only pools are unknown to the remote
+// API — pool activity comes from the baked onchain events artifact,
+// decoded with per-token decimals and valued with live prices.
+import { buildOnchainPoolEventsAsGqlEvents, type BakedPoolEvent } from '../../onchain-pool-events-builder'
+import bakedPoolEventsBase from '../../baked-pool-events-base.json'
+import bakedPoolEventsSepolia from '../../baked-pool-events.json'
+import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { ChainSlug, getChainSlug } from '../../pool.utils'
 import { getPoolActivityDateCaption, getPoolActivityTitle } from '../../pool.helpers'
 import { useTokens } from '@repo/lib/modules/tokens/TokensProvider'
@@ -33,7 +40,7 @@ const MAX_EVENTS = 500
 function usePoolActivityLogic() {
   const { id: poolId, variant, chain } = useParams()
   const { pool } = usePool()
-  const { getToken } = useTokens()
+  const { getToken, priceFor } = useTokens()
   const [sorting, setSorting] = useState<Sorting>(Sorting.desc)
   const [sortingBy, setSortingBy] = useState<SortingBy>(SortingBy.time)
   const [first, setFirst] = useState(10)
@@ -67,11 +74,44 @@ function usePoolActivityLogic() {
     type: toEventType(activeTab?.value),
   })
 
-  const count = response?.poolEvents.length ?? 0
+  // B2c (live-caught 2026-10-21): onchain-only pools are unknown to the
+  // remote API — activity comes from the baked onchain events artifact,
+  // decoded with per-token decimals and valued with live prices.
+  const isOnchainOnly = _chain ? isOnchainOnlyNetwork(_chain) : false
+
+  const onchainEvents = useMemo(() => {
+    if (!isOnchainOnly || !pool) return []
+
+    const baked = _chain === 'BASE' ? bakedPoolEventsBase : bakedPoolEventsSepolia
+    const events = ((baked as { events?: BakedPoolEvent[] }).events || []) as BakedPoolEvent[]
+
+    const decimals: Record<string, number> = {}
+    const prices: Record<string, number> = {}
+
+    for (const t of pool.poolTokens) {
+      const key = t.address.toLowerCase()
+      decimals[key] = t.decimals
+      const price = priceFor(t.address, pool.chain)
+      if (price > 0) prices[key] = price
+    }
+
+    return buildOnchainPoolEventsAsGqlEvents({
+      events,
+      poolId: poolId as string,
+      poolTokens: pool.poolTokens.map(t => t.address),
+      decimals,
+      prices,
+      chain: _chain,
+    })
+  }, [isOnchainOnly, _chain, pool, poolId, priceFor])
+
+  const activityEvents = isOnchainOnly ? onchainEvents : response?.poolEvents
+
+  const count = activityEvents?.length ?? 0
 
   const poolActivityData = useMemo(() => {
-    if (!response) return { adds: [], removes: [], swaps: [] }
-    const { poolEvents: events } = response
+    if (!activityEvents) return { adds: [], removes: [], swaps: [] }
+    const events = activityEvents
 
     const data = events.reduce(
       (acc: PoolActivity, item) => {
@@ -146,7 +186,7 @@ function usePoolActivityLogic() {
     )
 
     return data
-  }, [response, isExpanded])
+  }, [activityEvents, isExpanded])
 
   const pagination: PaginationState = useMemo(
     () => ({
@@ -241,7 +281,7 @@ function usePoolActivityLogic() {
   }, [activeTab?.value, poolEvents, getDateCaption])
 
   return {
-    isLoading: loading,
+    isLoading: isOnchainOnly ? false : loading,
     isExpanded,
     dataSize: poolEvents.length,
     activeTab,

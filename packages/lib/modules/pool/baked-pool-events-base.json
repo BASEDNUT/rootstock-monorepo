@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "chainId": 8453,
+  "generatedAt": "2026-10-22T04:52:11.552Z",
+  "fromBlock": 52131550,
+  "cursor": 52927560,
+  "events": [
+    {
+      "pool": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
+      "tx": "0x9b84e6f4a17144cf609ebafe4760a54e2b8c49d2525339d8005031556484638d",
+      "timestamp": 1792207919,
+      "block": 52709286,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "1793555416953319",
+      "amountsRaw": [
+        "44940077776341598",
+        "22388394063792",
+        "640680799728222"
+      ]
+    },
+    {
+      "pool": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
+      "tx": "0xfed7ad755ac9f4071fc56ecf4c43be83d04cd07ca966d910ca5bd61a96bce943",
+      "timestamp": 1792207947,
+      "block": 52709300,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "93343407688403415",
+      "amountsRaw": [
+        "1013410246559528318",
+        "710628703732906534",
+        "13663507038129"
+      ]
+    },
+    {
+      "pool": "0x98443d8704112d166c89d800e4264318db38e05a",
+      "tx": "0xfed7ad755ac9f4071fc56ecf4c43be83d04cd07ca966d910ca5bd61a96bce943",
+      "timestamp": 1792207947,
+      "block": 52709300,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "185966298626682",
+      "amountsRaw": [
+        "351447048712653",
+        "17389999918610",
+        "321792507059559"
+      ]
+    },
+    {
+      "pool": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
+      "tx": "0x6470fc3c9272f1ce2061d778dad32e1159ce1017b7f5d2731dae67142eb559e9",
+      "timestamp": 1792207973,
+      "block": 52709313,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "13494103140943",
+      "amountsRaw": [
+        "12669999061367",
+        "17389998711695",
+        "1266"
+      ]
+    },
+    {
+      "pool": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
+      "tx": "0x6470fc3c9272f1ce2061d778dad32e1159ce1017b7f5d2731dae67142eb559e9",
+      "timestamp": 1792207973,
+      "block": 52709313,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "105127125624769554",
+      "amountsRaw": [
+        "877003",
+        "979797",
+        "17389999999844"
+      ]
+    },
+    {
+      "pool": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
+      "tx": "0xb89cec0f7de1446d3903631601bd09f58ffd78408e8c9c86abc259fb48114431",
+      "timestamp": 1792207997,
+      "block": 52709325,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "641291499607955645076",
+      "amountsRaw": [
+        "234550875572406000000000",
+        "234550875572406"
+      ]
+    },
+    {
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "tx": "0xb89cec0f7de1446d3903631601bd09f58ffd78408e8c9c86abc259fb48114431",
+      "timestamp": 1792207997,
+      "block": 52709325,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "251450761831912198249218056",
+      "amountsRaw": [
+        "1181602912621359223300970",
+        "18255765"
+      ]
+    },
+    {
+      "pool": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "tx": "0x37689aaa15f54124d591abd75dadf48df19537a5d1d046af514c8cbf61376851",
+      "timestamp": 1792208023,
+      "block": 52709338,
+      "type": "ADD",
+      "userAddress": "0xcc59be4fd171b9868b092cba017207b87ba23c5a",
+      "kind": 1,
+      "totalSupply": "1253412168013012",
+      "amountsRaw": [
+        "445210",
+        "299585",
+        "17389999986125"
+      ]
+    },
+    {
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "tx": "0x013c7fbd1eb081318430904595628c9248b87eff26b0b6b43e41874588b0ae61",
+      "timestamp": 1792616093,
+      "block": 52913373,
+      "type": "ADD",
+      "userAddress": "0x135b208ac2480b0d876944416de16e7a3b9a1f65",
+      "kind": 1,
+      "totalSupply": "53885789500629849",
+      "amountsRaw": [
+        "13996348971770438",
+        "771690000000",
+        "1450000000000000",
+        "47139"
+      ]
+    },
+    {
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "tx": "0x5e9459d130b20356b34e246bb95a6aa81b0d8a4b3cfe39c22a4d796f4005fd48",
+      "timestamp": 1792207997,
+      "block": 52709325,
+      "type": "SWAP",
+      "userAddress": "0x3675abef47fd08915031a1f924cb7f253df51278",
+      "tokenIn": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amountInRaw": "1507953378729272634295579",
+      "amountOutRaw": "16835074"
+    },
+    {
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "tx": "0xbc5a9e2f78d2c072aaf948e43343bb54a00c9a8ca9f2593e82943889a768b688",
+      "timestamp": 1792207999,
+      "block": 52709326,
+      "type": "SWAP",
+      "userAddress": "0x53881155498cae8660195670591f1e23ae81431f",
+      "tokenIn": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amountInRaw": "109466485128403783752132",
+      "amountOutRaw": "873106"
+    },
+    {
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "tx": "0x9e9526318d1f5a2f015ead9f94f02897bcab381837324541eee71aeffd648e91",
+      "timestamp": 1792313265,
+      "block": 52761959,
+      "type": "SWAP",
+      "userAddress": "0x53881155498cae8660195670591f1e23ae81431f",
+      "tokenIn": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amountInRaw": "72573126215195353055683",
+      "amountOutRaw": "515125"
+    }
+  ]
+}

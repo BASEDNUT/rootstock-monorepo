@@ -1,6 +1,6 @@
 'use client'
 
-import type { GqlToken } from '@repo/lib/shared/services/api/graphql-derived-types'
+import type { GqlToken, GqlTokenPrice } from '@repo/lib/shared/services/api/graphql-derived-types'
 import {
   GetTokenPricesDocument,
   GetTokensDocument,
@@ -29,6 +29,10 @@ import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
 // (PRD-07 pickers law): factory-deployed tokens + wrappers discovered
 // from TokenCreated / WrapperCreated events — appear in every picker.
 import { fetchOnchainFactoryTokens } from '../primitives/onchain-factory-tokens'
+// B2a (live-caught 2026-10-21): GT multi-price layer — the price API excludes
+// onchain-only networks, so priceFor() starved every Rootstock token
+// (detail TVL $0.00, composition prices '—', LP price $0.00).
+import { fetchGtTokenPrices, mergeOnchainTokenPrices, GT_NETWORK_IDS } from './onchain-token-prices'
 import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
@@ -115,6 +119,53 @@ export function useTokensLogic() {
 
   const prices = tokenPricesData?.tokenPrices || []
 
+  // B2a: GT price layer for onchain-only chains (BASE). Addresses come from
+  // every onchain token source; empty in unit tests (onchain fetches are
+  // mocked []) so no live network fires from the suite.
+  // hook-driven sources ONLY (all mocked [] in unit specs — never a live
+  // fetch from the suite). getOnchainOnlyTokens() is deliberately NOT
+  // called here: it is a direct (non-hook) call returning real addresses
+  // in every environment, which would enable the GT query in unit tests
+  // and fire live network (the no-live-network law).
+  const gtPriceAddresses = useMemo(() => {
+    const gtChains = new Set(Object.keys(GT_NETWORK_IDS) as GqlChain[])
+    return [
+      ...new Set(
+        [...(tokensData?.tokens || []), ...(onchainPoolTokens || []), ...(factoryTokens || [])]
+          .filter(t => t && gtChains.has(t.chain as GqlChain))
+          .map(t => t.address.toLowerCase())
+      ),
+    ]
+  }, [tokensData, onchainPoolTokens, factoryTokens])
+
+  const gtPricesQueries = useReactQueries({
+    queries: (Object.keys(GT_NETWORK_IDS) as GqlChain[]).map(chain => ({
+      queryKey: ['onchain-gt-prices', chain, gtPriceAddresses.join(',')],
+      queryFn: async () => {
+        const gt = await fetchGtTokenPrices(chain, gtPriceAddresses)
+        return mergeOnchainTokenPrices([], gt, chain)
+      },
+      enabled: gtPriceAddresses.length > 0,
+      staleTime: 60_000,
+    })),
+  })
+
+  const gtPrices = useMemo(
+    () =>
+      gtPricesQueries
+        .map(r => r.data)
+        .filter((d): d is GqlTokenPrice[] => Array.isArray(d))
+        .flat(),
+    [gtPricesQueries]
+  )
+
+  // API prices WIN; GT only fills onchain-only gaps (never overrides).
+  const mergedPrices = useMemo(() => {
+    if (gtPrices.length === 0) return prices
+    const known = new Set(prices.map(p => `${p.chain}:${p.address.toLowerCase()}`))
+    return [...prices, ...gtPrices.filter(p => !known.has(`${p.chain}:${p.address.toLowerCase()}`))]
+  }, [prices, gtPrices])
+
   const getToken = (address: string, chain: GqlChain | number): ApiToken | undefined => {
     const chainKey = typeof chain === 'number' ? 'chainId' : 'chain'
     return tokens.find(token => isSameAddress(token.address, address) && token[chainKey] === chain)
@@ -161,7 +212,7 @@ export function useTokensLogic() {
   }
 
   const priceFor = (address: string, chain: GqlChain): number => {
-    const chainPrices = prices.filter(price => price.chain === chain)
+    const chainPrices = mergedPrices.filter(price => price.chain === chain)
     const price = chainPrices.find(price => isSameAddress(price.address, address))
     if (!price) return 0
 

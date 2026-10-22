@@ -25,6 +25,14 @@ vi.mock('./onchain-tokens', () => ({
   getOnchainOnlyTokens: vi.fn(),
 }))
 
+// B2a: the GT price fetch is mocked too — unit tests never fire live
+// network (the law). Default {} keeps the API-only assertions intact.
+vi.mock('./onchain-token-prices', () => ({
+  fetchGtTokenPrices: vi.fn(),
+  mergeOnchainTokenPrices: vi.fn(),
+  GT_NETWORK_IDS: {},
+}))
+
 import { fetchOnchainPoolTokens } from './onchain-pool-tokens'
 import { getOnchainOnlyTokens } from './onchain-tokens'
 

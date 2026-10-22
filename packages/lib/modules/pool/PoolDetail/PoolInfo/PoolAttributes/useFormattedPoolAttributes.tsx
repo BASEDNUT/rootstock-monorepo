@@ -153,7 +153,17 @@ export function useFormattedPoolAttributes() {
       },
       {
         title: 'LP token price',
-        value: toCurrency(usdValueForTokenAddress(pool.address, pool.chain, '1')),
+        // B2d (live-caught 2026-10-21): BPT tokens are not priced by any
+        // catalog (GT prices pool tokens, not BPTs) — derive from onchain
+        // TVL / totalShares when the direct price is 0; honest '—' otherwise.
+        value: (() => {
+          const direct = usdValueForTokenAddress(pool.address, pool.chain, '1')
+          if (Number(direct) > 0) return toCurrency(direct)
+          const tvl = Number(pool.dynamicData?.totalLiquidity || 0)
+          const shares = Number(pool.dynamicData?.totalShares || 0)
+          if (tvl > 0 && shares > 0) return toCurrency(tvl / shares)
+          return '—'
+        })(),
       },
     ])
 

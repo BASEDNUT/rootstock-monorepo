@@ -18,7 +18,10 @@ import {
   createMetricsClient,
   fetchPoolState,
   fetchTokenPrices,
+  fetchMissingTokenDecimals,
+  resolveTokenDecimals,
   scanSwapBuckets,
+  ARCHIVE_FALLBACK_RPC,
   type PoolState,
 } from './onchain-metrics-io'
 import { getOnchainScanConfig, type OnchainPoolListItem } from './onchain-pool-discovery'
@@ -28,12 +31,16 @@ import {
   mergeBuckets,
   saveSwapLedger,
   hasLedgerFullCoverage,
+  computeCoverageStartBlock,
 } from './onchain-metrics-store'
 import bakedLedgerBase from './baked-swap-ledger-base.json'
 import bakedLedgerSepolia from './baked-swap-ledger.json'
 
 const CHUNKS: Partial<Record<number, number>> = {
-  8453: 9_900, // publicnode recent-window limit (live-probed)
+  // B3 (live-probed 2026-10-21): publicnode archive-walls ranges beyond its
+  // recent window AND 9.9k-wide ranges — 5k-wide at the head serves. Older
+  // chunks fall back to the Tenderly gateway (1000-block archive ranges).
+  8453: 5_000,
   84532: 200, // sepolia.base.org getLogs limit is a 200 range (live-probed)
 }
 
@@ -57,13 +64,23 @@ async function fetchChainMetrics(
   if (!client) return pools
   const vault = scanConfig.vault as `0x${string}`
 
+  // 0. B1 (live-caught 2026-10-21): resolve token decimals from the POOLS
+  // THEMSELVES (baked-registry poolTokens carry ERC20 metadata), then the
+  // caller catalog, then an onchain erc20 multicall. The catalog alone
+  // starved SNUT(9)/cbBTC(8)/tBTC(8)/EURC(6)/USDC(6)/NVDAc(8)/AAPLc(8)
+  // legs to $0.00 — every unknown decimal defaulted to 18 and halved
+  // pNUT TVL ($82 shown vs $161 on-chain truth).
+  const { decimals, missing } = resolveTokenDecimals(pools, decimalsByAddress)
+  const onchainDecimals = await fetchMissingTokenDecimals(client, missing)
+  const resolvedDecimals: Record<string, number> = { ...decimals, ...onchainDecimals }
+
   // 1. pool states (vault-fallback reads, throttled 3-wide to respect RPC limits)
   const states: PoolState[] = []
 
   for (let i = 0; i < pools.length; i += 3) {
     const batch = await Promise.all(
       pools.slice(i, i + 3).map(p =>
-        fetchPoolState(client, vault, p.address as `0x${string}`, decimalsByAddress)
+        fetchPoolState(client, vault, p.address as `0x${string}`, resolvedDecimals)
       )
     )
 
@@ -80,24 +97,67 @@ async function fetchChainMetrics(
   const ledger = loadSwapLedger(scanConfig.chainId)
   const latest = Number(await client.getBlockNumber())
 
-  const scanFrom = Math.max(
-    (ledger?.cursor ?? 0),
-    Math.min((baked?.cursor ?? 0), latest - 10_000)
-  )
-
-  const fromBlock = Math.max(scanFrom, latest - 10_000)
+  // B3: scan the whole trailing 24h window every time (cutoff-aware), NOT
+  // just latest-10k — the visitor scan is the only thing that can cover the
+  // window; the archive fallback bridges publicnode's wall per chunk.
+  const BLOCK_MS = 2_000
+  const cutoffBlock = Math.floor(latest - (24 * 3_600_000) / BLOCK_MS)
+  // continue from the farthest known cursor (visitor ledger or fresh bake);
+  // a fresh bake covers [deploy, bakedCursor] itself, so the visitor only
+  // scans [bakedCursor, latest] — until the bake ages past the window, then
+  // the cutoff floors the scan. An aged bake (cursor < cutoff) does NOT
+  // shrink the scan (max keeps the cutoff).
+  const fromBlock = Math.max(ledger?.cursor ?? 0, Number(baked?.cursor ?? 0), cutoffBlock)
   const chunk = CHUNKS[scanConfig.chainId] ?? 500
   let buckets = mergeBuckets((baked?.buckets as SwapBucket[]) ?? [], ledger?.buckets ?? [])
 
+  // Tenderly public gateway fallback for archive-walled chunks (B3).
+  const fallbackRpc = ARCHIVE_FALLBACK_RPC[scanConfig.chainId]
+  const fallbackClient = fallbackRpc
+    ? ({ request: (args: { method: string; params: unknown[] }) =>
+        fetch(fallbackRpc, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, ...args }),
+        }).then(r => r.json().then(j => {
+          if (j.error) throw new Error(String(j.error.message ?? j.error))
+          return j.result
+        })) } as Pick<Parameters<typeof scanSwapBuckets>[0], 'request'>)
+    : undefined
+
   try {
-    const fresh = await scanSwapBuckets(client, scanConfig.vault, fromBlock, latest, chunk)
-    buckets = mergeBuckets(buckets, fresh)
+    const fresh = await scanSwapBuckets(
+      client,
+      scanConfig.vault,
+      fromBlock,
+      latest,
+      chunk,
+      fallbackClient
+    )
+    buckets = mergeBuckets(buckets, fresh.buckets)
+
+    const bridgesBaked = fromBlock <= (baked?.cursor ?? 0) + 1
+    // baked coverage start (block) = block-time inverse of coverageStartMs
+    const bakedCoverageStartBlock =
+      baked?.coverageStartMs !== undefined
+        ? Math.max(0, latest - Math.floor((Date.now() - Number(baked.coverageStartMs)) / BLOCK_MS))
+        : undefined
+    const coverageStartBlock = computeCoverageStartBlock({
+      previous:
+        ledger && fromBlock <= ledger.cursor + 1
+          ? { startBlock: ledger.coverageStartBlock, cursor: ledger.cursor }
+          : undefined,
+      fromBlock,
+      bridgesBaked,
+      bakedCoverageStartBlock,
+    })
 
     saveSwapLedger({
-      version: 1,
+      version: 2,
       chainId: scanConfig.chainId,
       cursor: latest,
       savedAt: Date.now(),
+      coverageStartBlock,
       buckets,
     })
   } catch {
@@ -106,10 +166,14 @@ async function fetchChainMetrics(
 
   const now = Date.now()
 
+  // B3: the saved store (v2) carries coverageStartBlock; reloaded fresh here
+  // because the in-flight save above may have been the first v2 write.
   const fullCoverage = hasLedgerFullCoverage(
-    ledger,
-    (baked?.coverageStartMs as number) ?? null,
-    now
+    loadSwapLedger(scanConfig.chainId),
+    baked ? { cursor: Number(baked.cursor ?? 0), coverageStartMs: Number(baked.coverageStartMs ?? 0) } : null,
+    latest,
+    now,
+    BLOCK_MS
   )
 
   // 4. compute per-pool metrics + enrich

@@ -189,7 +189,7 @@ for (const { pool, factory, block } of logs) {
                 },
               ],
             })
-          )()) || []
+          )) || []
         transferLogs.push(...raw)
       }
       const ZERO_ADDR = '0x' + '0'.repeat(40)
@@ -224,7 +224,10 @@ for (const { pool, factory, block } of logs) {
         }
       }
       holdersCount = holders
-    } catch {
+    } catch (e) {
+      // observability (live-caught 2026-10-21): a silent catch produced
+      // holdersCount=undefined for EVERY pool with no trace — log it.
+      console.error('[holders] ' + pool + ' scan failed:', e?.message?.slice(0, 200))
       holdersCount = undefined
     }
     Object.assign(entry, { blockTimestamp, swapFee, holdersCount })
@@ -238,8 +241,9 @@ for (const { pool, factory, block } of logs) {
           readRetry({ address, abi: erc20Abi, functionName: 'decimals' }),
         ])
         tokenMeta.push({ address, symbol: tSymbol, name: tName, decimals: tDecimals })
-      } catch {
+      } catch (e) {
         // WETH-style contracts or non-ERC20 — keep address-only entry
+        console.error('[tokenMeta] ' + address + ' unreadable:', e?.message?.slice(0, 120))
         tokenMeta.push({ address })
       }
     }

@@ -2,7 +2,7 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-22T00:36:12.918Z",
+  "generatedAt": "2026-10-22T04:26:54.397Z",
   "fromBlock": 52131550,
   "pools": [
     {
@@ -12,6 +12,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792605743,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Based Peanut Whorl",
       "symbol": "pNUT",
       "tokens": [
@@ -49,6 +50,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792204831,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Inference Twin Graft",
       "symbol": "gtINF",
       "tokens": [
@@ -80,6 +82,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792204831,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Agent Twin Graft",
       "symbol": "gtAGT",
       "tokens": [
@@ -111,6 +114,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792204931,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Ether Twin Graft",
       "symbol": "gtETH",
       "tokens": [
@@ -142,6 +146,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792204931,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Bitcoin Twin Graft",
       "symbol": "gtBTC",
       "tokens": [
@@ -173,6 +178,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792204973,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "FX Twin Graft",
       "symbol": "gtFX",
       "tokens": [
@@ -204,6 +210,7 @@
       "type": "RECLAMM",
       "blockTimestamp": 1792204973,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "NUT/SALT reCLAMM",
       "symbol": "nutSALT-rCLP",
       "tokens": [
@@ -229,6 +236,7 @@
       "type": "RECLAMM",
       "blockTimestamp": 1792205003,
       "swapFee": "0.01",
+      "holdersCount": 1,
       "name": "PIPS/USDC reCLAMM",
       "symbol": "pipsUSDC-rCLP",
       "tokens": [
@@ -254,6 +262,7 @@
       "type": "WEIGHTED",
       "blockTimestamp": 1792205003,
       "swapFee": "0.003",
+      "holdersCount": 1,
       "name": "Silicon Twin Graft",
       "symbol": "gtSIL",
       "tokens": [
