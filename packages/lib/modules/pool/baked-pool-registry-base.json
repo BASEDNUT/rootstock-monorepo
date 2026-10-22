@@ -2,9 +2,46 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-17T03:52:58.111Z",
+  "generatedAt": "2026-10-22T00:36:12.918Z",
   "fromBlock": 52131550,
   "pools": [
+    {
+      "address": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52908198,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792605743,
+      "swapFee": "0.003",
+      "name": "Based Peanut Whorl",
+      "symbol": "pNUT",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xAC130701aa31c284c36609E2489f150F419AD7AD",
+          "symbol": "SNUT",
+          "name": "BASED SUPERNUTS",
+          "decimals": 9
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "53885789500629849"
+    },
     {
       "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
