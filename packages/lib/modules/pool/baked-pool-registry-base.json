@@ -2,9 +2,87 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-22T04:26:54.397Z",
+  "generatedAt": "2026-10-24T15:00:25.000Z",
   "fromBlock": 52131550,
   "pools": [
+    {
+      "address": "0x36b8b05325612d2a9f0fb2fac601ba12539a50f9",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53014437,
+      "type": "WEIGHTED",
+      "blockTimestamp": 1792818221,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "name": "Rootstock NUT/WETH Pool",
+      "symbol": "rks-NUT-WETH",
+      "tokens": [
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "635615417537736"
+    },
+    {
+      "address": "0x6e5cd525de6db571df4c270510206c1a620470d7",
+      "factory": "0x74c9804b4659feb7d056f150a810c4b5ae926da1",
+      "blockNumber": 53014441,
+      "type": "STABLE",
+      "blockTimestamp": 1792818229,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "name": "Rootstock tBTC/cbBTC Pool",
+      "symbol": "rks-TBTC-CBBTC",
+      "tokens": [
+        {
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "symbol": "tBTC",
+          "name": "Base tBTC v2",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "88342097088168"
+    },
+    {
+      "address": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
+      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
+      "blockNumber": 53014446,
+      "type": "STABLE",
+      "blockTimestamp": 1792818239,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "name": "Rootstock WETH/cbETH Surge Pool",
+      "symbol": "rks-WETH-CBETH-SURGE",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "3013442228012486"
+    },
     {
       "address": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
@@ -41,7 +119,7 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "53885789500629849"
+      "totalSupply": "520223807421713174"
     },
     {
       "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",

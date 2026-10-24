@@ -52,13 +52,20 @@ export const FACTORY_TO_POOL_TYPE: Map<string, GqlPoolType> = new Map([
   ['0x5dbd872f506ab714bf4d9c20675598d9f1495ba8', 'LIQUIDITY_BOOTSTRAPPING'],
 ])
 
+export interface DiscoveredPoolToken {
+  address: string
+  symbol?: string
+  name?: string
+  decimals?: number
+}
+
 export interface DiscoveredPool {
   address: string
   factory: string
   blockNumber: number
   name?: string
   symbol?: string
-  tokens?: string[]
+  tokens?: (string | DiscoveredPoolToken)[]
   totalSupply?: bigint
   swapFeePercentage?: bigint
 }
@@ -116,7 +123,11 @@ export function mapDiscoveredPoolToListItem(
     name: dp.name ?? dp.symbol ?? dp.address,
     factory: dp.factory,
     createTime: dp.blockNumber,
-    poolTokens: (dp.tokens ?? []).map(address => ({ address })),
+    poolTokens: (dp.tokens ?? []).map(t =>
+      typeof t === 'string'
+        ? { address: t }
+        : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
+    ),
     dynamicData: {
       totalLiquidity: null,
       volume24h: null,

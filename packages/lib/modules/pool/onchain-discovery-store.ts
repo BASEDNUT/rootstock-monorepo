@@ -1,3 +1,5 @@
+import type { DiscoveredPoolToken } from './onchain-pool-discovery'
+
 /**
  * Persistent onchain discovery store — the cumulative registry of
  * discovered pools (per chain) that survives cache expiry, reloads, and
@@ -24,7 +26,7 @@ export interface DiscoveredPoolRecord {
   /** Enriched metadata (persisted so reloads render without re-reads). */
   name?: string
   symbol?: string
-  tokens?: string[]
+  tokens?: (string | DiscoveredPoolToken)[]
   /** True when the metadata reads succeeded (F-02). Legacy records without
    *  the flag self-heal via non-empty tokens in isEnrichedRecord. */
   enriched?: boolean

@@ -1,4 +1,4 @@
-import { createPublicClient, http, type PublicClient } from 'viem'
+import { createPublicClient, erc20Abi, http, type PublicClient } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { weightedPoolAbi_V3 } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
@@ -8,6 +8,7 @@ import {
   getOnchainDiscoveryRpcUrl,
   getOnchainScanConfig,
   mapDiscoveredPoolToListItem,
+  type DiscoveredPoolToken,
   type OnchainPoolListItem,
 } from './onchain-pool-discovery'
 import {
@@ -265,7 +266,7 @@ export async function scanDiscoveredPools(
 
         item.name = name
         item.symbol = symbol
-        item.poolTokens = (tokens as string[]).map(address => ({ address }))
+        item.poolTokens = await enrichTokensMetadata(client, tokens as string[])
       } catch {
         // registered but unreadable — keep minimal entry
       }
@@ -303,7 +304,7 @@ export async function scanDiscoveredPools(
       blockNumber: item.createTime,
       name: item.name,
       symbol: item.symbol,
-      tokens: item.poolTokens.map(t => t.address),
+      tokens: item.poolTokens,
       ...(item.poolTokens.length > 0 ? { enriched: true } : {}),
     }))
 
@@ -322,6 +323,53 @@ export async function scanDiscoveredPools(
   }
 
   return realItems
+}
+
+/**
+ * Pills law (2026-10-24): read ERC20 metadata (symbol/name/decimals) for a
+ * discovered pool tokens so PoolListTokenPills render ticker text — not
+ * icon-only badges (browser-verified defect on live-only pools created
+ * after the last registry bake). A token whose reads fail falls back to
+ * address-only; never throws.
+ */
+export async function enrichTokensMetadata(
+  client: Pick<PublicClient, 'readContract'>,
+  tokens: string[]
+): Promise<DiscoveredPoolToken[]> {
+  if (tokens.length === 0) return []
+
+  return Promise.all(
+    tokens.map(async address => {
+      try {
+        const [symbol, name, decimals] = await Promise.all([
+          client.readContract({
+            address: address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: 'symbol',
+          }),
+          client.readContract({
+            address: address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: 'name',
+          }),
+          client.readContract({
+            address: address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: 'decimals',
+          }),
+        ])
+
+        return {
+          address,
+          symbol: symbol as string,
+          name: name as string,
+          decimals: Number(decimals),
+        }
+      } catch {
+        return { address }
+      }
+    })
+  )
 }
 
 /**
@@ -365,7 +413,7 @@ export async function reEnrichIncompleteRecords(
           ...record,
           name: name as string,
           symbol: symbol as string,
-          tokens: (tokens as string[]).map(address => address),
+          tokens: await enrichTokensMetadata(client, tokens as string[]),
           enriched: true,
         }
       } catch {
