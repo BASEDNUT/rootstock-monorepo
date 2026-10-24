@@ -46,3 +46,68 @@ export function compareByTotalLiquidityDesc(
 
   return Number(bTvl) - Number(aTvl)
 }
+
+/**
+ * Client-side ordering for onchain-only pool lists (browser-verified defect
+ * 2026-10-24): sort + minTvl state only fed the SKIPPED API query, so the
+ * onchain list rendered registry order regardless of the clicked column sort.
+ * Nulls/unavailable metrics sort LAST in both directions; empty sorting
+ * state = honest default TVL desc; minTvl > 0 drops pools below the floor
+ * AND null-TVL pools. Never mutates the input.
+ */
+export function sortOnchainPools<
+  T extends {
+    dynamicData?: {
+      totalLiquidity?: string | null
+      volume24h?: string | null
+      aprItems?: { apr: number }[]
+    } | null
+  },
+>(pools: T[], sorting: { id: string; desc: boolean }[], minTvl: number = 0): T[] {
+  const floor = minTvl > 0 ? minTvl : 0
+
+  const filtered =
+    floor > 0
+      ? pools.filter(p => {
+          const tvl = p.dynamicData?.totalLiquidity
+          return tvl !== null && tvl !== undefined && Number(tvl) >= floor
+        })
+      : [...pools]
+
+  const sort = sorting[0]
+  const id = sort?.id ?? 'totalLiquidity'
+  const desc = sort ? sort.desc : true
+
+  const metricOf = (pool: T): number | null => {
+    const d = pool.dynamicData
+    if (!d) return null
+
+    if (id === 'totalLiquidity') {
+      return d.totalLiquidity === null || d.totalLiquidity === undefined
+        ? null
+        : Number(d.totalLiquidity)
+    }
+
+    if (id === 'volume24h') {
+      return d.volume24h === null || d.volume24h === undefined ? null : Number(d.volume24h)
+    }
+
+    if (id === 'apr') return totalApr(d.aprItems)
+    return null
+  }
+
+  return filtered.sort((a, b) => {
+    const av = metricOf(a)
+    const bv = metricOf(b)
+    if (av === null && bv === null) return 0
+    if (av === null) return 1
+    if (bv === null) return -1
+    return desc ? bv - av : av - bv
+  })
+}
+
+/** Total APR = sum of aprItems; null when there are no items. */
+export function totalApr(items: { apr: number }[] | undefined | null): number | null {
+  if (!items || items.length === 0) return null
+  return items.reduce((sum, item) => sum + (item.apr ?? 0), 0)
+}

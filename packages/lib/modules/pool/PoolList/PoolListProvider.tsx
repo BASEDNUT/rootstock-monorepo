@@ -20,7 +20,7 @@ import type { OnchainPoolListItem } from '../onchain-pool-discovery'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { useOnchainPoolDiscovery } from '../useOnchainPoolDiscovery'
 import { useOnchainPoolMetrics } from '../useOnchainPoolMetrics'
-import { compareByTotalLiquidityDesc } from '../pool-metrics'
+import { compareByTotalLiquidityDesc, sortOnchainPools } from '../pool-metrics'
 import { useTokens } from '../../tokens/TokensProvider'
 import { useWalletTokenBalances } from '../../tokens/useWalletTokenBalances'
 
@@ -101,8 +101,15 @@ export function usePoolListLogic({
 
   const apiPools = loading && previousData ? previousData.pools : data?.pools || []
 
+  // Onchain-only lists get client-side ordering (browser-verified defect
+  // 2026-10-24): sort + minTvl state previously only fed the SKIPPED API
+  // query, so the list rendered registry order regardless of the sort.
   const pools = hasOnchainOnlyChain
-    ? [...(metricsData?.pools || onchainPools || []).map(p => p as unknown as PoolListItem), ...apiPools]
+    ? sortOnchainPools(
+        [...((metricsData?.pools || onchainPools || []) as unknown as PoolListItem[]), ...apiPools],
+        queryState.sorting,
+        queryState.minTvl
+      )
     : apiPools
 
   const poolsData = pools.map(pool => removeHookDataFromPoolIfNecessary(pool)) as PoolListItem[]
