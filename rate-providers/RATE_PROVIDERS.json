@@ -1,0 +1,1230 @@
+{
+  "generatedAt": "2026-10-25T15:46:29.289735+00:00",
+  "chain": "base",
+  "chainId": 8453,
+  "blockNumber": 53076908,
+  "rpc": "https://base.publicnode.com",
+  "source": {
+    "repo": "https://github.com/balancer/code-review",
+    "commit": "95cba8e973872be52805ba434d65be64967c1304",
+    "commit_date": "2026-09-04 08:44:57 -0400",
+    "commit_subject": "Merge pull request #805 from balancer/review/issue-802",
+    "review_docs": 230,
+    "registry_mtime": "2026-09-17T04:18:07.221650+00:00"
+  },
+  "rootstockVault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+  "summary": {
+    "baseProviders": 33,
+    "distinctAssets": 30,
+    "providersInUseByRootstock": 1,
+    "poolsScanned": 12,
+    "chainsInRegistry": 16
+  },
+  "inUse": [
+    {
+      "rateProvider": "0x3786a6CAAB433f5dfE56503207DF31DF87C5b5C1",
+      "usedBy": [
+        {
+          "pool": "rks-WETH-CBETH-SURGE",
+          "poolAddress": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
+          "token": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22"
+        },
+        {
+          "pool": "pNUT",
+          "poolAddress": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+          "token": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22"
+        }
+      ]
+    }
+  ],
+  "baseInventory": [
+    {
+      "rateProvider": "0xD8BC11AA3F7aA53193dC098aDb0d8776fa1e194B",
+      "name": "BRZTokenRateProvider.md",
+      "asset": "0xE9185Ee218cae427aF7B9764A011bb89FeA761B4",
+      "summary": "safe",
+      "review": "./BRZTokenRateProviderReview9871.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "BRZ",
+      "decimals": 18,
+      "rate": "5106099550000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xd58338f102e8de2e3d9d54cc043c6d606826a790",
+      "name": "ConstantRateProvider",
+      "asset": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "summary": "safe",
+      "review": "./ConstantRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "cbBTC",
+      "decimals": 8,
+      "rate": "29000000000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x4a0f0012004bc22d4fdb818b9c539e78adc0c69d",
+      "name": "ConstantRateProvider",
+      "asset": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "summary": "safe",
+      "review": "./ConstantRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "cbBTC",
+      "decimals": 8,
+      "rate": "35500000000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x3786a6CAAB433f5dfE56503207DF31DF87C5b5C1",
+      "name": "cbETH Rate Provider",
+      "asset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "summary": "safe",
+      "review": "./ChainLinkRateProvider.md",
+      "warnings": [
+        "chainlink"
+      ],
+      "upgradeable": false,
+      "symbol": "cbETH",
+      "decimals": 18,
+      "rate": "1142352101829586478",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x1298d51c51a201614502f90f554549256f1121fe",
+      "name": "EURc Rate Provider",
+      "asset": "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",
+      "summary": "safe",
+      "review": "./ChainLinkRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "EURC",
+      "decimals": 6,
+      "rate": "1119920900000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x6ac3b3BeCE5AA61C6AB5d50ecd2D47b1f18ACe49",
+      "name": "ezETH Rate Provider",
+      "asset": "0x2416092f143378750bb29b79ed961ab195cceea5",
+      "summary": "safe",
+      "review": "./ChainLinkRateProvider.md",
+      "warnings": [
+        "chainlink"
+      ],
+      "upgradeable": false,
+      "symbol": "ezETH",
+      "decimals": 18,
+      "rate": "1088602268415379955",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x0bB7028D24b24424485E769bD44b936B315Cb8FC",
+      "name": "fluid weth rate provider",
+      "asset": "0x9272D6153133175175Bc276512B2336BE3931CE9",
+      "summary": "safe",
+      "review": "./FluidRateProviders.md",
+      "warnings": [
+        ""
+      ],
+      "upgradeable": false,
+      "symbol": "fWETH",
+      "decimals": 18,
+      "rate": "1029713787168000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x586d1D28D5F8aeD81dA8AEf7016c4108f7A4ce51",
+      "name": "EmberHilbertBTCRateProvider.md",
+      "asset": "0x9C2dCDbDB3F0A0F628D1112bBCABD9AE75353df3",
+      "summary": "safe",
+      "review": "./EmberHilbertBTCRateProviderReview4689.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "hBTC",
+      "decimals": 8,
+      "rate": "1000557859540327145",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xfd9F651ca1e136f47d50C102D33D6cd342673C65",
+      "name": "IDRXRateProvider.md",
+      "asset": "0x18Bc5bcC660cf2B9cE3cd51a404aFe1a0cBD3C22",
+      "summary": "safe",
+      "review": "./IDRXRateProviderReview7547.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "IDRX",
+      "decimals": 2,
+      "rate": "59390000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x039f7205C2cBa4535C2575123Ac3D657263892c4",
+      "name": "rETH RocketPool Rate Provider",
+      "asset": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+      "summary": "safe",
+      "review": "./LegacyReview.md",
+      "warnings": [
+        "legacy"
+      ],
+      "upgradeable": false,
+      "symbol": "rETH",
+      "decimals": 18,
+      "rate": "1174431393615239806",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x4467Ab7BC794bb3929d77e826328BD378bf5392F",
+      "name": "ERC4626RateProvider",
+      "asset": "0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "stataBasUSDC",
+      "decimals": 6,
+      "rate": "1150782853302610898",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x84394fa6a39bdff63b255622da362b113c690267",
+      "name": "SavingsUSDSRateProvider",
+      "asset": "0x5875eEE11Cf8398102FdAd704C9E96607675467a",
+      "summary": "safe",
+      "review": "./sUSDSBaseRateProvider.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "sUSDS",
+      "decimals": 18,
+      "rate": "1113593846192504360",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x8d3E5E54A703ebC5e70C635268e7886d629486E4",
+      "name": "TreehouseETHRateProvider.md",
+      "asset": "0xd09ACb80C1E8f2291862c4978A008791c9167003",
+      "summary": "safe",
+      "review": "./TreehouseETHRateProviderReview710f.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "tETH",
+      "decimals": 18,
+      "rate": "1256637343939448079",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xbF21251c74208771e25De5C08971cE586236EE89",
+      "name": "ERC4626RateProvider",
+      "asset": "0xFA2A03b6f4A65fB1Af64f7d935fDBf78693df9aF",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBascbBTC",
+      "decimals": 8,
+      "rate": "1002043134473438901",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x940748d30315276362f594ECcCb648A4f9aB7629",
+      "name": "AaveMarketRateTransformer",
+      "asset": "0x5e8B674127B321DC344c078e58BBACc3f3008962",
+      "summary": "safe",
+      "review": "./MarketRateTransformerRateProviders.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBascbETH",
+      "decimals": 18,
+      "rate": "1146822862035802250",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xdBB41Da7dE45729857A09baaF98D1e9b0b1A8740",
+      "name": "aEURC to USD AaveMarketRateTransformer",
+      "asset": "0x729F75Aff28c726e32403e80cef2aFb518CFbfa7",
+      "summary": "safe",
+      "review": "./MarketRateTransformerRateProviders.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBasEURC",
+      "decimals": 6,
+      "rate": "1160237873204703523",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xFF4B2CE4131E0Fb6b8A40447B4dF96Bdc83f759a",
+      "name": "AaveMarketRateTransformer",
+      "asset": "0xF8F10f39116716e89498c1c5E94137ADa11b2BC7",
+      "summary": "safe",
+      "review": "./MarketRateTransformerRateProviders.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBasezETH",
+      "decimals": 18,
+      "rate": "1088616957737076274",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xf8CDA16566a06f3C848258DE4Ec5fc3401cbB214",
+      "name": "Aave GHO StataV2",
+      "asset": "0x88b1Cd4b430D95b406E382C3cDBaE54697a0286E",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBasGHO",
+      "decimals": 18,
+      "rate": "1071010256557862921",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xBa0Fd0f3B019e8aBA61FEA2ac4Eb56b29F6808c0",
+      "name": "ERC4626RateProvider",
+      "asset": "0x74D4D1D440c9679b1013999Bd91507eAa2fff651",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBasUSDbC",
+      "decimals": 6,
+      "rate": "1140246363804822639",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x0368b79b6A173a5aD589594E3227153D8cC7Cecc",
+      "name": "ERC4626RateProvider",
+      "asset": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [
+        ""
+      ],
+      "upgradeable": false,
+      "symbol": "waBasUSDC",
+      "decimals": 6,
+      "rate": "1150782865203832750",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x14BD1e9b30007510c2aFE3a7a8053A6DE5605d35",
+      "name": "ERC4626RateProvider",
+      "asset": "0xe298b938631f750DD409fB18227C4a23dCdaab9b",
+      "summary": "safe",
+      "review": "./statATokenLMRateProvider.md",
+      "warnings": [
+        ""
+      ],
+      "upgradeable": false,
+      "symbol": "waBasWETH",
+      "decimals": 18,
+      "rate": "1052167059931072029",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xcb1f29103F710A0A562de7f0e9DDE223D0860674",
+      "name": "AaveMarketRateTransformer",
+      "asset": "0x0830820D1A9aa1554364752d6D8F55C836871B74",
+      "summary": "safe",
+      "review": "./MarketRateTransformerRateProviders.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "waBaswstETH",
+      "decimals": 18,
+      "rate": "1250984141296481203",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x5a7A419C59eAAdec8Dc00bc93ac95612e6e154Cf",
+      "name": "weETH Rate Provider",
+      "asset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+      "summary": "safe",
+      "review": "./ChainLinkRateProvider.md",
+      "warnings": [
+        "chainlink"
+      ],
+      "upgradeable": false,
+      "symbol": "weETH",
+      "decimals": 18,
+      "rate": "1106494760336220021",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x5E10C2a55fB6E4C14c50C7f6B82bb28A813a4748",
+      "name": "ConstantRateProvider",
+      "asset": "0x4200000000000000000000000000000000000006",
+      "summary": "safe",
+      "review": "./ConstantRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "WETH",
+      "decimals": 18,
+      "rate": "1900000000000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x3e89cc86307aF44A77EB29d0c4163d515D348313",
+      "name": "ConstantRateProvider",
+      "asset": "0x4200000000000000000000000000000000000006",
+      "summary": "safe",
+      "review": "./ConstantRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "WETH",
+      "decimals": 18,
+      "rate": "2600000000000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x3fA516CEB5d068b60FDC0c68a3B793Fc43B88f15",
+      "name": "ConstantRateProvider",
+      "asset": "0x4200000000000000000000000000000000000006",
+      "summary": "safe",
+      "review": "./ConstantRateProvider.md",
+      "warnings": [],
+      "upgradeable": false,
+      "symbol": "WETH",
+      "decimals": 18,
+      "rate": "3300000000000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x2e40AcBBB710e04BeE940560Af0B0932018b67Ec",
+      "name": "WrappedExtraFiX Base USDCRateProvider.md",
+      "asset": "0x589A7339C6d0c8777E7429F57f2f95c069c37288",
+      "summary": "safe",
+      "review": "./WrappedExtraFiX Base USDCRateProviderReviewc321.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "wexBaseUSDC",
+      "decimals": 6,
+      "rate": "1040907165674352355",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x3b3dd5f913443bb5E70389F29c83F7DCA460CAe1",
+      "name": "wstETH Rate Provider",
+      "asset": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+      "summary": "safe",
+      "review": "./ChainLinkRateProvider.md",
+      "warnings": [
+        "chainlink"
+      ],
+      "upgradeable": false,
+      "symbol": "wstETH",
+      "decimals": 18,
+      "rate": "1247173073344729899",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x47fc979C519fA6c07D4dB6ab7B7573e20d94C5F9",
+      "name": "YoVaultBTCRateProvider.md",
+      "asset": "0xbCbc8cb4D1e8ED048a6276a5E94A3e952660BcbC",
+      "summary": "safe",
+      "review": "./YoVaultBTCRateProviderReviewfbc3.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "yoBTC",
+      "decimals": 8,
+      "rate": "1015520160000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xB0027C1C870573d5626Df1f049a12E39d3e613e9",
+      "name": "YoVaultETHRateProvider.md",
+      "asset": "0x3A43AEC53490CB9Fa922847385D82fe25d0E9De7",
+      "summary": "safe",
+      "review": "./YoVaultETHRateProviderReview3d7a.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "yoETH",
+      "decimals": 18,
+      "rate": "1093689108699469908",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x8Cb017261719799f8b5A3762Ebe2b0e214F9a735",
+      "name": "YoVaultUSDRateProvider.md",
+      "asset": "0x0000000f2eB9f69274678c76222B35eEc7588a65",
+      "summary": "safe",
+      "review": "./YoVaultUSDRateProviderReview53ea.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "yoUSD",
+      "decimals": 6,
+      "rate": "1068500000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0xD47c15CDD7c734db321F07CB9AB1f852aE9A0b83",
+      "name": "YieldFi yUSD Rate Provider",
+      "asset": "0x895e15020C3f52ddD4D8e9514eB83C39F53B1579",
+      "summary": "safe",
+      "review": "./yUSDRateProviderBase.md",
+      "warnings": [
+        ""
+      ],
+      "upgradeable": true,
+      "symbol": "yUSD",
+      "decimals": 18,
+      "rate": "998454000000000000",
+      "rateReadable": true
+    },
+    {
+      "rateProvider": "0x2fb9fb5eB65c17B405c1B1c02bAE992D625B34c6",
+      "name": "YieldFiyUSDRateProvider.md",
+      "asset": "0x4772D2e014F9fC3a820C444e3313968e9a5C8121",
+      "summary": "safe",
+      "review": "./YieldFiyUSDRateProviderReview33e7.md",
+      "warnings": [],
+      "upgradeable": true,
+      "symbol": "yUSD",
+      "decimals": 18,
+      "rate": "998454000000000000",
+      "rateReadable": true
+    }
+  ],
+  "ourPools": [
+    {
+      "symbol": "rks-NUT-WETH",
+      "address": "0x36b8b05325612d2a9f0fb2fac601ba12539a50f9",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "rks-TBTC-CBBTC",
+      "address": "0x6e5cd525de6db571df4c270510206c1a620470d7",
+      "poolType": "STABLE",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "rks-WETH-CBETH-SURGE",
+      "address": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
+      "poolType": "STABLE",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "tokenType": "WITH_RATE",
+          "rateProvider": "0x3786a6CAAB433f5dfE56503207DF31DF87C5b5C1",
+          "paysYieldFees": true
+        },
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "pNUT",
+      "address": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "tokenType": "WITH_RATE",
+          "rateProvider": "0x3786a6CAAB433f5dfE56503207DF31DF87C5b5C1",
+          "paysYieldFees": true
+        },
+        {
+          "address": "0xAC130701aa31c284c36609E2489f150F419AD7AD",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtINF",
+      "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xF4d97F2da56e8c3098f3a8D538DB630A2606a024",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtAGT",
+      "address": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0x7431aDa8a591C955a994a21710752EF9b882b8e3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtETH",
+      "address": "0x98443d8704112d166c89d800e4264318db38e05a",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtBTC",
+      "address": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtFX",
+      "address": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "nutSALT-rCLP",
+      "address": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
+      "poolType": "RECLAMM",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x1EDe2AFC985F6D7aEb3F4c84B95A103c00D5dE81",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "pipsUSDC-rCLP",
+      "address": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "poolType": "RECLAMM",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0x3F2327221Dd4f0BAE660172606D6b288A1cf8aD9",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    },
+    {
+      "symbol": "gtSIL",
+      "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "poolType": "WEIGHTED",
+      "vault": "0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7",
+      "tokens": [
+        {
+          "address": "0xb20000000000000000000078ee7ce2fE4908108C",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "tokenType": "STANDARD",
+          "rateProvider": null,
+          "paysYieldFees": false
+        }
+      ]
+    }
+  ],
+  "wishlist": [
+    {
+      "token": "aero",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "gho",
+      "directProvider": false,
+      "wrappedFormProvider": true,
+      "hasBaseProvider": true,
+      "direct": [],
+      "wrapped": [
+        {
+          "rateProvider": "0xf8CDA16566a06f3C848258DE4Ec5fc3401cbB214",
+          "asset": "0x88b1Cd4b430D95b406E382C3cDBaE54697a0286E",
+          "name": "Aave GHO StataV2",
+          "symbol": "waBasGHO"
+        }
+      ]
+    },
+    {
+      "token": "dai",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "usds",
+      "directProvider": false,
+      "wrappedFormProvider": true,
+      "hasBaseProvider": true,
+      "direct": [],
+      "wrapped": [
+        {
+          "rateProvider": "0x84394fa6a39bdff63b255622da362b113c690267",
+          "asset": "0x5875eEE11Cf8398102FdAd704C9E96607675467a",
+          "name": "SavingsUSDSRateProvider",
+          "symbol": "sUSDS"
+        }
+      ]
+    },
+    {
+      "token": "reth",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x039f7205C2cBa4535C2575123Ac3D657263892c4",
+          "asset": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+          "name": "rETH RocketPool Rate Provider",
+          "symbol": "rETH"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "weeth",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x5a7A419C59eAAdec8Dc00bc93ac95612e6e154Cf",
+          "asset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+          "name": "weETH Rate Provider",
+          "symbol": "weETH"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "morpho",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "well",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "aave",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "susds",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x84394fa6a39bdff63b255622da362b113c690267",
+          "asset": "0x5875eEE11Cf8398102FdAd704C9E96607675467a",
+          "name": "SavingsUSDSRateProvider",
+          "symbol": "sUSDS"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "usd+",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "lbtc",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "syrupusdc",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "wrseth",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "degen",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "clanker",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "bnkr",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "keycat",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "chad",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "doginme",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "miggles",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "ski",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "wabasusdc",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x0368b79b6A173a5aD589594E3227153D8cC7Cecc",
+          "asset": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
+          "name": "ERC4626RateProvider",
+          "symbol": "waBasUSDC"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "wabasweth",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x14BD1e9b30007510c2aFE3a7a8053A6DE5605d35",
+          "asset": "0xe298b938631f750DD409fB18227C4a23dCdaab9b",
+          "name": "ERC4626RateProvider",
+          "symbol": "waBasWETH"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "wabasgho",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0xf8CDA16566a06f3C848258DE4Ec5fc3401cbB214",
+          "asset": "0x88b1Cd4b430D95b406E382C3cDBaE54697a0286E",
+          "name": "Aave GHO StataV2",
+          "symbol": "waBasGHO"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "wabaseurc",
+      "directProvider": true,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0xdBB41Da7dE45729857A09baaF98D1e9b0b1A8740",
+          "asset": "0x729F75Aff28c726e32403e80cef2aFb518CFbfa7",
+          "name": "aEURC to USD AaveMarketRateTransformer",
+          "symbol": "waBasEURC"
+        }
+      ],
+      "wrapped": []
+    },
+    {
+      "token": "mai",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "yfi",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "wsteth",
+      "directProvider": true,
+      "wrappedFormProvider": true,
+      "hasBaseProvider": true,
+      "direct": [
+        {
+          "rateProvider": "0x3b3dd5f913443bb5E70389F29c83F7DCA460CAe1",
+          "asset": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+          "name": "wstETH Rate Provider",
+          "symbol": "wstETH"
+        }
+      ],
+      "wrapped": [
+        {
+          "rateProvider": "0xcb1f29103F710A0A562de7f0e9DDE223D0860674",
+          "asset": "0x0830820D1A9aa1554364752d6D8F55C836871B74",
+          "name": "AaveMarketRateTransformer",
+          "symbol": "waBaswstETH"
+        }
+      ]
+    },
+    {
+      "token": "usdt",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "usdc",
+      "directProvider": false,
+      "wrappedFormProvider": true,
+      "hasBaseProvider": true,
+      "direct": [],
+      "wrapped": [
+        {
+          "rateProvider": "0x0368b79b6A173a5aD589594E3227153D8cC7Cecc",
+          "asset": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
+          "name": "ERC4626RateProvider",
+          "symbol": "waBasUSDC"
+        },
+        {
+          "rateProvider": "0x4467Ab7BC794bb3929d77e826328BD378bf5392F",
+          "asset": "0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc",
+          "name": "ERC4626RateProvider",
+          "symbol": "stataBasUSDC"
+        }
+      ]
+    },
+    {
+      "token": "jeur",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "frxusd",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "superoethb",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "ovn",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "red",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "link",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "hunt",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "mint",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "wusdr",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "usdbc",
+      "directProvider": false,
+      "wrappedFormProvider": true,
+      "hasBaseProvider": true,
+      "direct": [],
+      "wrapped": [
+        {
+          "rateProvider": "0xBa0Fd0f3B019e8aBA61FEA2ac4Eb56b29F6808c0",
+          "asset": "0x74D4D1D440c9679b1013999Bd91507eAa2fff651",
+          "name": "ERC4626RateProvider",
+          "symbol": "waBasUSDbC"
+        }
+      ]
+    },
+    {
+      "token": "usdz",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "alusdb",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    },
+    {
+      "token": "aixbt",
+      "directProvider": false,
+      "wrappedFormProvider": false,
+      "hasBaseProvider": false,
+      "direct": [],
+      "wrapped": []
+    }
+  ]
+}
