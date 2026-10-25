@@ -74,6 +74,7 @@ export function useLbpFormLogic() {
     localStorageKey: LS_KEYS.LbpConfig.StepIndex,
     isFormHydrated: saleStructureForm.isHydrated && projectInfoForm.isHydrated,
     shouldSkipRedirectToSavedStep: false,
+    enableSavedStepResume: true,
     canRenderStepFn: () => true,
   })
 

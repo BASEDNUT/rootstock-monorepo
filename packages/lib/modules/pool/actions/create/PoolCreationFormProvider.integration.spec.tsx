@@ -64,12 +64,14 @@ describe('usePoolFormLogic', () => {
 
   describe('resetPoolCreationForm', () => {
     it('reverts all persistent forms, step index, and pool address to initial values', async () => {
-      // Seed step index before render so useLocalStorage initializes with it
+      // Seed step index before render so useLocalStorage initializes with it.
+      // Honest-entry law: bare /create never silently resumes a saved step —
+      // the stepper must not claim steps were completed when they were not.
       window.localStorage.setItem(LS_KEYS.PoolCreation.StepIndex, '2')
 
       const { result } = await renderPoolForm()
 
-      expect(result.current.currentStepIndex).toBe(2)
+      expect(result.current.currentStepIndex).toBe(0)
 
       // protocol is overridden at runtime by PoolCreationFormProvider, so capture the actual initial
       const initialProtocol = result.current.poolCreationForm.getValues('protocol')
