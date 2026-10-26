@@ -19,7 +19,6 @@ import { PoolIssue } from './pool-issues/PoolIssue.type'
 import { BalAlertProps } from '@repo/lib/shared/components/alerts/BalAlert'
 import { useHook } from '../../hooks/useHook'
 import { usePoolMetadata } from '../metadata/usePoolMetadata'
-import { Address } from 'viem'
 import { usePoolTokenPriceWarnings } from '../usePoolTokenPriceWarnings'
 import { recoveryModeAlert } from '../actions/recovery-mode/RecoveryModeAlert'
 import { navTo } from '@repo/lib/shared/utils/ipfs-nav'
@@ -118,10 +117,16 @@ export function usePoolAlerts(pool: Pool) {
     })
 
     if (hook) {
+      // Rootstock (2026-10-26): case-insensitive lookup - our hooks metadata
+      // carries lowercase addresses while pool.hook.address may be checksummed
+      // (browser-verified: banner read 'hook called undefined'). Same law as
+      // useHook.ts.
       const hookName = hooks.find(
         hook =>
           pool.hook &&
-          hook?.addresses[getChainId(pool.chain)]?.includes(pool.hook.address as Address)
+          hook?.addresses[getChainId(pool.chain)]?.some(
+            address => address.toLowerCase() === (pool.hook!.address as string).toLowerCase()
+          )
       )?.name
 
       if (!hasReviewedHook(hook)) {
@@ -165,7 +170,10 @@ export function usePoolAlerts(pool: Pool) {
           const hookName = hooks.find(
             hook =>
               nestedPool.hook &&
-              hook?.addresses[getChainId(pool.chain)]?.includes(nestedPool.hook.address as Address)
+              hook?.addresses[getChainId(pool.chain)]?.some(
+                address =>
+                  address.toLowerCase() === (nestedPool.hook!.address as string).toLowerCase()
+              )
           )?.name
 
           if (!hasReviewedHook(nestedPool.hook)) {

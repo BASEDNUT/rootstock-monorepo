@@ -15,6 +15,7 @@ import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 // FIX-6: per-chain baked registries — the layout looks up the
 // chain-matching file (Sepolia snapshot + Base mainnet registry).
 import { getBakedRegistryFile } from '@repo/lib/modules/pool/onchain-pool-fetch'
+import { getRootstockHookReviewData } from '@repo/lib/modules/hooks/rootstockHooks'
 
 type PoolLayoutProps = PropsWithChildren<{
   chain: ChainSlug
@@ -180,7 +181,12 @@ function buildOnchainPoolData(
       factory: baked.factory,
       hasErc4626: false,
       hasNestedErc4626: false,
-      hook: baked.hook ? { address: baked.hook } : null,
+      hook: baked.hook
+        ? {
+            address: baked.hook,
+            reviewData: getRootstockHookReviewData(baked.hook) ?? undefined,
+          }
+        : null,
       id: baked.address,
       liquidityManagement: { disableUnbalancedLiquidity: false },
       name: baked.name || baked.symbol || baked.address,

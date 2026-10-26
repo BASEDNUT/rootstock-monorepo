@@ -1,6 +1,7 @@
 import { createPublicClient, erc20Abi, http, type PublicClient } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { vaultExtensionAbi_V3, weightedPoolAbi_V3 } from '@balancer/sdk'
+import { getRootstockHookReviewData } from '../hooks/rootstockHooks'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import {
   FACTORY_TO_POOL_TYPE,
@@ -137,7 +138,12 @@ export function getBakedPools(chain: GqlChain): OnchainPoolListItem[] {
           ? { address: t }
           : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
       ),
-      hook: p.hook ? { address: p.hook } : null,
+      hook: p.hook
+        ? {
+            address: p.hook,
+            reviewData: getRootstockHookReviewData(p.hook) ?? undefined,
+          }
+        : null,
       tags: p.tags ?? [],
       dynamicData: {
         totalLiquidity: null,
@@ -304,7 +310,13 @@ export async function scanDiscoveredPools(
           tokenTypes,
         })
 
-        item.hook = facts.hook ? { address: facts.hook } : null
+        item.hook = facts.hook
+          ? {
+              address: facts.hook,
+              reviewData: getRootstockHookReviewData(facts.hook) ?? undefined,
+            }
+          : null
+
         item.tags = facts.tags
       } catch {
         // facts stay unset — re-derived on the next scan (record incomplete)

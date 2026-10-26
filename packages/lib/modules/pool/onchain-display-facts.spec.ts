@@ -6,7 +6,7 @@ import {
 } from './onchain-pool-discovery'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import { aggregatePoolListMetrics } from './pool-metrics'
-import { ROOTSTOCK_HOOKS } from '@repo/lib/modules/hooks/rootstockHooks'
+import { ROOTSTOCK_HOOKS, getRootstockHookReviewData } from '@repo/lib/modules/hooks/rootstockHooks'
 import { PoolDisplayType } from './pool.types'
 
 /**
@@ -58,7 +58,9 @@ describe('mapDiscoveredPoolToListItem wraps facts for the UI', () => {
       GqlChainValues.Base
     )
 
-    expect(item.hook).toEqual({ address: SURGE })
+    // v2: OUR surge deployment also carries evidence-backed reviewData
+    expect(item.hook).toMatchObject({ address: SURGE })
+    expect(item.hook?.reviewData?.summary).toBe('safe')
     expect(item.tags).toEqual([ONCHAIN_TAG.Boosted])
   })
 
@@ -123,5 +125,38 @@ describe('aggregatePoolListMetrics (stats band)', () => {
 
     expect(r.volume24h).toBe(0)
     expect(r.fees24h).toBe(0)
+  })
+})
+
+describe('ROOTSTOCK hook review data (safety gate honesty)', () => {
+  it('returns safe review data for OUR surge + MEV addresses (case-insensitive)', () => {
+    const surgeLower = '0x2bdde9a6e0f9ad3f7349e09617cf7feb655c5981'
+    const surgeChecksum = '0x2Bdde9A6e0f9ad3f7349E09617cf7fEB655c5981'
+    const mevLower = '0xfe807044d0329bd96aea42a78f091c2db1069f42'
+
+    for (const addr of [surgeLower, surgeChecksum, mevLower]) {
+      const rd = getRootstockHookReviewData(addr)
+      expect(rd).not.toBeNull()
+      expect(rd!.summary).toBe('safe')
+      expect(rd!.warnings).toEqual([])
+    }
+  })
+
+  it('returns null for addresses that are NOT our deployments - never fabricates a review', () => {
+    expect(getRootstockHookReviewData('0x1234567890abcdef1234567890abcdef12345678')).toBeNull()
+    // upstream Balancer surge deployment on Base - not ours
+    expect(getRootstockHookReviewData('0xb2007b8b7e0260042517f635cfd8e6dd2dd7f007')).toBeNull()
+  })
+
+  it('mapDiscoveredPoolToListItem attaches reviewData to external-hook pools', () => {
+    const SURGE = '0x2Bdde9A6e0f9ad3f7349E09617cf7fEB655c5981'
+
+    const item = mapDiscoveredPoolToListItem(
+      { address: POOL, factory: '0xf', blockNumber: 1, hook: SURGE, tags: [] },
+      GqlChainValues.Base
+    )
+
+    expect(item.hook).toMatchObject({ address: SURGE })
+    expect((item.hook as { reviewData?: { summary: string } }).reviewData?.summary).toBe('safe')
   })
 })

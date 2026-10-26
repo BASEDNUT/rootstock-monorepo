@@ -4,6 +4,7 @@ import { shouldUseAnvilFork } from '@repo/lib/config/app.config'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
 import type { GqlPoolAprItem } from '@repo/lib/shared/services/api/graphql-derived-types'
 import type { GqlPoolType } from '@repo/lib/shared/services/api/generated/graphql'
+import { getRootstockHookReviewData } from '../hooks/rootstockHooks'
 
 /**
  * Rootstock onchain pool discovery.
@@ -135,7 +136,10 @@ export interface OnchainPoolListItem {
   }[]
   /** External hook contract (never the pool itself — self-hook = PERMISSIONED,
    * upstream reCLAMM strip law). null = no external hook. */
-  hook?: { address: string } | null
+  hook?: {
+    address: string
+    reviewData?: { reviewFile?: string | null; summary: string; warnings: string[] }
+  } | null
   /** Rootstock-derived display tags: BOOSTED (yield-bearing WITH_RATE token),
    * PERMISSIONED (self-hooked pool gating add/remove/init). */
   tags?: string[]
@@ -178,7 +182,12 @@ export function mapDiscoveredPoolToListItem(
         ? { address: t }
         : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
     ),
-    hook: dp.hook ? { address: dp.hook } : null,
+    hook: dp.hook
+      ? {
+          address: dp.hook,
+          reviewData: getRootstockHookReviewData(dp.hook) ?? undefined,
+        }
+      : null,
     tags: dp.tags ?? [],
     dynamicData: {
       totalLiquidity: null,
