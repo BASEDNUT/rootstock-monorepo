@@ -117,21 +117,6 @@ export function PoolListTableDetailsCell({ pool }: Props) {
           <PoolHookTag onlyShowIcon pool={pool} />
         </HStack>
       )}
-      {/* Rootstock (2026-10-26): self-hooked pools gate their own liquidity
-       * (init/add/remove run through the pool contract) — honest PERMISSIONED
-       * tag instead of a hook pill (the hook address IS the pool address). */}
-      {pool.tags?.includes('PERMISSIONED') && (
-        <HStack gap="0.25rem">
-          <Text color="border.base" fontSize="0.5rem">
-            •
-          </Text>
-          <TooltipWithTouch label="Permissioned — liquidity actions are gated by the pool contract">
-            <Text fontSize="0.6rem" fontWeight="medium" variant="secondary">
-              Permissioned
-            </Text>
-          </TooltipWithTouch>
-        </HStack>
-      )}
       {isV3Pool(pool) && isLiquidityBootstrapping(pool.type) && (isDev || isStaging) && (
         <Box pl="0.1875rem">
           <LbpPoolListInfo pool={pool as PoolListItem} />

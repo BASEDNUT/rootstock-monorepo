@@ -2,7 +2,7 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-26T18:35:28.339Z",
+  "generatedAt": "2026-10-26T20:20:03.953Z",
   "fromBlock": 52131550,
   "pools": [
     {
@@ -44,7 +44,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED", "PERMISSIONED"],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -72,7 +72,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED", "PERMISSIONED"],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
@@ -100,7 +100,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["PERMISSIONED"],
+      "tags": [],
       "tokens": [
         {
           "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
@@ -605,7 +605,7 @@
       ],
       "totalSupply": "641291499607955645076",
       "hook": null,
-      "tags": ["PERMISSIONED"]
+      "tags": []
     },
     {
       "address": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
@@ -633,7 +633,7 @@
       ],
       "totalSupply": "251450761831912198249218056",
       "hook": null,
-      "tags": ["PERMISSIONED"]
+      "tags": []
     },
     {
       "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",

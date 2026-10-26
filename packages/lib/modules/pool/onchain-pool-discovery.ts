@@ -71,14 +71,13 @@ export interface DiscoveredPool {
   swapFeePercentage?: bigint
   /** External hook contract address; null = none/self-hook. */
   hook?: string | null
-  /** Derived display tags (BOOSTED / PERMISSIONED). */
+  /** Derived display tags (BOOSTED). */
   tags?: string[]
 }
 
 /** Rootstock onchain display tags. */
 export const ONCHAIN_TAG = {
   Boosted: 'BOOSTED',
-  Permissioned: 'PERMISSIONED',
 } as const
 
 /**
@@ -110,7 +109,6 @@ export function derivePoolDisplayFacts({
   const hook = !isZero && !isSelf ? hooksContract : null
   const tags: string[] = []
   if (tokenTypes.some(t => t !== 0)) tags.push(ONCHAIN_TAG.Boosted)
-  if (isSelf) tags.push(ONCHAIN_TAG.Permissioned)
 
   return { hook, tags }
 }
@@ -134,14 +132,14 @@ export interface OnchainPoolListItem {
     name?: string
     decimals?: number
   }[]
-  /** External hook contract (never the pool itself — self-hook = PERMISSIONED,
+  /** External hook contract (never the pool itself - self-hook is stripped,
+   * upstream reCLAMM strip law). null = no external hook. reviewData mirrors— self-hook = PERMISSIONED,
    * upstream reCLAMM strip law). null = no external hook. */
   hook?: {
     address: string
     reviewData?: { reviewFile?: string | null; summary: string; warnings: string[] }
   } | null
-  /** Rootstock-derived display tags: BOOSTED (yield-bearing WITH_RATE token),
-   * PERMISSIONED (self-hooked pool gating add/remove/init). */
+  /** Rootstock-derived display tags: BOOSTED (yield-bearing WITH_RATE token). */
   tags?: string[]
   /** Table rows require dynamicData (PoolListTableRow reads totalLiquidity,
    * volume24h, aprItems). Onchain pools carry a zero-stub — the IPFS app is

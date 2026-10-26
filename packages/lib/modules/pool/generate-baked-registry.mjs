@@ -178,7 +178,6 @@ async function readDisplayFacts(poolAddr) {
     const tokenTypes = (tokenInfo || []).map(t => Number(t.tokenType))
     const tags = []
     if (tokenTypes.some(t => t !== 0)) tags.push('BOOSTED')
-    if (isSelf) tags.push('PERMISSIONED')
     return { hook: !isZero && !isSelf ? hooksConfig.hooksContract : null, tags }
   } catch (e) {
     console.error('[facts] ' + poolAddr + ' unreadable:', e?.message?.slice(0, 120))

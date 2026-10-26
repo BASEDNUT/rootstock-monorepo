@@ -36,7 +36,7 @@ export interface DiscoveredPoolRecord {
   enriched?: boolean
   /** External hook contract address; null = none (v2 display facts). */
   hook?: string | null
-  /** Derived display tags — BOOSTED / PERMISSIONED (v2 display facts). */
+  /** Derived display tags — BOOSTED (v2 display facts). */
   tags?: string[]
 }
 

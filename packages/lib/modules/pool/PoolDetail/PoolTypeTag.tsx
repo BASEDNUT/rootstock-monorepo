@@ -148,6 +148,9 @@ export function PoolTypeTag({ pool }: PoolTypeTagProps) {
   const erc4626Metadata = getErc4626Metadata(pool)
   const boostedTooltipLabel = [...erc4626Metadata.map(m => m.name)].join(' & ')
 
+  // Rootstock (2026-10-26): no erc4626 names = no wrapped-protocol copy
+  // (empty list formatted 'wrapped undefined tokens' - browser-caught).
+  const hasErc4626Names = erc4626Metadata.length > 0
   const protocolNames = erc4626Metadata.map(metadata => metadata.name.split(' ')[0]!)
   const formattedProtocolNames = formatStringsToSentenceList(protocolNames)
 
@@ -159,7 +162,7 @@ export function PoolTypeTag({ pool }: PoolTypeTagProps) {
     <HStack>
       {getPoolTypeLabel(pool)}
 
-      {isBoosted(pool) && erc4626Metadata.length && (
+      {isBoosted(pool) && hasErc4626Names && (
         <CustomPopover
           bodyText={boostedWarningMsg}
           headerText={boostedTooltipLabel}

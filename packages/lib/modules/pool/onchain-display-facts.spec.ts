@@ -11,8 +11,9 @@ import { PoolDisplayType } from './pool.types'
 
 /**
  * Display facts law (2026-10-26): pools render their onchain truth —
- * BOOSTED for WITH_RATE tokens, PERMISSIONED for self-hooked pools,
- * external hook address for real hook pools. Never guessed.
+ * BOOSTED for WITH_RATE tokens, external hook address for real hook pools.
+ * Self-hooked pools carry no hook and no tag (upstream parity).
+ * Never guessed.
  */
 
 const POOL = '0x9e75fc8ebcece644ed9e6229bae8cb1368b61349'
@@ -30,10 +31,10 @@ describe('derivePoolDisplayFacts', () => {
     expect(facts.tags).toEqual([ONCHAIN_TAG.Boosted])
   })
 
-  it('self-hooked pool → PERMISSIONED, never a hook address (reCLAMM strip law)', () => {
+  it('self-hooked pool → no hook, no tags (upstream parity — PERMISSIONED removed)', () => {
     const facts = derivePoolDisplayFacts({ pool: POOL, hooksContract: POOL, tokenTypes: [0, 0] })
     expect(facts.hook).toBeNull()
-    expect(facts.tags).toEqual([ONCHAIN_TAG.Permissioned])
+    expect(facts.tags).toEqual([])
   })
 
   it('external hook → hook address + no permissioned tag (surge class)', () => {
@@ -43,9 +44,9 @@ describe('derivePoolDisplayFacts', () => {
     expect(facts.tags).toEqual([])
   })
 
-  it('self-hooked + boosted → both tags', () => {
+  it('self-hooked + boosted - BOOSTED only', () => {
     const facts = derivePoolDisplayFacts({ pool: POOL, hooksContract: POOL, tokenTypes: [2, 0] })
-    expect(facts.tags).toEqual([ONCHAIN_TAG.Boosted, ONCHAIN_TAG.Permissioned])
+    expect(facts.tags).toEqual([ONCHAIN_TAG.Boosted])
   })
 })
 

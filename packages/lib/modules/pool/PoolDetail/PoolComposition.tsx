@@ -206,6 +206,8 @@ export function PoolComposition() {
   const hasReadMoreURL = erc4626Metadata.some(metadata => metadata.readMoreURL)
   const filteredErc4626Metadata = erc4626Metadata.filter(metadata => metadata.readMoreURL)
 
+  // Rootstock (2026-10-26): no erc4626 names = no wrapped-protocol copy
+  const hasErc4626Names = erc4626Metadata.length > 0
   const protocolNames = erc4626Metadata.map(metadata => metadata.name.split(' ')[0]!)
   const formattedProtocolNames = formatStringsToSentenceList(protocolNames)
   const boostedWarningMsg = `This Boosted pool uses wrapped ${formattedProtocolNames} tokens to generate yield from lending on ${protocolNames.length === 1 ? 'that protocol' : 'those protocols'}. This results in continuous appreciation of the pool's total value over time.`
@@ -246,7 +248,7 @@ export function PoolComposition() {
             </Heading>
             <PoolTypeTag pool={pool} />
           </HStack>
-          {isBoosted(pool) && (
+          {isBoosted(pool) && hasErc4626Names && (
             <BalAlert
               content={
                 <>
