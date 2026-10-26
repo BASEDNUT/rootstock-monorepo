@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Heading, Stack, HStack, VStack, useBreakpointValue } from '@chakra-ui/react'
+import { Box, Heading, Stack, HStack, Text, VStack, useBreakpointValue } from '@chakra-ui/react'
 import { motion } from 'motion/react'
 import { FilterTags, PoolListFilters, useFilterTagsVisible } from './PoolListFilters'
 import { PoolListTable } from './PoolListTable/PoolListTable'
@@ -9,6 +9,50 @@ import { fNum } from '@repo/lib/shared/utils/numbers'
 import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryError } from '@repo/lib/shared/components/errors/ErrorBoundary'
 import { poolTypeLabel } from '../pool.helpers'
+import { useCurrency } from '@repo/lib/shared/hooks/useCurrency'
+
+/** Rootstock (2026-10-26): global stats band on top of the table —
+ * cumulative TVL / 24h volume / 24h fees / pool count, summed from the SAME
+ * list the table renders. Unavailable metrics render '—' (never 0). */
+function PoolListStatsBand() {
+  const { aggregateStats } = usePoolList()
+  const { toCurrency } = useCurrency()
+
+  const stats = [
+    { label: 'TVL', value: aggregateStats.totalLiquidity },
+    { label: 'Volume (24h)', value: aggregateStats.volume24h },
+    { label: 'Fees (24h)', value: aggregateStats.fees24h },
+  ]
+
+  return (
+    <HStack
+      bg="background.level1"
+      border="1px solid"
+      borderColor="border.base"
+      gap="ms"
+      p="md"
+      rounded="2xl"
+      shadow="md"
+      w="full"
+      wrap="wrap"
+    >
+      {stats.map(stat => (
+        <VStack alignItems="start" flex={1} gap="0" key={stat.label} minW="110px">
+          <Text color="font.secondary" size="sm" variant="secondary">
+            {stat.label}
+          </Text>
+          <Text fontWeight="semibold">{stat.value == null ? '—' : toCurrency(stat.value)}</Text>
+        </VStack>
+      ))}
+      <VStack alignItems="start" flex={1} gap="0" key="pools" minW="110px">
+        <Text color="font.secondary" size="sm" variant="secondary">
+          Pools
+        </Text>
+        <Text fontWeight="semibold">{fNum('integer', aggregateStats.poolCount)}</Text>
+      </VStack>
+    </HStack>
+  )
+}
 
 export function PoolListLayout() {
   const {
@@ -109,6 +153,7 @@ export function PoolListLayout() {
           <PoolListFilters />
         </Stack>
       </Stack>
+      <PoolListStatsBand />
       <ErrorBoundary FallbackComponent={BoundaryError}>
         <PoolListTable count={count || 0} loading={loading} pools={pools} />
       </ErrorBoundary>

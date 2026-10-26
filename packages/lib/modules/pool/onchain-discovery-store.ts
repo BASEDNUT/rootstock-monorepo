@@ -16,7 +16,11 @@ import type { DiscoveredPoolToken } from './onchain-pool-discovery'
  * never a silently wrong pool list after a vault redeployment.
  */
 
-export const DISCOVERED_POOLS_STORE_VERSION = 1
+// v2 (2026-10-26): records gain hook/tags (display facts). A version bump
+// voids legacy stores — the next scan rebuilds every record with the new
+// schema (no half-migrated records: old records lack hook facts and the
+// incremental cursor would never re-read them).
+export const DISCOVERED_POOLS_STORE_VERSION = 2
 
 /** A discovered pool — registry facts + any metadata the scan enriched. */
 export interface DiscoveredPoolRecord {
@@ -30,6 +34,10 @@ export interface DiscoveredPoolRecord {
   /** True when the metadata reads succeeded (F-02). Legacy records without
    *  the flag self-heal via non-empty tokens in isEnrichedRecord. */
   enriched?: boolean
+  /** External hook contract address; null = none (v2 display facts). */
+  hook?: string | null
+  /** Derived display tags — BOOSTED / PERMISSIONED (v2 display facts). */
+  tags?: string[]
 }
 
 /**
@@ -220,6 +228,8 @@ export function mergeDiscoveredPoolsStore(
         symbol: prev.symbol,
         tokens: prev.tokens,
         enriched: prev.enriched,
+        hook: prev.hook,
+        tags: prev.tags,
       }
     } else {
       merged.pools[key] = {
@@ -230,6 +240,8 @@ export function mergeDiscoveredPoolsStore(
         symbol: pool.symbol,
         tokens: pool.tokens,
         enriched: pool.enriched,
+        hook: pool.hook,
+        tags: pool.tags,
       }
     }
   }

@@ -20,7 +20,11 @@ import type { OnchainPoolListItem } from '../onchain-pool-discovery'
 import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { useOnchainPoolDiscovery } from '../useOnchainPoolDiscovery'
 import { useOnchainPoolMetrics } from '../useOnchainPoolMetrics'
-import { compareByTotalLiquidityDesc, sortOnchainPools } from '../pool-metrics'
+import {
+  aggregatePoolListMetrics,
+  compareByTotalLiquidityDesc,
+  sortOnchainPools,
+} from '../pool-metrics'
 import { useTokens } from '../../tokens/TokensProvider'
 import { useWalletTokenBalances } from '../../tokens/useWalletTokenBalances'
 
@@ -226,6 +230,13 @@ export function usePoolListLogic({
 
   const isFixedPoolType = !!fixedPoolTypes && fixedPoolTypes.length > 0
 
+  // Rootstock (2026-10-26): global aggregates for the stats band on top of
+  // the table. Sums the SAME list the table renders (post-filter, post-sort)
+  // — source-agnostic: works for onchain-sourced pools (metrics enrichment)
+  // and API pools alike. Nulls are skipped (understated-but-real law); a
+  // fully-null metric stays null (renders '—', never a fabricated 0).
+  const aggregateStats = useMemo(() => aggregatePoolListMetrics(filteredPools), [filteredPools])
+
   // If the user has previously selected to filter by their liquidity and then
   // changes their connected wallet, we want to automatically update the filter.
   useEffect(() => {
@@ -253,6 +264,7 @@ export function usePoolListLogic({
     refetch,
     poolDisplayType,
     setPoolDisplayType,
+    aggregateStats,
   }
 }
 

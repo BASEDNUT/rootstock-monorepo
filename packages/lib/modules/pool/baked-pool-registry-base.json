@@ -2,9 +2,289 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-24T15:00:25.000Z",
+  "generatedAt": "2026-10-26T18:35:28.339Z",
   "fromBlock": 52131550,
   "pools": [
+    {
+      "address": "0x93ef211b7b088fd89df019af387b19b01c9c7bc2",
+      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
+      "blockNumber": 53119697,
+      "type": "STABLE",
+      "name": "Philosopher's Soil",
+      "symbol": "tsPHILO",
+      "blockTimestamp": 1793028741,
+      "swapFee": "0.0005",
+      "holdersCount": 1,
+      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6
+        },
+        {
+          "address": "0x877014E21c32feA108B6A1f45f367efc9a2d9B9F",
+          "symbol": "alUSDb",
+          "name": "Alchemic USD Base",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "33607519030205587200"
+    },
+    {
+      "address": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 53118288,
+      "type": "RECLAMM",
+      "name": "Terra Preta Topsoil",
+      "symbol": "tsPRETA",
+      "blockTimestamp": 1793025923,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED", "PERMISSIONED"],
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "322771441786920"
+    },
+    {
+      "address": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 53119008,
+      "type": "RECLAMM",
+      "name": "Loam Top Soil",
+      "symbol": "tsLOAM",
+      "blockTimestamp": 1793027363,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED", "PERMISSIONED"],
+      "tokens": [
+        {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "symbol": "wstETH",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "decimals": 18
+        },
+        {
+          "address": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
+          "symbol": "waBasUSDC",
+          "name": "Wrapped Aave Base USDC",
+          "decimals": 6
+        }
+      ],
+      "totalSupply": "158950654877297652"
+    },
+    {
+      "address": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 53083714,
+      "type": "RECLAMM",
+      "name": "Inference Compute Engine",
+      "symbol": "iENG",
+      "blockTimestamp": 1792956775,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["PERMISSIONED"],
+      "tokens": [
+        {
+          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
+          "symbol": "VVV",
+          "name": "Venice Token",
+          "decimals": 18
+        },
+        {
+          "address": "0xF4d97F2da56e8c3098f3a8D538DB630A2606a024",
+          "symbol": "DIEM",
+          "name": "Diem",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "49238993305338370767"
+    },
+    {
+      "address": "0x68fe849e274c8e97dc8ea39d7863689689ccd99f",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082568,
+      "type": "WEIGHTED",
+      "name": "FRAX Root",
+      "symbol": "rtFRAX",
+      "blockTimestamp": 1792954483,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+          "symbol": "sFRAX",
+          "name": "Staked FRAX",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "10737375225387824"
+    },
+    {
+      "address": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082679,
+      "type": "WEIGHTED",
+      "name": "Dollar Oven Root",
+      "symbol": "rtUSD+",
+      "blockTimestamp": 1792954705,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376",
+          "symbol": "USD+",
+          "name": "USD+",
+          "decimals": 6
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "10493752834957796"
+    },
+    {
+      "address": "0x9fe26527e90167c764f79cff1fe5c8b70d5c4f91",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082811,
+      "type": "WEIGHTED",
+      "name": "Coinbase Ether Root",
+      "symbol": "rtcbETH",
+      "blockTimestamp": 1792954969,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED"],
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "3456388499518750"
+    },
+    {
+      "address": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082936,
+      "type": "WEIGHTED",
+      "name": "Coinbase Bitcoin Root",
+      "symbol": "rtcbBTC",
+      "blockTimestamp": 1792955219,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "2330209658361514"
+    },
+    {
+      "address": "0x90be902deea848a38ca1b0d8ef36782d6606fd84",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53077274,
+      "type": "WEIGHTED",
+      "name": "Chad's NUT Mogging",
+      "symbol": "NUTMOG",
+      "blockTimestamp": 1792943895,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xecaF81Eb42cd30014EB44130b89Bcd6d4Ad98B92",
+          "symbol": "CHAD",
+          "name": "Based Chad",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "56454374088558675"
+    },
+    {
+      "address": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53076191,
+      "type": "WEIGHTED",
+      "name": "Chadmaxxing",
+      "symbol": "MAXCHAD",
+      "blockTimestamp": 1792941729,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED"],
+      "tokens": [
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        },
+        {
+          "address": "0xecaF81Eb42cd30014EB44130b89Bcd6d4Ad98B92",
+          "symbol": "CHAD",
+          "name": "Based Chad",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "4107787071353789418244"
+    },
     {
       "address": "0x36b8b05325612d2a9f0fb2fac601ba12539a50f9",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
@@ -29,7 +309,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "635615417537736"
+      "totalSupply": "635615417537736",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0x6e5cd525de6db571df4c270510206c1a620470d7",
@@ -55,7 +337,9 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "88342097088168"
+      "totalSupply": "88342097088168",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
@@ -81,7 +365,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "3013442228012486"
+      "totalSupply": "3013442228012486",
+      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
+      "tags": ["BOOSTED"]
     },
     {
       "address": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
@@ -119,7 +405,9 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "520223807421713174"
+      "totalSupply": "520223807421713174",
+      "hook": null,
+      "tags": ["BOOSTED"]
     },
     {
       "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
@@ -151,7 +439,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "1793555416953319"
+      "totalSupply": "1793555416953319",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
@@ -183,7 +473,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "93343407688403415"
+      "totalSupply": "93343407688403415",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0x98443d8704112d166c89d800e4264318db38e05a",
@@ -215,7 +507,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "185966298626682"
+      "totalSupply": "185966298626682",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
@@ -247,7 +541,9 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "13494103140943"
+      "totalSupply": "13494103140943",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
@@ -279,7 +575,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "105127125624769554"
+      "totalSupply": "105127125624769554",
+      "hook": null,
+      "tags": []
     },
     {
       "address": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
@@ -305,7 +603,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "641291499607955645076"
+      "totalSupply": "641291499607955645076",
+      "hook": null,
+      "tags": ["PERMISSIONED"]
     },
     {
       "address": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
@@ -331,7 +631,9 @@
           "decimals": 6
         }
       ],
-      "totalSupply": "251450761831912198249218056"
+      "totalSupply": "251450761831912198249218056",
+      "hook": null,
+      "tags": ["PERMISSIONED"]
     },
     {
       "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
@@ -363,7 +665,9 @@
           "decimals": 18
         }
       ],
-      "totalSupply": "1253412168013012"
+      "totalSupply": "1253412168013012",
+      "hook": null,
+      "tags": []
     }
   ]
 }

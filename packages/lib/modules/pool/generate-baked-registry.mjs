@@ -7,11 +7,11 @@
 // (0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7) via base.publicnode.com from
 // block 52_131_550 (8453 scan config, onchain-pool-discovery.ts) and writes
 // baked-pool-registry-base.json. Mock-name filter law unchanged.
-import { writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { createPublicClient, http } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { erc20Abi } from 'viem'
-import { weightedPoolAbi_V3 } from '@balancer/sdk'
+import { vaultExtensionAbi_V3, weightedPoolAbi_V3 } from '@balancer/sdk'
 
 const TOPIC0 = '0xbc1561eeab9f40962e2fb827a7ff9c7cdb47a9d7c84caeefa4ed90e043842dad'
 
@@ -130,9 +130,84 @@ for (let to = latest; to > BigInt(config.from); to -= BigInt(config.chunk)) {
     })
 }
 
-// Sequential pool processing — no parallel RPC bursts (F6 regen lesson)
+// Sequential pool processing — no parallel RPC bursts (F6 regen lesson).
+// 2026-10-26 fast-bake: (1) mock-name gate runs after ONE cheap read pair —
+// the 9 Phase-1 mock fixtures skip the expensive holder Transfer scan
+// entirely; (2) pools already baked in the existing registry keep every
+// stored field (holdersCount, tokens, blockTimestamp, swapFee) and only
+// gain the v2 display facts — the holder scan (~400 chunks/pool for the
+// Phase-1 era) is the slow path and its output is unchanged for old pools;
+// (3) full path only for NEW pools (small scan windows).
+const outPath = new URL('./' + config.output, import.meta.url).pathname
+const existingByAddress = new Map()
+try {
+  const prev = JSON.parse(readFileSync(outPath, 'utf8'))
+  for (const p of prev.pools || []) existingByAddress.set(p.address.toLowerCase(), p)
+} catch {
+  // no prior registry — every pool takes the full path
+}
+
+const mockName = s => (typeof s === 'string' && /do\s*not\s*use/i.test(s)) || false
+
+// v2 display facts — same derive law as the live scan
+// (onchain-pool-discovery.ts derivePoolDisplayFacts), inlined here because
+// the bake generator is a standalone .mjs (no @repo imports).
+async function readDisplayFacts(poolAddr) {
+  try {
+    const [hooksConfig, poolTokenInfo] = await Promise.all([
+      readRetry({
+        address: config.vault,
+        abi: vaultExtensionAbi_V3,
+        functionName: 'getHooksConfig',
+        args: [poolAddr],
+      }),
+      readRetry({
+        address: config.vault,
+        abi: vaultExtensionAbi_V3,
+        functionName: 'getPoolTokenInfo',
+        args: [poolAddr],
+      }),
+    ])
+    const hookAddr = String(hooksConfig.hooksContract || '').toLowerCase()
+    const poolLower = poolAddr.toLowerCase()
+    const isZero = hookAddr === '0x' + '0'.repeat(40)
+    const isSelf = hookAddr === poolLower
+    // viem returns getPoolTokenInfo as a POSITIONAL array
+    // [tokens, tokenInfo, balancesRaw, lastBalancesLiveScaled18] — index 1.
+    const tokenInfo = Array.isArray(poolTokenInfo) ? poolTokenInfo[1] : poolTokenInfo.tokenInfo
+    const tokenTypes = (tokenInfo || []).map(t => Number(t.tokenType))
+    const tags = []
+    if (tokenTypes.some(t => t !== 0)) tags.push('BOOSTED')
+    if (isSelf) tags.push('PERMISSIONED')
+    return { hook: !isZero && !isSelf ? hooksConfig.hooksContract : null, tags }
+  } catch (e) {
+    console.error('[facts] ' + poolAddr + ' unreadable:', e?.message?.slice(0, 120))
+    return {}
+  }
+}
+
 const pools = []
 for (const { pool, factory, block } of logs) {
+  // mock gate FIRST — one cheap read pair, then stop
+  let name, symbol
+  try {
+    ;[name, symbol] = await Promise.all([
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'name' }),
+      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'symbol' }),
+    ])
+  } catch {
+    // unreadable — full path keeps the legacy minimal-entry behavior
+  }
+  if (mockName(name) || mockName(symbol)) continue
+
+  const prev = existingByAddress.get(pool.toLowerCase())
+  if (prev) {
+    // already baked — keep every stored field, refresh v2 facts only
+    const facts = await readDisplayFacts(pool)
+    pools.push({ ...prev, name, symbol, factory, blockNumber: block, ...facts })
+    continue
+  }
+
   const entry = {
     address: pool,
     factory,
@@ -140,9 +215,7 @@ for (const { pool, factory, block } of logs) {
     type: FACTORY_TYPES[factory.toLowerCase()] || 'UNKNOWN',
   }
   try {
-    const [name, symbol, tokens, totalSupply, staticSwapFee, blockData] = await Promise.all([
-      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'name' }),
-      readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'symbol' }),
+    const [tokens, totalSupply, staticSwapFee, blockData] = await Promise.all([
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'getTokens' }),
       readRetry({ address: pool, abi: weightedPoolAbi_V3, functionName: 'totalSupply' }),
       readRetry({
@@ -160,15 +233,11 @@ for (const { pool, factory, block } of logs) {
       }),
       client.getBlock({ blockNumber: BigInt(block) }).catch(() => null),
     ])
-    // (D1/D3 fix): bake blockTimestamp (unix seconds) and swapFee as a
-    // decimal-fraction string ('0.003' = 0.3%), matching upstream GqlPool.
     const blockTimestamp = blockData ? Number(blockData.timestamp) : undefined
     const swapFee =
       staticSwapFee !== undefined && staticSwapFee !== null
         ? String(Number(staticSwapFee) / 1e18)
         : undefined
-    // Bake real LP holder count via
-    // chunked Transfer event scan; holder = address with balanceOf > 0.
     let holdersCount
     try {
       const T0_TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
@@ -225,13 +294,11 @@ for (const { pool, factory, block } of logs) {
       }
       holdersCount = holders
     } catch (e) {
-      // observability (live-caught 2026-10-21): a silent catch produced
-      // holdersCount=undefined for EVERY pool with no trace — log it.
       console.error('[holders] ' + pool + ' scan failed:', e?.message?.slice(0, 200))
       holdersCount = undefined
     }
-    Object.assign(entry, { blockTimestamp, swapFee, holdersCount })
-    // audit fix F6: bake ERC20 token metadata (symbol/name/decimals).
+    const facts = await readDisplayFacts(pool)
+    Object.assign(entry, { name, symbol, blockTimestamp, swapFee, holdersCount, ...facts })
     const tokenMeta = []
     for (const address of tokens) {
       try {
@@ -242,12 +309,11 @@ for (const { pool, factory, block } of logs) {
         ])
         tokenMeta.push({ address, symbol: tSymbol, name: tName, decimals: tDecimals })
       } catch (e) {
-        // WETH-style contracts or non-ERC20 — keep address-only entry
         console.error('[tokenMeta] ' + address + ' unreadable:', e?.message?.slice(0, 120))
         tokenMeta.push({ address })
       }
     }
-    Object.assign(entry, { name, symbol, tokens: tokenMeta, totalSupply: totalSupply.toString() })
+    Object.assign(entry, { tokens: tokenMeta, totalSupply: totalSupply.toString() })
   } catch {
     /* keep minimal entry */
   }

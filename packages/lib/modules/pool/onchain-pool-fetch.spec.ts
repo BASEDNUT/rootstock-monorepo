@@ -55,12 +55,16 @@ describe('reEnrichIncompleteRecords', () => {
     symbol: 'DONE',
     tokens: ['0x1111111111111111111111111111111111111111'],
     enriched: true,
+    // v2 display facts present = truly complete (never re-read)
+    hook: null,
+    tags: [],
   }
 
   it('re-reads metadata for incomplete records only and marks them enriched', async () => {
     const { reEnrichIncompleteRecords } = await import('./onchain-pool-fetch')
 
     const reads: string[] = []
+    const VAULT = '0x9999999999999999999999999999999999999999'
 
     const client = {
       readContract: async ({
@@ -73,6 +77,24 @@ describe('reEnrichIncompleteRecords', () => {
         reads.push(`${functionName}:${address}`)
         if (functionName === 'name') return 'Healed Pool'
         if (functionName === 'symbol') return 'HPL'
+
+        if (functionName === 'getHooksConfig')
+          {return {
+            hooksContract: '0x0000000000000000000000000000000000000000',
+          }}
+
+        if (functionName === 'getPoolTokenInfo')
+          // viem returns positional arrays — [tokens, tokenInfo, balances, last]
+          {return [
+            [
+              '0x1111111111111111111111111111111111111111',
+              '0x2222222222222222222222222222222222222222',
+            ],
+            [{ tokenType: 0, rateProvider: '0x0', paysYieldFees: false }],
+            [0n, 0n],
+            [0n, 0n],
+          ]}
+
         return [
           '0x1111111111111111111111111111111111111111',
           '0x2222222222222222222222222222222222222222',
@@ -80,18 +102,29 @@ describe('reEnrichIncompleteRecords', () => {
       },
     }
 
-    const out = await reEnrichIncompleteRecords(client as never, [INCOMPLETE, COMPLETE])
+    const out = await reEnrichIncompleteRecords(client as never, { vault: VAULT }, [
+      INCOMPLETE,
+      COMPLETE,
+    ])
 
     const healed = out.find(r => r.address === INCOMPLETE.address)!
     expect(healed.name).toBe('Healed Pool')
     expect(healed.symbol).toBe('HPL')
     expect(healed.tokens).toHaveLength(2)
     expect(healed.enriched).toBe(true)
+    // v2 display facts: no hook, no tags (plain pool)
+    expect(healed.hook).toBeNull()
+    expect(healed.tags).toEqual([])
 
     // the complete record is untouched - never re-read
     expect(reads.filter(r => r.includes(COMPLETE.address))).toHaveLength(0)
-    // exactly 3 reads for the incomplete pool (name, symbol, getTokens)
+    // 3 reads on the incomplete pool itself (name, symbol, getTokens)
     expect(reads.filter(r => r.includes(INCOMPLETE.address))).toHaveLength(3)
+    // 2 v2 facts reads on the VAULT (getHooksConfig + getPoolTokenInfo)
+    const vaultReads = reads.filter(r => r.includes(VAULT))
+    expect(vaultReads).toHaveLength(2)
+    expect(vaultReads.some(r => r.startsWith('getHooksConfig'))).toBe(true)
+    expect(vaultReads.some(r => r.startsWith('getPoolTokenInfo'))).toBe(true)
   })
 
   it('a still-failing read leaves the record incomplete - retried next scan, never throws', async () => {
@@ -103,10 +136,13 @@ describe('reEnrichIncompleteRecords', () => {
       },
     }
 
-    const out = await reEnrichIncompleteRecords(client as never, [INCOMPLETE])
+    const out = await reEnrichIncompleteRecords(client as never, { vault: '0xvault' }, [INCOMPLETE])
     expect(out).toHaveLength(1)
     expect(out[0]!.enriched).toBeUndefined()
     expect(out[0]!.tokens).toBeUndefined()
+    // v2 facts also stay unset - record heals on a later scan
+    expect(out[0]!.hook).toBeUndefined()
+    expect(out[0]!.tags).toBeUndefined()
   })
 })
 

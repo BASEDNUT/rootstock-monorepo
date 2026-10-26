@@ -68,6 +68,50 @@ export interface DiscoveredPool {
   tokens?: (string | DiscoveredPoolToken)[]
   totalSupply?: bigint
   swapFeePercentage?: bigint
+  /** External hook contract address; null = none/self-hook. */
+  hook?: string | null
+  /** Derived display tags (BOOSTED / PERMISSIONED). */
+  tags?: string[]
+}
+
+/** Rootstock onchain display tags. */
+export const ONCHAIN_TAG = {
+  Boosted: 'BOOSTED',
+  Permissioned: 'PERMISSIONED',
+} as const
+
+/**
+ * Derive display facts from Vault-level pool state (getHooksConfig +
+ * getPoolTokenInfo). Pure — shared shape with the bake generator.
+ *
+ * Laws:
+ * - BOOSTED when ANY token is WITH_RATE (tokenType !== 0) — the pool holds
+ *   a yield-bearing/rate token (wstETH, sFRAX, waBasUSDC, alUSDb, USD+).
+ * - Self-hooked pool (hooksContract === pool) is PERMISSIONED, NOT a hook
+ *   pool — upstream removeHookDataFromPoolIfNecessary strip law (reCLAMM
+ *   uses the same self-hook shape; a hook pill would mislabel it).
+ * - External hook (nonzero, not the pool) → hook address for the hook pill.
+ */
+export function derivePoolDisplayFacts({
+  pool,
+  hooksContract,
+  tokenTypes,
+}: {
+  pool: string
+  hooksContract: string
+  tokenTypes: number[]
+}): { hook: string | null; tags: string[] } {
+  const poolLower = pool.toLowerCase()
+  const hookLower = hooksContract.toLowerCase()
+  const isZero = hookLower === '0x0000000000000000000000000000000000000000'
+  const isSelf = hookLower === poolLower
+
+  const hook = !isZero && !isSelf ? hooksContract : null
+  const tags: string[] = []
+  if (tokenTypes.some(t => t !== 0)) tags.push(ONCHAIN_TAG.Boosted)
+  if (isSelf) tags.push(ONCHAIN_TAG.Permissioned)
+
+  return { hook, tags }
 }
 
 export interface OnchainPoolListItem {
@@ -89,6 +133,12 @@ export interface OnchainPoolListItem {
     name?: string
     decimals?: number
   }[]
+  /** External hook contract (never the pool itself — self-hook = PERMISSIONED,
+   * upstream reCLAMM strip law). null = no external hook. */
+  hook?: { address: string } | null
+  /** Rootstock-derived display tags: BOOSTED (yield-bearing WITH_RATE token),
+   * PERMISSIONED (self-hooked pool gating add/remove/init). */
+  tags?: string[]
   /** Table rows require dynamicData (PoolListTableRow reads totalLiquidity,
    * volume24h, aprItems). Onchain pools carry a zero-stub — the IPFS app is
    * code-not-data; live analytics stay backend-side (S94 law). */
@@ -128,6 +178,8 @@ export function mapDiscoveredPoolToListItem(
         ? { address: t }
         : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
     ),
+    hook: dp.hook ? { address: dp.hook } : null,
+    tags: dp.tags ?? [],
     dynamicData: {
       totalLiquidity: null,
       volume24h: null,

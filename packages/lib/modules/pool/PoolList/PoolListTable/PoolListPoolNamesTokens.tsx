@@ -9,6 +9,7 @@ import { usePoolList } from '../PoolListProvider'
 const OPTIONS = [
   { value: PoolDisplayType.Name, label: 'Pool name' },
   { value: PoolDisplayType.TokenPills, label: 'Pool tokens' },
+  { value: PoolDisplayType.Tickers, label: 'Tickers' },
 ]
 
 export function PoolListPoolNamesTokens() {

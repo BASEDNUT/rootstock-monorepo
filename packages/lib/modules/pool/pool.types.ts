@@ -168,6 +168,7 @@ export type PoolToken = ApiToken &
 export enum PoolDisplayType {
   Name = 'name',
   TokenPills = 'token-pills',
+  Tickers = 'tickers',
 }
 
 export type PoolWithWeightSnapshots = Pool & { weightSnapshots?: QuantAmmWeightSnapshot[] }

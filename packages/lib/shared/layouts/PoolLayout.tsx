@@ -141,6 +141,9 @@ interface BakedPoolEntry {
   swapFee?: string
   // (D5 fix): balance-verified holder count baked from Transfer scan.
   holdersCount?: number
+  // v2 display facts (2026-10-26): external hook address + derived tags.
+  hook?: string | null
+  tags?: string[]
 }
 
 function buildOnchainPoolData(
@@ -177,7 +180,7 @@ function buildOnchainPoolData(
       factory: baked.factory,
       hasErc4626: false,
       hasNestedErc4626: false,
-      hook: null,
+      hook: baked.hook ? { address: baked.hook } : null,
       id: baked.address,
       liquidityManagement: { disableUnbalancedLiquidity: false },
       name: baked.name || baked.symbol || baked.address,
@@ -226,7 +229,7 @@ function buildOnchainPoolData(
       staking: null,
       swapFeeManager: null,
       symbol: baked.symbol || '',
-      tags: [],
+      tags: baked.tags ?? [],
       type: baked.type,
       userBalance: null,
       version: 0,

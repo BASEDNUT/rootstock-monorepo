@@ -111,3 +111,44 @@ export function totalApr(items: { apr: number }[] | undefined | null): number | 
   if (!items || items.length === 0) return null
   return items.reduce((sum, item) => sum + (item.apr ?? 0), 0)
 }
+
+/**
+ * Rootstock (2026-10-26): global list aggregates for the pools stats band.
+ * Sums the SAME list the table renders — source-agnostic (onchain or API).
+ * Laws: null metrics are skipped (understated-but-real); a fully-null
+ * metric stays null (renders '—', never a fabricated 0); a genuine 0
+ * contributes as a real value.
+ */
+export interface PoolListAggregateInput {
+  dynamicData?: {
+    totalLiquidity?: string | null
+    volume24h?: string | null
+    fees24h?: string | null
+  } | null
+}
+
+export function aggregatePoolListMetrics<T extends PoolListAggregateInput>(
+  pools: T[]
+): {
+  totalLiquidity: number | null
+  volume24h: number | null
+  fees24h: number | null
+  poolCount: number
+} {
+  let totalLiquidity: number | null = null
+  let volume24h: number | null = null
+  let fees24h: number | null = null
+
+  for (const pool of pools) {
+    const dd = pool.dynamicData
+    if (!dd) continue
+
+    if (dd.totalLiquidity != null)
+      {totalLiquidity = (totalLiquidity ?? 0) + Number(dd.totalLiquidity)}
+
+    if (dd.volume24h != null) volume24h = (volume24h ?? 0) + Number(dd.volume24h)
+    if (dd.fees24h != null) fees24h = (fees24h ?? 0) + Number(dd.fees24h)
+  }
+
+  return { totalLiquidity, volume24h, fees24h, poolCount: pools.length }
+}

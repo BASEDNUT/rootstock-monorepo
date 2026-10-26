@@ -1,10 +1,11 @@
 import { createPublicClient, erc20Abi, http, type PublicClient } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
-import { weightedPoolAbi_V3 } from '@balancer/sdk'
+import { vaultExtensionAbi_V3, weightedPoolAbi_V3 } from '@balancer/sdk'
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import {
   FACTORY_TO_POOL_TYPE,
   POOL_REGISTERED_TOPIC0,
+  derivePoolDisplayFacts,
   getOnchainDiscoveryRpcUrl,
   getOnchainScanConfig,
   mapDiscoveredPoolToListItem,
@@ -136,6 +137,8 @@ export function getBakedPools(chain: GqlChain): OnchainPoolListItem[] {
           ? { address: t }
           : { address: t.address, symbol: t.symbol, name: t.name, decimals: t.decimals }
       ),
+      hook: p.hook ? { address: p.hook } : null,
+      tags: p.tags ?? [],
       dynamicData: {
         totalLiquidity: null,
         volume24h: null,
@@ -168,6 +171,9 @@ interface BakedPool {
   name?: string
   symbol?: string
   tokens?: (string | BakedPoolToken)[]
+  /** v2 display facts baked by generate-baked-registry.mjs. */
+  hook?: string | null
+  tags?: string[]
 }
 
 interface DiscoveredRaw {
@@ -271,6 +277,39 @@ export async function scanDiscoveredPools(
         // registered but unreadable — keep minimal entry
       }
 
+      // v2 display facts: external hook + BOOSTED/PERMISSIONED tags from
+      // Vault-level config. Read failures leave facts unset (record heals on
+      // a later scan) — never guessed.
+      try {
+        const [hooksConfig, poolTokenInfo] = await Promise.all([
+          client.readContract({
+            address: scanConfig.vault as `0x${string}`,
+            abi: vaultExtensionAbi_V3,
+            functionName: 'getHooksConfig',
+            args: [pool],
+          }),
+          client.readContract({
+            address: scanConfig.vault as `0x${string}`,
+            abi: vaultExtensionAbi_V3,
+            functionName: 'getPoolTokenInfo',
+            args: [pool],
+          }),
+        ])
+
+        const tokenTypes = poolTokenInfo[1].map(t => Number(t.tokenType))
+
+        const facts = derivePoolDisplayFacts({
+          pool,
+          hooksContract: hooksConfig.hooksContract as string,
+          tokenTypes,
+        })
+
+        item.hook = facts.hook ? { address: facts.hook } : null
+        item.tags = facts.tags
+      } catch {
+        // facts stay unset — re-derived on the next scan (record incomplete)
+      }
+
       return item
     })
   )
@@ -306,14 +345,21 @@ export async function scanDiscoveredPools(
       symbol: item.symbol,
       tokens: item.poolTokens,
       ...(item.poolTokens.length > 0 ? { enriched: true } : {}),
+      ...(item.hook !== undefined ? { hook: item.hook ? item.hook.address : null } : {}),
+      ...(item.tags !== undefined ? { tags: item.tags } : {}),
     }))
 
     // Heal records whose enrichment failed on an
     // EARLIER scan — re-read their metadata now (same client, same reads)
     // instead of freezing them blank forever. A still-failing read stays
     // incomplete and is retried on the next scan; never throws.
-    const persistedIncomplete = Object.values(existing.pools).filter(r => !isEnrichedRecord(r))
-    const healed = await reEnrichIncompleteRecords(client, persistedIncomplete)
+    // v2: a record missing display facts (hook/tags) is also incomplete —
+    // pre-v2 records self-heal here on the first post-bump scan.
+    const persistedIncomplete = Object.values(existing.pools).filter(
+      r => !isEnrichedRecord(r) || r.hook === undefined
+    )
+
+    const healed = await reEnrichIncompleteRecords(client, scanConfig, persistedIncomplete)
 
     saveDiscoveredPoolsStore(
       mergeDiscoveredPoolsStore(existing, finalizedHead, [...records, ...healed])
@@ -381,44 +427,83 @@ export async function enrichTokensMetadata(
  */
 export async function reEnrichIncompleteRecords(
   client: Pick<PublicClient, 'readContract'>,
+  scanConfig: { vault: string },
   records: DiscoveredPoolRecord[]
 ): Promise<DiscoveredPoolRecord[]> {
-  const incomplete = records.filter(r => !isEnrichedRecord(r))
-  if (incomplete.length === 0) return records
+  const needsWork = records.filter(r => !isEnrichedRecord(r) || r.hook === undefined)
+  if (needsWork.length === 0) return records
 
   return Promise.all(
     records.map(async record => {
-      if (isEnrichedRecord(record)) return record
+      if (isEnrichedRecord(record) && record.hook !== undefined) return record
 
+      // Re-read base metadata ONLY when missing (enrichment law) — a
+      // complete record that only lacks display facts keeps its stored
+      // name/symbol/tokens untouched.
+      let base = record
+
+      if (!isEnrichedRecord(record)) {
+        try {
+          const [name, symbol, tokens] = await Promise.all([
+            client.readContract({
+              address: record.address as `0x${string}`,
+              abi: weightedPoolAbi_V3,
+              functionName: 'name',
+            }),
+            client.readContract({
+              address: record.address as `0x${string}`,
+              abi: weightedPoolAbi_V3,
+              functionName: 'symbol',
+            }),
+            client.readContract({
+              address: record.address as `0x${string}`,
+              abi: weightedPoolAbi_V3,
+              functionName: 'getTokens',
+            }),
+          ])
+
+          base = {
+            ...record,
+            name: name as string,
+            symbol: symbol as string,
+            tokens: await enrichTokensMetadata(client, tokens as string[]),
+            enriched: true,
+          }
+        } catch {
+          // still unreadable — stays incomplete, retried next scan
+          return record
+        }
+      }
+
+      // v2 display facts re-read
       try {
-        const [name, symbol, tokens] = await Promise.all([
+        const [hooksConfig, poolTokenInfo] = await Promise.all([
           client.readContract({
-            address: record.address as `0x${string}`,
-            abi: weightedPoolAbi_V3,
-            functionName: 'name',
+            address: scanConfig.vault as `0x${string}`,
+            abi: vaultExtensionAbi_V3,
+            functionName: 'getHooksConfig',
+            args: [record.address as `0x${string}`],
           }),
           client.readContract({
-            address: record.address as `0x${string}`,
-            abi: weightedPoolAbi_V3,
-            functionName: 'symbol',
-          }),
-          client.readContract({
-            address: record.address as `0x${string}`,
-            abi: weightedPoolAbi_V3,
-            functionName: 'getTokens',
+            address: scanConfig.vault as `0x${string}`,
+            abi: vaultExtensionAbi_V3,
+            functionName: 'getPoolTokenInfo',
+            args: [record.address as `0x${string}`],
           }),
         ])
 
-        return {
-          ...record,
-          name: name as string,
-          symbol: symbol as string,
-          tokens: await enrichTokensMetadata(client, tokens as string[]),
-          enriched: true,
-        }
+        const tokenTypes = poolTokenInfo[1].map(t => Number(t.tokenType))
+
+        const facts = derivePoolDisplayFacts({
+          pool: record.address,
+          hooksContract: hooksConfig.hooksContract as string,
+          tokenTypes,
+        })
+
+        return { ...base, hook: facts.hook, tags: facts.tags }
       } catch {
-        // still unreadable — stays incomplete, retried next scan
-        return record
+        // facts still unreadable — stays incomplete for the next scan
+        return base
       }
     })
   )

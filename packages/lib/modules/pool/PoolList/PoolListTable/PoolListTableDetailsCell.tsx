@@ -22,7 +22,12 @@ import { BoostedIcon } from '@repo/lib/shared/components/icons/BoostedIcon'
 import { TooltipWithTouch } from '@repo/lib/shared/components/tooltips/TooltipWithTouch'
 
 function getPoolDisplayTypeLabel(pool: PoolCore, erc4626Metadata: Erc4626Metadata[]) {
-  const boostedTooltipLabel = [...erc4626Metadata.map(m => m.name)].join(' & ')
+  // Rootstock (2026-10-26): onchain-derived BOOSTED pools carry no erc4626
+  // metadata names — the tooltip still explains the tag instead of blank.
+  const erc4626Names = [...erc4626Metadata.map(m => m.name)].join(' & ')
+
+  const boostedTooltipLabel = erc4626Names || 'Boosted — holds a yield-bearing / rate token'
+
   const hasIconTags = isGyro(pool.type) || isQuantAmmPool(pool.type) || isBoosted(pool)
 
   return (
@@ -110,6 +115,21 @@ export function PoolListTableDetailsCell({ pool }: Props) {
             •
           </Text>
           <PoolHookTag onlyShowIcon pool={pool} />
+        </HStack>
+      )}
+      {/* Rootstock (2026-10-26): self-hooked pools gate their own liquidity
+       * (init/add/remove run through the pool contract) — honest PERMISSIONED
+       * tag instead of a hook pill (the hook address IS the pool address). */}
+      {pool.tags?.includes('PERMISSIONED') && (
+        <HStack gap="0.25rem">
+          <Text color="border.base" fontSize="0.5rem">
+            •
+          </Text>
+          <TooltipWithTouch label="Permissioned — liquidity actions are gated by the pool contract">
+            <Text fontSize="0.6rem" fontWeight="medium" variant="secondary">
+              Permissioned
+            </Text>
+          </TooltipWithTouch>
         </HStack>
       )}
       {isV3Pool(pool) && isLiquidityBootstrapping(pool.type) && (isDev || isStaging) && (
