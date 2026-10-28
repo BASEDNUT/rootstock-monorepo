@@ -1,4 +1,5 @@
 import type { DiscoveredPoolToken } from './onchain-pool-discovery'
+import { isMockPoolAddress } from './mock-pool-blocklist'
 
 /**
  * Persistent onchain discovery store — the cumulative registry of
@@ -205,11 +206,17 @@ export function mergeDiscoveredPoolsStore(
   for (const key of Object.keys(merged.pools)) {
     const record = merged.pools[key]
     if (record && record.blockNumber > scannedToBlock) delete merged.pools[key]
+    // D2 (2026-10-27): blocklisted battery fixtures NEVER persist — and a
+    // stale store that already carries one (throttled-scan bypass) is
+    // healed here on the next merge.
+    if (record && isMockPoolAddress(record.address)) delete merged.pools[key]
   }
 
   for (const pool of pools) {
     // tip registrations wait for a confirmed scan - never persist above head
     if (pool.blockNumber > scannedToBlock) continue
+    // D2: the scan-time filter is the primary gate; this is the belt.
+    if (isMockPoolAddress(pool.address)) continue
 
     const key = pool.address.toLowerCase()
     const prev = merged.pools[key]

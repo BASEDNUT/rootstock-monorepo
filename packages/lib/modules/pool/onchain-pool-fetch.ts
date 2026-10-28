@@ -2,6 +2,9 @@ import { createPublicClient, erc20Abi, http, type PublicClient } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { vaultExtensionAbi_V3, weightedPoolAbi_V3 } from '@balancer/sdk'
 import { getRootstockHookReviewData } from '../hooks/rootstockHooks'
+import { isMockPoolAddress, isMockPoolRecord, MOCK_POOL_ADDRESSES } from './mock-pool-blocklist'
+
+export { isMockPoolAddress, isMockPoolRecord, MOCK_POOL_ADDRESSES }
 import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import {
   FACTORY_TO_POOL_TYPE,
@@ -119,7 +122,9 @@ export function getBakedPools(chain: GqlChain): OnchainPoolListItem[] {
 
   const registry = registryFile as { chainId: number; pools: BakedPool[] }
   return registry.pools
-    .filter(p => !isMockPoolName(p.name) && !isMockPoolName(p.symbol))
+    .filter(
+      p => !isMockPoolName(p.name) && !isMockPoolName(p.symbol) && !isMockPoolAddress(p.address)
+    )
     .map(p => ({
       id: p.address,
       address: p.address,
@@ -328,7 +333,10 @@ export async function scanDiscoveredPools(
 
   // Mock-named pools NEVER display — filter at
   // the live-scan source so pool list AND swap handler only see real pools.
-  const realItems = items.filter(item => !isMockPoolName(item.name) && !isMockPoolName(item.symbol))
+  const realItems = items.filter(
+    item =>
+      !isMockPoolName(item.name) && !isMockPoolName(item.symbol) && !isMockPoolAddress(item.address)
+  )
 
   // Cumulative-discovery persistence: an incremental
   // cursor alone loses pools — a pool discovered in a previous session
@@ -695,7 +703,7 @@ export async function fetchDiscoveredPools(
 
     if (store) {
       persisted = Object.values(store.pools)
-        .filter(r => !isMockPoolName(r.name) && !isMockPoolName(r.symbol))
+        .filter(r => !isMockPoolName(r.name) && !isMockPoolName(r.symbol) && !isMockPoolRecord(r))
         .map(r => mapDiscoveredPoolToListItem(r, chain))
 
       if (!lastScannedBlock.has(chain)) lastScannedBlock.set(chain, store.cursor)

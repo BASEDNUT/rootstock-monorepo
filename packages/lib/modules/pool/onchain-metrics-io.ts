@@ -70,6 +70,7 @@ export function resolveTokenDecimals(
     for (const token of pool.poolTokens || []) {
       const key = token.address.toLowerCase()
       if (!key) continue
+
       if (typeof token.decimals === 'number') {
         // registry truth wins — chain metadata beats any catalog guess
         decimals[key] = token.decimals
@@ -111,12 +112,15 @@ export async function fetchMissingTokenDecimals(
     })
 
     const out: Record<string, number> = {}
+
     for (let i = 0; i < addresses.length; i++) {
       const r = results[i]
+
       if (r && r.status === 'success' && typeof r.result === 'number') {
         out[addresses[i]!.toLowerCase()] = r.result
       }
     }
+
     return out
   } catch {
     return {} // unresolved stays the 18 default at the consumer
@@ -160,7 +164,8 @@ export async function fetchPoolState(
     ],
     functionName: 'getPoolTokenInfo',
     args: [pool],
-  })) as unknown as { tokens: string[]; balancesRaw: bigint[] } | [string[], unknown[], bigint[], bigint[]]
+  })) as unknown as
+    { tokens: string[]; balancesRaw: bigint[] } | [string[], unknown[], bigint[], bigint[]]
 
   // viem returns MULTIPLE outputs positionally (array) for this ABI —
   // normalize both shapes (named + positional).
@@ -281,11 +286,20 @@ export const ARCHIVE_FALLBACK_RPC: Partial<Record<number, string>> = {
   8453: 'https://base.gateway.tenderly.co',
 }
 
-/** Result of a window scan — buckets + the oldest contiguously covered block. */
+/** Result of a window scan — buckets + the contiguous-run bounds (D3). */
 export interface ScanSwapBucketsResult {
   buckets: SwapBucket[]
   /** Oldest block contiguously covered by successful chunks (B3). */
   coveredFrom: number
+  /**
+   * D3 (2026-10-27): end (inclusive) of the LAST contiguous run. The
+   * ledger cursor may only advance here — blocks beyond a hole were
+   * attempted but are NOT covered and get re-attempted next scan.
+   * Sentinel: coveredTo < coveredFrom means NOTHING is covered.
+   */
+  coveredTo: number
+  /** Buckets from ONLY the contiguous run — ledger-grade, no pre-hole logs. */
+  contiguousBuckets: SwapBucket[]
 }
 
 /** Scan Vault Swap events since `fromBlock` (exclusive) in provider-range chunks. */
@@ -298,42 +312,53 @@ export async function scanSwapBuckets(
   fallbackClient?: Pick<DiscoveryClient, 'request'>,
   fallbackChunkSize = 1_000
 ): Promise<ScanSwapBucketsResult> {
-  const logs: { blockNumber: string; topics: string[]; data: string }[] = []
-  let contiguousStart: number | null = null
+  const allLogs: { blockNumber: string; topics: string[]; data: string }[] = []
+  const prefixLogs: { blockNumber: string; topics: string[]; data: string }[] = []
+  let prefixBroken = false
+  let prefixEnd: number | null = null
 
   for (let from = fromBlock + 1; from <= latestBlock; from += chunkSize) {
     const to = Math.min(from + chunkSize - 1, latestBlock)
 
-    const chunkLogs = await scanChunk(
-      client,
-      fallbackClient,
-      vault,
-      from,
-      to,
-      fallbackChunkSize
-    )
+    const chunkLogs = await scanChunk(client, fallbackClient, vault, from, to, fallbackChunkSize)
 
     if (chunkLogs === null) {
-      // hole — contiguity restarts at the next successful chunk
-      contiguousStart = null
+      // D3 PREFIX-RUN law: the FIRST hole ends the contiguous run — later
+      // chunks are observed-only (display-grade, never ledger-grade). The
+      // cursor stops BEFORE the hole so the next scan re-attempts it
+      // (self-heal within the window); post-hole logs are never persisted,
+      // so re-scanning their range cannot double-count.
+      prefixBroken = true
       continue
     }
 
-    logs.push(...chunkLogs)
-    if (contiguousStart === null) contiguousStart = from
+    allLogs.push(...chunkLogs)
+
+    if (!prefixBroken) {
+      prefixLogs.push(...chunkLogs)
+      prefixEnd = to
+    }
   }
 
-  const coveredFrom =
-    contiguousStart !== null
-      ? contiguousStart
-      : fromBlock >= latestBlock
-        ? fromBlock
-        : latestBlock + 1
+  const emptyRange = fromBlock >= latestBlock
+
+  // D3 PREFIX-RUN law: the contiguous run is the FIRST run of successful
+  // chunks — it always starts at fromBlock + 1 and ends at the chunk before
+  // the first hole (prefixEnd). Nothing covered → sentinel (coveredTo <
+  // coveredFrom); the caller keeps its previous cursor/coverage untouched.
+  const coveredFrom = prefixEnd !== null ? fromBlock + 1 : emptyRange ? fromBlock : latestBlock + 1
+
+  const coveredTo = prefixEnd !== null ? prefixEnd : emptyRange ? fromBlock : fromBlock
 
   // block → epoch ms via Base 2s block time, anchored at latestBlock/now.
   const now = Date.now()
   const blockToMs = (block: number) => now - (latestBlock - block) * 2_000
-  return { buckets: decodeSwapLogsToBuckets(logs, blockToMs), coveredFrom }
+  return {
+    buckets: decodeSwapLogsToBuckets(allLogs, blockToMs),
+    coveredFrom,
+    coveredTo,
+    contiguousBuckets: decodeSwapLogsToBuckets(prefixLogs, blockToMs),
+  }
 }
 
 /** Scan one chunk; null = hole (chunk not covered). */
@@ -360,24 +385,46 @@ async function scanChunk(
       ],
     }) as Promise<Logs>
 
-  try {
-    return await getRange(client, from, to)
-  } catch (err) {
-    if (!isArchiveWallError(err) || !fallbackClient) return null
+  // D3 (2026-10-27): ONE transient retry for non-archive failures — a
+  // single blip (socket reset, 429, timeout) must not become a permanent
+  // coverage hole. Archive walls are deterministic and never retry on the
+  // primary; they fall through to the fallback immediately.
+  let walled = false
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return await getRange(client, from, to)
+    } catch (err) {
+      if (isArchiveWallError(err)) {
+        walled = true
+        break
+      }
+      // transient — retry once
+    }
   }
 
+  if (!walled || !fallbackClient) return null
+
   // archive-walled — subdivide on the fallback at the gateway limit;
-  // ANY failed sub-chunk marks the whole chunk a hole (conservative).
+  // ANY failed sub-chunk (after its own one transient retry) marks the
+  // whole chunk a hole (conservative).
   const subLogs: Logs = []
   const subSize = Math.max(1, fallbackChunkSize)
 
   for (let f = from; f <= to; f += subSize) {
     const t = Math.min(f + subSize - 1, to)
-    try {
-      subLogs.push(...(await getRange(fallbackClient, f, t)))
-    } catch {
-      return null
+    let done = false
+
+    for (let attempt = 0; attempt < 2 && !done; attempt++) {
+      try {
+        subLogs.push(...(await getRange(fallbackClient, f, t)))
+        done = true
+      } catch {
+        // transient — retry once; second failure = hole
+      }
     }
+
+    if (!done) return null
   }
 
   return subLogs

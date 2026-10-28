@@ -22,7 +22,14 @@
 
 import type { SwapBucket } from './onchain-metrics'
 
-export const SWAP_LEDGER_STORE_VERSION = 2
+export const SWAP_LEDGER_STORE_VERSION = 3
+// v3 (2026-10-27, D3): buckets are VISITOR-SCAN ONLY — the baked ledger
+// is merged at display time, never persisted here. v2 stores contained
+// the baked buckets merged in (later-wins replace era); under sum-merge
+// semantics re-merging them would DOUBLE-COUNT baked history, so v2
+// stores are voided on load and rebuilt from a fresh window scan.
+// v3 also pairs with the coveredTo cursor law: the cursor only advances
+// over the contiguous run (holes re-attempt next scan).
 /** Prune buckets older than this (hours) — the display window is 24h. */
 export const LEDGER_RETENTION_HOURS = 48
 
@@ -76,22 +83,38 @@ export function saveSwapLedger(store: SwapLedgerStore): void {
     const hourFloor = Math.floor(Date.now() / 3_600_000) - LEDGER_RETENTION_HOURS
     const pruned = store.buckets.filter(b => b.hour >= hourFloor)
 
-    localStorage.setItem(
-      KEY(store.chainId),
-      JSON.stringify({ ...store, buckets: pruned })
-    )
+    localStorage.setItem(KEY(store.chainId), JSON.stringify({ ...store, buckets: pruned }))
   } catch {
     // quota / private mode — in-memory result still returns
   }
 }
 
-/** Merge two bucket lists (dedupe by hour|pool|token, later value wins). */
+/**
+ * Merge two bucket lists by hour|pool|token key with SUM semantics (D3,
+ * live-caught 2026-10-27): all ledger sources are disjoint block ranges
+ * by construction (baked covers [deploy, bakedCursor]; the visitor scan
+ * starts at max(all cursors) + 1), so two buckets sharing a key are always
+ * DIFFERENT events in the same hour — the old later-wins merge silently
+ * dropped the pre-cursor side (visitor bucket replaced baked swaps in a
+ * straddling hour). Sum never double-counts: no source can re-cover a
+ * range another source already scanned.
+ */
 export function mergeBuckets(a: SwapBucket[], b: SwapBucket[]): SwapBucket[] {
   const map = new Map<string, SwapBucket>()
 
   for (const bucket of [...a, ...b]) {
     const key = `${bucket.hour}|${bucket.pool}|${bucket.token}`
-    map.set(key, bucket)
+    const existing = map.get(key)
+
+    if (existing) {
+      map.set(key, {
+        ...existing,
+        amountInRaw: (BigInt(existing.amountInRaw) + BigInt(bucket.amountInRaw)).toString(),
+        feeAmountRaw: (BigInt(existing.feeAmountRaw) + BigInt(bucket.feeAmountRaw)).toString(),
+      })
+    } else {
+      map.set(key, { ...bucket })
+    }
   }
 
   return [...map.values()]

@@ -6,7 +6,7 @@ import {
   GetPoolQuery,
   GqlChain,
 } from '@repo/lib/shared/services/api/generated/graphql'
-import { createContext, PropsWithChildren, useRef } from 'react'
+import { createContext, PropsWithChildren, useMemo, useRef } from 'react'
 import { useQuery } from '@apollo/client/react'
 import { FetchPoolProps, Pool } from './pool.types'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
@@ -14,6 +14,9 @@ import { getPoolHelpers } from './pool.helpers'
 import { useUserAccount } from '@repo/lib/modules/web3/UserAccountProvider'
 import { usePoolEnrichWithOnChainData } from './queries/usePoolEnrichWithOnChainData'
 import { useOnchainUserPoolBalances } from './queries/useOnchainUserPoolBalances'
+import { useOnchainPoolMetrics } from './useOnchainPoolMetrics'
+import { mergeOnchainPoolMetrics } from './onchain-detail-metrics'
+import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { useInvalidVariantRedirect } from './pool.hooks'
 import { useTokens } from '../tokens/TokensProvider'
 import { getCompositionTokens } from './pool-tokens.utils'
@@ -44,6 +47,47 @@ export function usePoolLogic({
 
   const poolData = removeHookDataFromPoolIfNecessary(data?.pool || initialData.pool)
 
+  // D1 (2026-10-27): onchain-only pools render a stub dynamicData from the
+  // baked registry (volume24h '0' — a fabricated zero). The list enriches
+  // with useOnchainPoolMetrics; detail must use the SAME source so the two
+  // surfaces never contradict (live-caught: tsPHILO detail $0.00 vs list $2.02).
+  const onchainOnly = isOnchainOnlyNetwork(chain)
+
+  const metricsInput = useMemo(() => {
+    if (!onchainOnly || !poolData) return []
+    return [
+      {
+        id: poolData.address,
+        address: poolData.address,
+        chain,
+        type: poolData.type,
+        protocolVersion: 3,
+        symbol: poolData.symbol || '',
+        name: poolData.name || poolData.symbol || poolData.address,
+        factory: poolData.factory || poolData.address,
+        createTime: Number(poolData.createTime) || 0,
+        poolTokens: (poolData.poolTokens || []).map(
+          (t: { address: string; symbol?: string; name?: string; decimals?: number }) => ({
+            address: t.address,
+            symbol: t.symbol,
+            name: t.name,
+            decimals: t.decimals,
+          })
+        ),
+        hook: null,
+        tags: [],
+        dynamicData: {
+          totalLiquidity: null,
+          volume24h: null,
+          fees24h: null,
+          aprItems: [],
+        },
+      },
+    ] as never[]
+  }, [onchainOnly, poolData, chain])
+
+  const { data: detailMetrics } = useOnchainPoolMetrics(onchainOnly, [chain], metricsInput)
+
   const {
     pool: poolWithOnChainData,
     refetch: refetchOnchainData,
@@ -57,8 +101,22 @@ export function usePoolLogic({
   } = useOnchainUserPoolBalances([poolWithOnChainData || poolData])
 
   const pool = poolWithOnchainUserBalances || poolWithOnChainData || poolData
-  const bptPrice = priceFor(pool.address, pool.chain)
-  const tvl = calcTotalUsdValue(getCompositionTokens(pool), pool.chain)
+
+  // D1: merge onchain metrics (volume/fees/TVL/APR) for onchain-only pools —
+  // the baked-registry stub says '0'; the metrics source carries the truth
+  // (or an honest null). Detail and list must never contradict.
+  const poolWithDetailMetrics =
+    onchainOnly && detailMetrics?.pools
+      ? (mergeOnchainPoolMetrics(pool as never, detailMetrics.pools) as unknown as Pool)
+      : pool
+
+  const bptPrice = priceFor(poolWithDetailMetrics.address, poolWithDetailMetrics.chain)
+
+  const tvl = calcTotalUsdValue(
+    getCompositionTokens(poolWithDetailMetrics),
+    poolWithDetailMetrics.chain
+  )
+
   const isLoading = isLoadingOnchainData || isLoadingOnchainUserBalances
 
   const refetch = async () => {
@@ -66,7 +124,7 @@ export function usePoolLogic({
   }
 
   return {
-    pool,
+    pool: poolWithDetailMetrics,
     bptPrice,
     tvl,
     isLoading,
@@ -77,7 +135,7 @@ export function usePoolLogic({
     // TODO: we assume here that we never need to reload the entire pool.
     // this assumption may need to be questioned
     refetch,
-    ...getPoolHelpers(pool, chain),
+    ...getPoolHelpers(poolWithDetailMetrics, chain),
   }
 }
 

@@ -79,9 +79,9 @@ async function fetchChainMetrics(
 
   for (let i = 0; i < pools.length; i += 3) {
     const batch = await Promise.all(
-      pools.slice(i, i + 3).map(p =>
-        fetchPoolState(client, vault, p.address as `0x${string}`, resolvedDecimals)
-      )
+      pools
+        .slice(i, i + 3)
+        .map(p => fetchPoolState(client, vault, p.address as `0x${string}`, resolvedDecimals))
     )
 
     states.push(...batch)
@@ -113,16 +113,21 @@ async function fetchChainMetrics(
 
   // Tenderly public gateway fallback for archive-walled chunks (B3).
   const fallbackRpc = ARCHIVE_FALLBACK_RPC[scanConfig.chainId]
+
   const fallbackClient = fallbackRpc
-    ? ({ request: (args: { method: string; params: unknown[] }) =>
-        fetch(fallbackRpc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jsonrpc: '2.0', id: 1, ...args }),
-        }).then(r => r.json().then(j => {
-          if (j.error) throw new Error(String(j.error.message ?? j.error))
-          return j.result
-        })) } as Pick<Parameters<typeof scanSwapBuckets>[0], 'request'>)
+    ? ({
+        request: (args: { method: string; params: unknown[] }) =>
+          fetch(fallbackRpc, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: 1, ...args }),
+          }).then(r =>
+            r.json().then(j => {
+              if (j.error) throw new Error(String(j.error.message ?? j.error))
+              return j.result
+            })
+          ),
+      } as Pick<Parameters<typeof scanSwapBuckets>[0], 'request'>)
     : undefined
 
   try {
@@ -134,32 +139,58 @@ async function fetchChainMetrics(
       chunk,
       fallbackClient
     )
+
+    // display: all observed logs (pre-hole included — understated-but-real)
     buckets = mergeBuckets(buckets, fresh.buckets)
 
-    const bridgesBaked = fromBlock <= (baked?.cursor ?? 0) + 1
-    // baked coverage start (block) = block-time inverse of coverageStartMs
-    const bakedCoverageStartBlock =
-      baked?.coverageStartMs !== undefined
-        ? Math.max(0, latest - Math.floor((Date.now() - Number(baked.coverageStartMs)) / BLOCK_MS))
-        : undefined
-    const coverageStartBlock = computeCoverageStartBlock({
-      previous:
-        ledger && fromBlock <= ledger.cursor + 1
-          ? { startBlock: ledger.coverageStartBlock, cursor: ledger.cursor }
-          : undefined,
-      fromBlock,
-      bridgesBaked,
-      bakedCoverageStartBlock,
-    })
+    // D3 (2026-10-27): coverage is a PREFIX-RUN property. The scan's
+    // contiguous run starts at fromBlock + 1 and ends at the FIRST hole
+    // (coveredTo); the ledger cursor only advances to coveredTo, so the
+    // next scan re-attempts the hole (self-heal within the sliding 24h
+    // window). Nothing covered (coveredTo < coveredFrom sentinel) → the
+    // previous ledger survives untouched; this render stays display-grade.
+    // v3 ledger buckets are PREFIX-RUN visitor buckets ONLY (baked merged
+    // at display, never persisted) — sum-merge stays double-count-free
+    // because every persisted range starts after the previous cursor.
+    const nothingCovered = fresh.coveredTo < fresh.coveredFrom
 
-    saveSwapLedger({
-      version: 2,
-      chainId: scanConfig.chainId,
-      cursor: latest,
-      savedAt: Date.now(),
-      coverageStartBlock,
-      buckets,
-    })
+    if (!nothingCovered) {
+      const bridgesBaked = fromBlock <= (baked?.cursor ?? 0) + 1
+
+      // baked coverage start (block) = block-time inverse of coverageStartMs
+      const bakedCoverageStartBlock =
+        baked?.coverageStartMs !== undefined
+          ? Math.max(
+              0,
+              latest - Math.floor((Date.now() - Number(baked.coverageStartMs)) / BLOCK_MS)
+            )
+          : undefined
+
+      const coverageStartBlock = computeCoverageStartBlock({
+        previous:
+          ledger && fromBlock <= ledger.cursor + 1
+            ? { startBlock: ledger.coverageStartBlock, cursor: ledger.cursor }
+            : undefined,
+        fromBlock,
+        bridgesBaked,
+        bakedCoverageStartBlock,
+      })
+
+      // v3 ledger: PREFIX-RUN visitor buckets only (ledger + fresh prefix).
+      // Post-hole observed logs are display-grade (understated-but-real) but
+      // NEVER persisted — the next scan re-attempts the hole from the
+      // cursor, and re-scanning their range cannot double-count.
+      const visitorBuckets = mergeBuckets(ledger?.buckets ?? [], fresh.contiguousBuckets)
+
+      saveSwapLedger({
+        version: 3,
+        chainId: scanConfig.chainId,
+        cursor: Math.max(ledger?.cursor ?? 0, fresh.coveredTo),
+        savedAt: Date.now(),
+        coverageStartBlock,
+        buckets: visitorBuckets,
+      })
+    }
   } catch {
     // scan failure keeps the baked+stored ledger — metrics degrade honestly
   }
@@ -170,7 +201,9 @@ async function fetchChainMetrics(
   // because the in-flight save above may have been the first v2 write.
   const fullCoverage = hasLedgerFullCoverage(
     loadSwapLedger(scanConfig.chainId),
-    baked ? { cursor: Number(baked.cursor ?? 0), coverageStartMs: Number(baked.coverageStartMs ?? 0) } : null,
+    baked
+      ? { cursor: Number(baked.cursor ?? 0), coverageStartMs: Number(baked.coverageStartMs ?? 0) }
+      : null,
     latest,
     now,
     BLOCK_MS
