@@ -2,7 +2,7 @@
   "network": "base",
   "chainId": 8453,
   "deployedAt": "2026-10-03",
-  "updatedAt": "2026-10-04T02:35",
+  "updatedAt": "2026-10-28T09:45",
   "deployer": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
   "tasks_with_output": 39,
   "contracts_total": 45,
@@ -51,7 +51,7 @@
       "VaultExplorer": "0x1b235EFb730993560294531ec19D673630c8F71b"
     },
     "v3/tasks/20250806-v3-token-pair-registry": {
-      "TokenPairRegistry": "0xb3D9A369B6b7a354Ccb81c68b975830103AeBd59"
+      "TokenPairRegistry": "0x0253c3996d1F21F3C064D67a6c9c496F45fA3Dc5"
     },
     "v3/tasks/20250502-v3-fee-percentages-provider": {
       "ProtocolFeePercentagesProvider": "0xd248ed324d6d894B8F906B68607f2A82b8032565"
@@ -63,13 +63,13 @@
       "ProtocolFeeSweeper": "0x323Cfb8cd8F3b5E218dDac54fC73169cF63fF1d7"
     },
     "v3/tasks/20250530-v3-cow-swap-fee-burner-v2": {
-      "CowSwapFeeBurner": "0x9614ea13C468C2c4fc830EcEdb0741D1F54A5147"
+      "CowSwapFeeBurner": "0x46Df7ECA864106f85E0e0534759b61CC1305af3D"
     },
     "v3/tasks/20250530-v3-erc4626-cow-swap-fee-burner-v2": {
-      "ERC4626CowSwapFeeBurner": "0xc9E85699BC45C62bCcFDA6E23Cca05DC76d090b6"
+      "ERC4626CowSwapFeeBurner": "0x4EC320641e330b34ee403c0e2ad158cB3928AbE6"
     },
     "v3/tasks/20251219-v3-balancer-fee-burner-v2": {
-      "BalancerFeeBurner": "0xE6C1EA38b26A29093858d57C257bc73cEe79e22d"
+      "BalancerFeeBurner": "0x3e9755A1f41Cd5726bA83517e97F81b131E08fA3"
     },
     "v3/tasks/20250919-v3-pool-pause-helper-v2": {
       "PoolPauseHelper": "0x1E20E29E5abcaa567dF47161b9C9ddC741f14bB8"
@@ -115,13 +115,13 @@
       "FixedPriceLBPoolFactory": "0x5dBd872F506aB714bF4D9C20675598D9F1495bA8"
     },
     "v3/tasks/20260202-v3-weighted-pool-oracle-v2": {
-      "WeightedLPOracleFactory": "0x27969E016f144C266FDAb2de60C90BD1E172eb5c"
+      "WeightedLPOracleFactory": "0x985Ff2CD4C8674409535257785B00101b8Ce841B"
     },
     "v3/tasks/20260203-v3-stable-pool-oracle-v2": {
-      "StableLPOracleFactory": "0x1Da76dcd3b1Dc39ed82A96257DFaD54CAda7b733"
+      "StableLPOracleFactory": "0x8da03E05231cf60C4609aF0b2989cFAE948f1aDd"
     },
     "v3/tasks/20260209-v3-gyro-eclp-oracle": {
-      "EclpLPOracleFactory": "0x86D328be82b8713bfddE54ceAcaB0FbBFA9A7437"
+      "EclpLPOracleFactory": "0x9bdF8972B1Fa13122BF03Da22e89fbC6ACA021e3"
     },
     "v3/primitives/rootstock-primitives": {
       "TokenFactory": "0xfA6172cF414d89b2F37fd8a5932385ed6f831b84",
@@ -132,5 +132,70 @@
     }
   },
   "factory_derived": [],
-  "provenance_note": "Deployed via deploy_chain_mainnet.sh (supervisor-resilient). 37 upstream tasks (byte-identical to Balancer V3 official build artifacts) + primitives (TokenFactory/WrapperFactory, internal skills-based review 2026-09-27) + MevCaptureHook. Vault 0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7 (CREATE2-exact prediction match). Authorizer admin = treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a from birth (live-verified hasRole)."
+  "provenance_note": "Deployed via deploy_chain_mainnet.sh (supervisor-resilient). 37 upstream tasks (byte-identical to Balancer V3 official build artifacts) + primitives (TokenFactory/WrapperFactory, internal skills-based review 2026-09-27) + MevCaptureHook. Vault 0x0a3af0Da0175afa0Cc05a6ad9092dC740155a0E7 (CREATE2-exact prediction match). Authorizer admin = treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a from birth (live-verified hasRole). S113-fix registry sync 2026-10-28: 2026-10-05 redeploys synced (owner-defect contracts -> multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a); old addresses remain live but SUPERSEDED (see 'superseded' map) \u2014 never approve, never use. Fresh bytecode sweep: provenance-sweep-base-mainnet-20261028.json (45 proven, 0 issues, GREEN).",
+  "superseded": {
+    "0xb3D9A369B6b7a354Ccb81c68b975830103AeBd59": {
+      "name": "TokenPairRegistry",
+      "task": "v3/tasks/20250806-v3-token-pair-registry",
+      "superseded_by": "0x0253c3996d1F21F3C064D67a6c9c496F45fA3Dc5",
+      "reason": "S113-fix owner defect: owner was upstream 0x9ff471F9f98F42E5151C7855fD1b5aa906b1AF7e; redeployed with owner=treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0x9614ea13C468C2c4fc830EcEdb0741D1F54A5147": {
+      "name": "CowSwapFeeBurner",
+      "task": "v3/tasks/20250530-v3-cow-swap-fee-burner-v2",
+      "superseded_by": "0x46Df7ECA864106f85E0e0534759b61CC1305af3D",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0xc9E85699BC45C62bCcFDA6E23Cca05DC76d090b6": {
+      "name": "ERC4626CowSwapFeeBurner",
+      "task": "v3/tasks/20250530-v3-erc4626-cow-swap-fee-burner-v2",
+      "superseded_by": "0x4EC320641e330b34ee403c0e2ad158cB3928AbE6",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0xE6C1EA38b26A29093858d57C257bc73cEe79e22d": {
+      "name": "BalancerFeeBurner",
+      "task": "v3/tasks/20251219-v3-balancer-fee-burner-v2",
+      "superseded_by": "0x3e9755A1f41Cd5726bA83517e97F81b131E08fA3",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=treasury multisig 0xcc59bE4Fd171b9868B092CBa017207B87bA23c5a",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0x27969E016f144C266FDAb2de60C90BD1E172eb5c": {
+      "name": "WeightedLPOracleFactory",
+      "task": "v3/tasks/20260202-v3-weighted-pool-oracle-v2",
+      "superseded_by": "0x985Ff2CD4C8674409535257785B00101b8Ce841B",
+      "reason": "S113-fix oracle defect: SequencerUptimeFeed was ZERO; redeployed with Chainlink Base L2 sequencer feed 0xBCF85224fc0756B9Fa45aA7892530B47e10b6433",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0x1Da76dcd3b1Dc39ed82A96257DFaD54CAda7b733": {
+      "name": "StableLPOracleFactory",
+      "task": "v3/tasks/20260203-v3-stable-pool-oracle-v2",
+      "superseded_by": "0x8da03E05231cf60C4609aF0b2989cFAE948f1aDd",
+      "reason": "S113-fix oracle defect: SequencerUptimeFeed was ZERO; redeployed with Chainlink Base L2 sequencer feed 0xBCF85224fc0756B9Fa45aA7892530B47e10b6433",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0x86D328be82b8713bfddE54ceAcaB0FbBFA9A7437": {
+      "name": "EclpLPOracleFactory",
+      "task": "v3/tasks/20260209-v3-gyro-eclp-oracle",
+      "superseded_by": "0x9bdF8972B1Fa13122BF03Da22e89fbC6ACA021e3",
+      "reason": "S113-fix oracle defect: SequencerUptimeFeed was ZERO; redeployed with Chainlink Base L2 sequencer feed 0xBCF85224fc0756B9Fa45aA7892530B47e10b6433",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    }
+  }
 }

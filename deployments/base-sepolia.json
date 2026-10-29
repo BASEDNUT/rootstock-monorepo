@@ -2,7 +2,7 @@
   "network": "baseSepolia",
   "chainId": 84532,
   "deployedAt": "2026-09-18",
-  "updatedAt": "2026-09-27T13:47",
+  "updatedAt": "2026-10-28T09:45",
   "deployer": "0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
   "tasks_with_output": 42,
   "contracts_total": 67,
@@ -78,13 +78,13 @@
       "AggregatorBatchRouter": "0xfC60096188e04Ab37983BcB2e19584197D1D0D1A"
     },
     "v3/tasks/20250530-v3-cow-swap-fee-burner-v2": {
-      "CowSwapFeeBurner": "0xF51Efd4762d5EbdCBa49472C266A5c37dC4ddD5a"
+      "CowSwapFeeBurner": "0x031FE78a911Dfd8c14f6f267836AeF364B1981FF"
     },
     "v3/tasks/20250530-v3-erc4626-cow-swap-fee-burner-v2": {
-      "ERC4626CowSwapFeeBurner": "0xE9Fcba7BF13Dce9a146d02adFB2ad5ec036f0b35"
+      "ERC4626CowSwapFeeBurner": "0x607F93ddAb66a271001b9aDA8FEc8aBaF0B3F986"
     },
     "v3/tasks/20250806-v3-token-pair-registry": {
-      "TokenPairRegistry": "0x43DBB8F3bb9f6277e350f37Adf240518c0964f06"
+      "TokenPairRegistry": "0x54d1E9EAc2eAF5fABA009dc5Dc80dc24DC1957c0"
     },
     "v3/tasks/20250813-v3-constant-price-feed": {
       "ConstantPriceFeed": "0xB4C94D9b150A69DdDDDCd7AD1f2D4CB3AE47D4a8"
@@ -106,7 +106,7 @@
       "MockFixedPriceLBPool": "0x04f30AEAd26F1A74EDD9D1ea70fA82eFCbfFf4d6"
     },
     "v3/tasks/20251219-v3-balancer-fee-burner-v2": {
-      "BalancerFeeBurner": "0x67Cf3D0223e191Ac2c423ca1b27C0b688b1A1e35"
+      "BalancerFeeBurner": "0xb069ed0aFaBDCE1539d8E959e90d35778111e691"
     },
     "v3/tasks/20260115-v3-weighted-pool-v2": {
       "WeightedPoolFactory": "0x277D7dDe3C6762C31CfB438c9331376fE8887A7c",
@@ -173,5 +173,43 @@
       "wrksRWT wrapper (WrapperFactory-created, E2E)"
     ]
   ],
-  "provenance_note": "All contracts deployed via upstream balancer-deployments task system. Bytecode provenance: deployments/provenance-sweep-20260928.json"
+  "provenance_note": "All contracts deployed via upstream balancer-deployments task system. Bytecode provenance: deployments/provenance-sweep-20260928.json. S113-fix registry sync 2026-10-28: 2026-10-05 redeploys synced (owner-defect contracts -> hot wallet 0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e); old addresses remain live but SUPERSEDED (see 'superseded' map) \u2014 never approve, never use. Fresh bytecode sweep: provenance-sweep-base-sepolia-20261028.json (69 proven, 0 issues, GREEN).",
+  "superseded": {
+    "0x43DBB8F3bb9f6277e350f37Adf240518c0964f06": {
+      "name": "TokenPairRegistry",
+      "task": "v3/tasks/20250806-v3-token-pair-registry",
+      "superseded_by": "0x54d1E9EAc2eAF5fABA009dc5Dc80dc24DC1957c0",
+      "reason": "S113-fix owner defect: owner was upstream 0x9ff471F9f98F42E5151C7855fD1b5aa906b1AF7e; redeployed with owner=hot wallet 0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e (multisig has no code on Sepolia)",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0xF51Efd4762d5EbdCBa49472C266A5c37dC4ddD5a": {
+      "name": "CowSwapFeeBurner",
+      "task": "v3/tasks/20250530-v3-cow-swap-fee-burner-v2",
+      "superseded_by": "0x031FE78a911Dfd8c14f6f267836AeF364B1981FF",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=hot wallet 0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0xE9Fcba7BF13Dce9a146d02adFB2ad5ec036f0b35": {
+      "name": "ERC4626CowSwapFeeBurner",
+      "task": "v3/tasks/20250530-v3-erc4626-cow-swap-fee-burner-v2",
+      "superseded_by": "0x607F93ddAb66a271001b9aDA8FEc8aBaF0B3F986",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=hot wallet 0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    },
+    "0x67Cf3D0223e191Ac2c423ca1b27C0b688b1A1e35": {
+      "name": "BalancerFeeBurner",
+      "task": "v3/tasks/20251219-v3-balancer-fee-burner-v2",
+      "superseded_by": "0xb069ed0aFaBDCE1539d8E959e90d35778111e691",
+      "reason": "S113-fix owner defect: owner was upstream 0x74E283B985EA76c55C8B48d6bD1067a418188424; redeployed with owner=hot wallet 0x6bFB14bd210DeBFfb30285Ec53860c3334546a9e",
+      "superseded_date": "2026-10-05",
+      "still_live_onchain": true,
+      "never_use": true
+    }
+  }
 }

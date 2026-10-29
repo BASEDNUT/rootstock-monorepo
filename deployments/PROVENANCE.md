@@ -4,6 +4,17 @@
 
 Every contract deployed by Rootstock is **byte-identical to Balancer's own officially-committed build artifacts**, with exactly one exception pair: our **TokenFactory + WrapperFactory** primitives, byte-identical to our forge build of [BASEDNUT/sol-contracts](https://github.com/BASEDNUT/sol-contracts) `src/primitives/` (internal skills-based review 2026-09-27, 0 Critical/High/Medium — independent third-party audit planned: [report](../audits/2026-09-27-primitive-factories-verify-audit.md)).
 
+## S113-fix registry sync (2026-10-28) — superseded contracts marked never-use
+
+The 2026-10-05 S113-fix redeploys (11 contracts) are now reflected in the canonical registries. Both [base.json](./base.json) and [base-sepolia.json](./base-sepolia.json) carry a `superseded` map — 7 mainnet + 4 Sepolia old addresses, each with `superseded_by`, `reason`, and `never_use: true`. The old contracts remain live on-chain but are defective (upstream owners / zero sequencer feed) and must never be approved or used.
+
+Fresh byte-exact sweeps after the sync:
+
+- Base mainnet: **45/45 GREEN, 0 issues** — [provenance-sweep-base-mainnet-20261028.json](./provenance-sweep-base-mainnet-20261028.json)
+- Base Sepolia: **69/69 GREEN, 0 issues** — [provenance-sweep-base-sepolia-20261028.json](./provenance-sweep-base-sepolia-20261028.json)
+
+Live owner verification (cast, 2026-10-28): redeployed mainnet contracts owner = treasury multisig `0xcc59...3c5a`; Sepolia = hot wallet `0x6bFB...46a9e`; superseded contracts still carry upstream owners (`0x9ff4...1AF7e` on TokenPairRegistry, `0x74E2...8424` on the fee burners). The new oracle factories read `getSequencerUptimeFeed() = 0xBCF85224fc0756B9Fa45aA7892530B47e10b6433` (Chainlink Base L2 sequencer feed) live on mainnet.
+
 ## Result: 69/69 GREEN, 0 issues (2026-09-28)
 
 | Class               | Count | Meaning                                                                                                       |
