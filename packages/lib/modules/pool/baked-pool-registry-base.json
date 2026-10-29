@@ -2,9 +2,65 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-26T20:20:03.953Z",
+  "generatedAt": "2026-10-29T21:04:21.967Z",
   "fromBlock": 52131550,
   "pools": [
+    {
+      "address": "0x36d9a3a8261f22746ac3874d4604b7d767d238a6",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53258802,
+      "type": "WEIGHTED",
+      "name": "Kernel Core",
+      "symbol": "kCORE",
+      "blockTimestamp": 1793306951,
+      "swapFee": "0.003",
+      "holdersCount": 2,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "219799999999995"
+    },
+    {
+      "address": "0x8908a60b03a0d5a2a7a524e4f00240c83d44ce48",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53259112,
+      "type": "WEIGHTED",
+      "name": "Kernel Shell",
+      "symbol": "kSHELL",
+      "blockTimestamp": 1793307571,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x36D9a3a8261f22746ac3874d4604B7D767d238A6",
+          "symbol": "kCORE",
+          "name": "Kernel Core",
+          "decimals": 18
+        },
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "231801351358720"
+    },
     {
       "address": "0x93ef211b7b088fd89df019af387b19b01c9c7bc2",
       "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
