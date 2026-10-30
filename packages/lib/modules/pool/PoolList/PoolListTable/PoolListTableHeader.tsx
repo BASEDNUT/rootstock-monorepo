@@ -41,7 +41,7 @@ export function PoolListTableHeader({ ...rest }) {
         {PROJECT_CONFIG.options.showPoolName ? (
           <PoolListPoolNamesTokens />
         ) : (
-          <Text fontWeight="bold">Pool name</Text>
+          <Text fontWeight="bold">Name</Text>
         )}
       </GridItem>
       <GridItem justifySelf="start">

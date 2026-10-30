@@ -7,9 +7,8 @@ import { Box } from '@chakra-ui/react'
 import { usePoolList } from '../PoolListProvider'
 
 const OPTIONS = [
-  { value: PoolDisplayType.Name, label: 'Pool name' },
-  { value: PoolDisplayType.TokenPills, label: 'Pool tokens' },
-  { value: PoolDisplayType.Tickers, label: 'Tickers' },
+  { value: PoolDisplayType.Name, label: 'Name' },
+  { value: PoolDisplayType.TokenPills, label: 'Tokens' },
 ]
 
 export function PoolListPoolNamesTokens() {

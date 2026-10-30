@@ -88,10 +88,12 @@ describe('ROOTSTOCK hook metadata (surge/MEV never unmatched)', () => {
   })
 })
 
-describe('PoolDisplayType.Tickers (3-way toggle)', () => {
-  it('exists as a third display option', () => {
-    expect(PoolDisplayType.Tickers).toBe('tickers')
-    expect(Object.values(PoolDisplayType).length).toBe(3)
+describe('PoolDisplayType (2-way toggle)', () => {
+  it('has exactly Name + TokenPills - Tickers removed as duplicate of tokens', () => {
+    expect(Object.values(PoolDisplayType).length).toBe(2)
+    expect(PoolDisplayType.Name).toBe('name')
+    expect(PoolDisplayType.TokenPills).toBe('token-pills')
+    expect(Object.values(PoolDisplayType)).not.toContain('tickers')
   })
 })
 

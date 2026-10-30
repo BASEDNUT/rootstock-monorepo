@@ -90,7 +90,7 @@ export const ProjectConfigBalancer: ProjectConfig = {
     hidePoolTags: ['DYNAMIC_ECLP'],
     hidePoolTypes: hiddenPoolTypes,
     hideProtocolVersion: [],
-    // Rootstock (2026-10-26): the pool name/tokens/tickers toggle is a
+    // Rootstock (2026-10-26): the pool name/tokens toggle is a
     // first-class surface — beets parity. showPoolName gates the header
     // toggle (PoolListTableHeader); false rendered a static 'Pool name'
     // label and hid the control entirely.
