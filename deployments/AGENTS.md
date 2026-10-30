@@ -21,6 +21,8 @@ Deployment registry + byte-exact provenance proofs for ROOTSTOCK contracts — B
 | `verify_roles.py`                             | Positive+negative role battery (read-only eth_call)                                                                                                               |
 | `immutable-verification.json`                 | Immutable read-back results: mainnet 45/45 GREEN, 447 slots matched                                                                                               |
 | `role-verification.json`                      | Role battery results: mainnet GREEN (multisig 2/2, deployer 0 roles)                                                                                              |
+| `pools-mainnet.json`                          | Unified public pool registry — ALL BASED NUT ecosystem pools on Base mainnet: 54 pools (30 legacy venue + 24 ROOTSTOCK V3), every address on-chain verified       |
+| `verify_pools.py`                             | Rerunnable on-chain verification for pools-mainnet.json (selftest + live battery; exit 0 = all GREEN)                                                             |
 | `ROLE_VERIFICATION.md`                        | Role battery summary table (both chains, one honest Sepolia finding)                                                                                              |
 
 ## Rules
