@@ -1,24 +1,34 @@
 {
-  "version": 1,
+  "version": 2,
   "chain": "base",
   "chainId": 8453,
-  "generatedAt": "2026-10-30T16:50:34Z",
-  "description": "Unified public registry of all BASED NUT ecosystem pools on Base mainnet: legacy venue pools (Uniswap V2/V3, Aerodrome, Balancer V2, Sudoswap, MintClub bonding curves) + ROOTSTOCK V3 pools. Every pool_address (and bond_contract where the venue is a bonding curve) verified on-chain via eth_getCode.",
+  "generatedAt": "2026-10-30T17:30:41Z",
+  "description": "Unified public registry of all BASED NUT ecosystem pools on Base mainnet: legacy venue pools (Uniswap V2/V3, Aerodrome, Balancer V2 + whorl, reCLAMM, Sudoswap, MintClub bonding curves), original Sunflower Grove grafts (canonical Balancer V3), Session-80 kernel engine pools, and ROOTSTOCK V3 pools. Every pool_address (and bond_contract for bonding-curve venues) verified on-chain via eth_getCode.",
   "scopeCounts": {
     "legacy": 30,
+    "grove": 6,
+    "kernel": 5,
     "rootstock": 24
   },
   "verification": {
-    "method": "eth_getCode + symbol() read per address",
-    "checkedAt": "2026-10-30T16:50:34Z",
-    "rpcs": ["https://base.publicnode.com", "https://base.drpc.org"]
+    "method": "eth_getCode (+ symbol()/name()/totalSupply() where applicable) per address",
+    "checkedAt": "2026-10-30T17:30:41Z",
+    "rpcs": [
+      "https://base.publicnode.com",
+      "https://base.drpc.org",
+      "https://mainnet.base.org"
+    ]
   },
   "sources": [
     "ROOTSTOCK baked pool registry (packages/lib/modules/pool/baked-pool-registry-base.json)",
+    "BASED NUT internal unified registry (build_unified_pool_registry.py merge: legacy + grove + kernel + rootstock)",
     "on-chain reads (Base mainnet RPC)"
   ],
   "notes": [
-    "Two distinct contracts share the name Based Peanut Whorl (symbol pNUT): the original Balancer V3 whorl 0x252b1e49d1d1e42657d028703e8c37fe5b5cacf5 (legacy scope) and the ROOTSTOCK-registry whorl 0xf64ae6f64be7c223092c399dfd2e388db5e16080 (rootstock scope). Both are live and tracked separately."
+    "Two distinct contracts share the name Based Peanut Whorl (symbol pNUT): the original Balancer V3 whorl 0x252b1e49d1d1e42657d028703e8c37fe5b5cacf5 (legacy scope) and the ROOTSTOCK-registry whorl 0xf64ae6f64be7c223092c399dfd2e388db5e16080 (rootstock scope). Both are live and tracked separately.",
+    "grove scope = original Sunflower Grove graft pools on the canonical Balancer V3 Vault (0xBA1333...9ba9), deployed before ROOTSTOCK; contract state reflects the V3 winddown (BPT totalSupply at the 1e6 wei floor).",
+    "kernel scope = Session 80 engine pools (kSS, Slipstream CL, kRC, nNUT, mNUT); mNUT was fully unwound 2026-10-23.",
+    "UniV4 full-range position #3027645 (Session 80) is excluded: the Base UniV4 PoolManager/PositionManager address is not verified in the evidence chain; probe of 0x7C5f...e21dC5 returned zero code. Excluded rather than fabricated."
   ],
   "pools": [
     {
@@ -46,11 +56,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 22142,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -78,11 +89,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -110,11 +122,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 11293,
         "symbol_onchain": "UNI-V2",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -142,11 +155,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 11293,
         "symbol_onchain": "UNI-V2",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -174,11 +188,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-AERO/NUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -206,11 +221,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-NUT/cbBTC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -238,11 +254,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-SNUT/NUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -270,11 +287,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-cbETH/NUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -302,11 +320,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-USD+/NUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -334,11 +353,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-NUT/sFRAX",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -366,11 +386,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-NUT/CHAD",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -398,11 +419,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 22142,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -430,11 +452,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 24252,
         "symbol_onchain": "25cbETH-25SNUT-25NUT-25cbBTC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -462,11 +485,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "nutSALT-rCLP",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -494,11 +518,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 11293,
         "symbol_onchain": "UNI-V2",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -526,11 +551,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 11293,
         "symbol_onchain": "UNI-V2",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -558,11 +584,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": "vAMM-SALT/USDC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -590,10 +617,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -622,10 +650,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -654,10 +683,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -686,10 +716,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -718,10 +749,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -750,10 +782,11 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 21972,
-        "checked_at": "2026-10-30T16:50:34Z",
+        "checked_at": "2026-10-30T17:30:41Z",
         "target": "bond_contract"
       }
     },
@@ -782,11 +815,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 166,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -814,11 +848,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 166,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -846,11 +881,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 166,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -878,11 +914,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 166,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -910,11 +947,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "pipsUSDC-rCLP",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -942,11 +980,12 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
+      "weights": null,
       "verification": {
         "has_code": true,
         "code_size": 45,
         "symbol_onchain": null,
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -974,12 +1013,375 @@
       "holders_count": null,
       "block_number": null,
       "bond_contract": null,
-      "tokens": [],
+      "weights": [0.25, 0.25, 0.25, 0.25],
       "verification": {
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "pNUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gtinf-grove-balancer-v3",
+      "name": "Inference Twin Graft",
+      "pair": "wNUT/VVV/DIEM",
+      "symbol": "gtINF",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x6a0a1b7428d543524592ed22023a09bde05aa466",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtINF",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gtagt-grove-balancer-v3",
+      "name": "Agent Twin Graft",
+      "pair": "wNUT/VIRTUAL/MOR",
+      "symbol": "gtAGT",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x5da95cc31c840fd33180e4c7f879e3f3d8eca200",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtAGT",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gteth-grove-balancer-v3",
+      "name": "Ether Twin Graft",
+      "pair": "wNUT/cbETH/wstETH",
+      "symbol": "gtETH",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0xd156d51219b3a7a590670d655e8740ad404e8835",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtETH",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gtbtc-grove-balancer-v3",
+      "name": "Bitcoin Twin Graft",
+      "pair": "wNUT/cbBTC/tBTC",
+      "symbol": "gtBTC",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0xb2a63935e1391ee49e5cfb6cc4f184c285fe29b4",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtBTC",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gtfx-grove-balancer-v3",
+      "name": "FX Twin Graft",
+      "pair": "wNUT/USDC/EURC",
+      "symbol": "gtFX",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x1ccb8c61b62b9c7a9d4e66c9c824c1539b8b1f2e",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtFX",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "gtsil-grove-balancer-v3",
+      "name": "Silicon Twin Graft",
+      "pair": "wNUT/NVDAc/AAPLc",
+      "symbol": "gtSIL",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0xa669275f92e49aff80aba7aad86e5afdde3540b0",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "grove",
+      "token0_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token0_symbol": "wNUT",
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.2, 0.4, 0.4],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "gtSIL",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "kss-kernel-balancer-v3",
+      "name": "Nut Kernel Surge",
+      "pair": "stable surge",
+      "symbol": "kSS",
+      "platform": "Balancer V3",
+      "pool_type": "STABLE",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x0b9a8d0f9375b7c4af625e4deb0541e95a281085",
+      "chain_id": 8453,
+      "fee_bps": null,
+      "swap_fee_pct": null,
+      "is_stable": true,
+      "registry_scope": "kernel",
+      "token0_address": null,
+      "token0_symbol": null,
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": null,
+      "verification": {
+        "has_code": true,
+        "code_size": 15415,
+        "symbol_onchain": "kSS",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "kslip-kernel-aerodrome-cl",
+      "name": "Nut Kernel Slipstream",
+      "pair": "NUT/wNUT",
+      "symbol": null,
+      "platform": "Aerodrome Slipstream",
+      "pool_type": "CL",
+      "status": "live (S80 deploy); liquidity state not re-verified",
+      "pool_address": "0x869a90ec6b86d37c24a61854cbd31dbfccc1e38e",
+      "chain_id": 8453,
+      "fee_bps": 100,
+      "swap_fee_pct": 1.0,
+      "is_stable": false,
+      "registry_scope": "kernel",
+      "token0_address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "token0_symbol": "NUT",
+      "token1_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token1_symbol": "wNUT",
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": null,
+      "verification": {
+        "has_code": true,
+        "code_size": 45,
+        "symbol_onchain": null,
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "krc-kernel-balancer-v3",
+      "name": "Nut Kernel reCLAMM",
+      "pair": "NUT/wNUT",
+      "symbol": "kRC",
+      "platform": "Balancer V3",
+      "pool_type": "RECLAMM",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0xeb79c8ac87f428a88357368796654f82d079f6b3",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "kernel",
+      "token0_address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "token0_symbol": "NUT",
+      "token1_address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "token1_symbol": "wNUT",
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": null,
+      "verification": {
+        "has_code": true,
+        "code_size": 23597,
+        "symbol_onchain": "kRC",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "nnut-kernel-balancer-v3",
+      "name": "Nested Nut Whorl",
+      "pair": "nNUT 25x4",
+      "symbol": "nNUT",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "V3 winddown - exposure zeroed (S126f); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x3bfd1e8d43c554b3be57845791ae6657bbb7f49f",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "kernel",
+      "token0_address": null,
+      "token0_symbol": null,
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.25, 0.25, 0.25, 0.25],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "nNUT",
+        "checked_at": "2026-10-30T17:29:16Z"
+      }
+    },
+    {
+      "id": "mnut-kernel-balancer-v3",
+      "name": "Meta Nut Whorl",
+      "pair": "mNUT 25x4 (BPT legs + wNUT)",
+      "symbol": "mNUT",
+      "platform": "Balancer V3",
+      "pool_type": "WEIGHTED",
+      "status": "unwound 2026-10-23 (9/9 receipt-verified, ~$42 recovered); contract live, BPT totalSupply at 1e6 wei floor",
+      "pool_address": "0x75b1b8bed681b1c288e17498157afd9925839ea8",
+      "chain_id": 8453,
+      "fee_bps": 30,
+      "swap_fee_pct": 0.3,
+      "is_stable": false,
+      "registry_scope": "kernel",
+      "token0_address": null,
+      "token0_symbol": null,
+      "token1_address": null,
+      "token1_symbol": null,
+      "token2_address": null,
+      "token3_address": null,
+      "factory": null,
+      "hook": null,
+      "holders_count": null,
+      "block_number": null,
+      "bond_contract": null,
+      "weights": [0.25, 0.25, 0.25, 0.25],
+      "verification": {
+        "has_code": true,
+        "code_size": 16995,
+        "symbol_onchain": "mNUT",
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1007,6 +1409,7 @@
       "holders_count": 2,
       "block_number": 53258802,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
@@ -1025,7 +1428,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "kCORE",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1053,6 +1456,7 @@
       "holders_count": 1,
       "block_number": 53259112,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x36d9a3a8261f22746ac3874d4604b7d767d238a6",
@@ -1071,7 +1475,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "kSHELL",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1099,6 +1503,7 @@
       "holders_count": 1,
       "block_number": 53119697,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
@@ -1117,7 +1522,7 @@
         "has_code": true,
         "code_size": 15415,
         "symbol_onchain": "tsPHILO",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1145,6 +1550,7 @@
       "holders_count": 1,
       "block_number": 53118288,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
@@ -1163,7 +1569,7 @@
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "tsPRETA",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1191,6 +1597,7 @@
       "holders_count": 1,
       "block_number": 53119008,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
@@ -1209,7 +1616,7 @@
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "tsLOAM",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1237,6 +1644,7 @@
       "holders_count": 1,
       "block_number": 53083714,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
@@ -1255,7 +1663,7 @@
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "iENG",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1283,6 +1691,7 @@
       "holders_count": 1,
       "block_number": 53082568,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
@@ -1301,7 +1710,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "rtFRAX",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1329,6 +1738,7 @@
       "holders_count": 1,
       "block_number": 53082679,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb79dd08ea68a908a97220c76d19a6aa9cbde4376",
@@ -1347,7 +1757,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "rtUSD+",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1375,6 +1785,7 @@
       "holders_count": 1,
       "block_number": 53082811,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
@@ -1393,7 +1804,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "rtcbETH",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1421,6 +1832,7 @@
       "holders_count": 1,
       "block_number": 53082936,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
@@ -1439,7 +1851,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "rtcbBTC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1467,6 +1879,7 @@
       "holders_count": 1,
       "block_number": 53077274,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
@@ -1485,7 +1898,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "NUTMOG",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1513,6 +1926,7 @@
       "holders_count": 1,
       "block_number": 53076191,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x4200000000000000000000000000000000000006",
@@ -1531,7 +1945,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "MAXCHAD",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1559,6 +1973,7 @@
       "holders_count": 1,
       "block_number": 53014437,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x4200000000000000000000000000000000000006",
@@ -1577,7 +1992,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "rks-NUT-WETH",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1605,6 +2020,7 @@
       "holders_count": 1,
       "block_number": 53014441,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b",
@@ -1623,7 +2039,7 @@
         "has_code": true,
         "code_size": 15415,
         "symbol_onchain": "rks-TBTC-CBBTC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1651,6 +2067,7 @@
       "holders_count": 1,
       "block_number": 53014446,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
@@ -1669,7 +2086,7 @@
         "has_code": true,
         "code_size": 15415,
         "symbol_onchain": "rks-WETH-CBETH-SURGE",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1697,6 +2114,7 @@
       "holders_count": 1,
       "block_number": 52908198,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
@@ -1727,7 +2145,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "pNUT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1755,6 +2173,7 @@
       "holders_count": 1,
       "block_number": 52707742,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
@@ -1779,7 +2198,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtINF",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1807,6 +2226,7 @@
       "holders_count": 1,
       "block_number": 52707742,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b",
@@ -1831,7 +2251,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtAGT",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1859,6 +2279,7 @@
       "holders_count": 1,
       "block_number": 52707792,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
@@ -1883,7 +2304,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtETH",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1911,6 +2332,7 @@
       "holders_count": 1,
       "block_number": 52707792,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b",
@@ -1935,7 +2357,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtBTC",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -1963,6 +2385,7 @@
       "holders_count": 1,
       "block_number": 52707813,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",
@@ -1987,7 +2410,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtFX",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -2015,6 +2438,7 @@
       "holders_count": 1,
       "block_number": 52707813,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x1ede2afc985f6d7aeb3f4c84b95a103c00d5de81",
@@ -2033,7 +2457,7 @@
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "nutSALT-rCLP",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -2061,6 +2485,7 @@
       "holders_count": 1,
       "block_number": 52707828,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
@@ -2079,7 +2504,7 @@
         "has_code": true,
         "code_size": 23597,
         "symbol_onchain": "pipsUSDC-rCLP",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     },
     {
@@ -2107,6 +2532,7 @@
       "holders_count": 1,
       "block_number": 52707828,
       "bond_contract": null,
+      "weights": null,
       "tokens": [
         {
           "address": "0xb20000000000000000000078ee7ce2fe4908108c",
@@ -2131,7 +2557,7 @@
         "has_code": true,
         "code_size": 16995,
         "symbol_onchain": "gtSIL",
-        "checked_at": "2026-10-30T16:40:24Z"
+        "checked_at": "2026-10-30T17:29:16Z"
       }
     }
   ]

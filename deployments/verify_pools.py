@@ -193,7 +193,7 @@ def selftest():
     check("registry has pools", isinstance(pools, list) and len(pools) >= 50)
     check("every pool has id", all(isinstance(p.get("id"), str) and p["id"] for p in pools))
     check("every pool has chainId 8453", all(p.get("chain_id") == 8453 for p in pools))
-    check("every pool has registry_scope", all(p.get("registry_scope") in ("legacy", "rootstock") for p in pools))
+    check("every pool has registry_scope", all(p.get("registry_scope") in ("legacy", "rootstock", "grove", "kernel") for p in pools))
     check("every pool has address or bond", all(norm_addr(p.get("pool_address")) or norm_addr(p.get("bond_contract")) for p in pools))
     check("scopeCounts match", reg.get("scopeCounts", {}).get("legacy") == sum(1 for p in pools if p["registry_scope"] == "legacy"))
 
