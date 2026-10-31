@@ -16,6 +16,11 @@ import { isCowAmmPool } from '../../../pool.helpers'
 import { PoolChartTab, usePoolChartTabs } from './PoolChartTabsProvider'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { alignUtcWithLocalDay } from '@repo/lib/shared/utils/time'
+// B5 (2026-10-31): onchain-only pools have no remote snapshots — VOLUME/
+// FEES charts come from the swap-ledger buckets (same source as the live
+// 24h numbers, so chart and stats can never contradict).
+import { useOnchainPoolChartSeries } from '../../../onchain-pool-chart-series'
+import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 type NonEmptyPoolChartPeriods = [PoolChartPeriod, ...PoolChartPeriod[]]
 
 const MIN_DISPLAY_PERIOD_DAYS = 30
@@ -211,16 +216,44 @@ export function usePoolChartsLogic() {
   const [activePeriod, setActivePeriod] = useState(poolChartPeriods[0])
   const { activeTab } = usePoolChartTabs()
 
-  const { data, loading: isLoading } = usePoolSnapshots(
+  const { data, loading: isLoadingRemote } = usePoolSnapshots(
     poolId as string,
     pool.chain,
     activePeriod.value
   )
 
+  // B5: onchain-only pools — the remote API returns nothing; the onchain
+  // series (swap-ledger buckets priced with GT) is the chart source.
+  const isOnchainOnly = isOnchainOnlyNetwork(pool.chain)
+
+  const decimalsByAddress = useMemo(() => {
+    const out: Record<string, number> = {}
+
+    for (const t of pool.poolTokens || []) {
+      out[t.address.toLowerCase()] = t.decimals
+    }
+
+    return out
+  }, [pool.poolTokens])
+
+  const { data: onchainSeries, isLoading: isLoadingOnchain } = useOnchainPoolChartSeries(
+    isOnchainOnly,
+    pool.chain,
+    poolId as string,
+    pool.dynamicData.totalLiquidity,
+    decimalsByAddress
+  )
+
+  // unified snapshots: onchain-only pools read the onchain series; all
+  // other pools keep the remote snapshots (upstream behavior unchanged).
+  const snapshots = isOnchainOnly ? (onchainSeries?.snapshots ?? []) : (data?.snapshots ?? [])
+
+  const isLoading = isOnchainOnly ? isLoadingOnchain : isLoadingRemote
+
   const isCowPool = isCowAmmPool(pool.type)
 
   const chartValueSum = useMemo(() => {
-    if (!data?.snapshots) return null
+    if (!snapshots || snapshots.length === 0) return null
 
     let val = 0
 
@@ -229,29 +262,28 @@ export function usePoolChartsLogic() {
     }
 
     if (activeTab.value === PoolChartTab.FEES) {
-      val = data?.snapshots.reduce((acc, snapshot) => {
+      val = snapshots.reduce((acc, snapshot) => {
         return acc + Number(snapshot.fees24h)
       }, 0)
     }
 
     if (activeTab.value === PoolChartTab.SURPLUS) {
-      val = data?.snapshots.reduce((acc, snapshot) => {
+      val = snapshots.reduce((acc, snapshot) => {
         return acc + Number(snapshot.surplus24h)
       }, 0)
     }
 
     if (activeTab.value === PoolChartTab.VOLUME) {
-      val = data?.snapshots.reduce((acc, snapshot) => {
+      val = snapshots.reduce((acc, snapshot) => {
         return acc + Number(snapshot.volume24h)
       }, 0)
     }
 
     return toCurrency(val, { abbreviated: false })
-  }, [data?.snapshots, activeTab, toCurrency, tvl])
+  }, [snapshots, activeTab, toCurrency, tvl])
 
   const chartData = useMemo(() => {
-    const snapshots = data?.snapshots
-    if (!snapshots) return []
+    if (!snapshots || snapshots.length === 0) return []
 
     let chartArr: [number, string][] = []
 
@@ -283,7 +315,7 @@ export function usePoolChartsLogic() {
     chartArr.sort((a, b) => a[0] - b[0])
 
     return chartArr
-  }, [data?.snapshots, activeTab])
+  }, [snapshots, activeTab])
 
   const processedChartData = useMemo(() => {
     const today = new Date()

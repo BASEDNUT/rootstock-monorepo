@@ -10,7 +10,13 @@ import { usePoolEvents } from '../../usePoolEvents'
 // B2c (live-caught 2026-10-21): onchain-only pools are unknown to the remote
 // API — pool activity comes from the baked onchain events artifact,
 // decoded with per-token decimals and valued with live prices.
-import { buildOnchainPoolEventsAsGqlEvents, type BakedPoolEvent } from '../../onchain-pool-events-builder'
+import {
+  buildOnchainPoolEventsAsGqlEvents,
+  type BakedPoolEvent,
+} from '../../onchain-pool-events-builder'
+// B4 (2026-10-31): live activity continuation — baked base + visitor
+// store + fresh Vault scan, merged dedupe-safe by (type, tx, logIndex).
+import { useOnchainPoolActivity } from '../../onchain-pool-activity-continuation'
 import bakedPoolEventsBase from '../../baked-pool-events-base.json'
 import bakedPoolEventsSepolia from '../../baked-pool-events.json'
 import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
@@ -79,11 +85,21 @@ function usePoolActivityLogic() {
   // decoded with per-token decimals and valued with live prices.
   const isOnchainOnly = _chain ? isOnchainOnlyNetwork(_chain) : false
 
+  // B4: live continuation (baked + visitor store + fresh scan). While the
+  // scan loads, the baked artifact serves instantly; once loaded, its merged
+  // events win — same decode path, same pricing, newest-first.
+  const { data: onchainContinuation } = useOnchainPoolActivity(
+    isOnchainOnly,
+    pool?.chain,
+    poolId as string
+  )
+
   const onchainEvents = useMemo(() => {
     if (!isOnchainOnly || !pool) return []
 
     const baked = _chain === 'BASE' ? bakedPoolEventsBase : bakedPoolEventsSepolia
-    const events = ((baked as { events?: BakedPoolEvent[] }).events || []) as BakedPoolEvent[]
+    const bakedEvents = ((baked as { events?: BakedPoolEvent[] }).events || []) as BakedPoolEvent[]
+    const events = onchainContinuation?.events ?? bakedEvents
 
     const decimals: Record<string, number> = {}
     const prices: Record<string, number> = {}
@@ -103,7 +119,7 @@ function usePoolActivityLogic() {
       prices,
       chain: _chain,
     })
-  }, [isOnchainOnly, _chain, pool, poolId, priceFor])
+  }, [isOnchainOnly, _chain, pool, poolId, priceFor, onchainContinuation])
 
   const activityEvents = isOnchainOnly ? onchainEvents : response?.poolEvents
 

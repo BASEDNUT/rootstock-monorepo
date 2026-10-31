@@ -15,6 +15,8 @@ export interface BakedPoolEvent {
   tx: string
   timestamp: number
   block: number
+  /** Position of the log within its block (dedupe key part). */
+  logIndex?: number
   type: 'ADD' | 'REMOVE' | 'SWAP'
   userAddress: string
   kind?: number
@@ -74,14 +76,19 @@ function fmtAmount(raw: bigint, d: number): string {
   return int + (frac ? '.' + frac : '')
 }
 
-function mkToken(address: string, raw: bigint, decimals: Record<string, number>, prices: Record<string, number>): EventToken {
+function mkToken(
+  address: string,
+  raw: bigint,
+  decimals: Record<string, number>,
+  prices: Record<string, number>
+): EventToken {
   const key = address.toLowerCase()
   const d = decimals[key] ?? 18
   const price = prices[key] ?? 0
   return {
     address: key,
     amount: fmtAmount(raw, d),
-    valueUSD: Number(raw) / 10 ** d * price,
+    valueUSD: (Number(raw) / 10 ** d) * price,
   }
 }
 
@@ -102,6 +109,7 @@ export function buildOnchainPoolEvents({
       const tokens = poolTokens.map((address, i) =>
         mkToken(address, BigInt(e.amountsRaw?.[i] ?? '0'), decimals, prices)
       )
+
       const built: BuiltAddRemoveEvent = {
         timestamp: e.timestamp,
         tx: e.tx,
@@ -109,11 +117,13 @@ export function buildOnchainPoolEvents({
         tokens,
         valueUSD: tokens.reduce((s, t) => s + t.valueUSD, 0),
       }
+
       if (e.type === 'ADD') out.adds.push(built)
       else out.removes.push(built)
     } else if (e.type === 'SWAP') {
       const tokenIn = mkToken(e.tokenIn ?? '0x0', BigInt(e.amountInRaw ?? '0'), decimals, prices)
       const tokenOut = mkToken(e.tokenOut ?? '0x0', BigInt(e.amountOutRaw ?? '0'), decimals, prices)
+
       out.swaps.push({
         timestamp: e.timestamp,
         tx: e.tx,
@@ -132,7 +142,10 @@ export function buildOnchainPoolEvents({
   return out
 }
 
-import type { GqlPoolAddRemoveEventV3, GqlPoolSwapEventV3 } from '@repo/lib/shared/services/api/graphql-derived-types'
+import type {
+  GqlPoolAddRemoveEventV3,
+  GqlPoolSwapEventV3,
+} from '@repo/lib/shared/services/api/graphql-derived-types'
 
 /**
  * GqlPoolEvent-minimal shape — feeds the existing usePoolActivity reduce
@@ -164,6 +177,7 @@ export function buildOnchainPoolEventsAsGqlEvents({
 
   for (const add of built.adds) {
     const e = byKey.get(`ADD:${add.tx}`) as BakedPoolEvent | undefined
+
     out.push({
       __typename: 'GqlPoolAddRemoveEventV3',
       id: `onchain-${add.tx}-add`,
@@ -183,6 +197,7 @@ export function buildOnchainPoolEventsAsGqlEvents({
 
   for (const rm of built.removes) {
     const e = byKey.get(`REMOVE:${rm.tx}`) as BakedPoolEvent | undefined
+
     out.push({
       __typename: 'GqlPoolAddRemoveEventV3',
       id: `onchain-${rm.tx}-remove`,
