@@ -62,7 +62,10 @@ describe('deriveUnpricedTokenPrices (weighted spot derivation)', () => {
 
   it('returns empty when no anchor is priced', () => {
     const derived = deriveUnpricedTokenPrices({
-      tokens: [{ address: '0xa', decimals: 18 }, { address: '0xb', decimals: 18 }],
+      tokens: [
+        { address: '0xa', decimals: 18 },
+        { address: '0xb', decimals: 18 },
+      ],
       balancesRaw: [U(1), U(1)],
       weights: [0.5, 0.5],
       prices: {},
@@ -151,8 +154,26 @@ describe('decodeSwapLogsToBuckets', () => {
       U(1).toString(16).padStart(64, '0')
 
     const logs = [
-      { blockNumber: '0x1', topics: ['0xt', '0x' + pool.slice(2).padStart(64, '0'), '0x' + token.slice(2).padStart(64, '0'), '0x2'], data: mk(10) },
-      { blockNumber: '0x2', topics: ['0xt', '0x' + pool.slice(2).padStart(64, '0'), '0x' + token.slice(2).padStart(64, '0'), '0x2'], data: mk(25) },
+      {
+        blockNumber: '0x1',
+        topics: [
+          '0xt',
+          '0x' + pool.slice(2).padStart(64, '0'),
+          '0x' + token.slice(2).padStart(64, '0'),
+          '0x2',
+        ],
+        data: mk(10),
+      },
+      {
+        blockNumber: '0x2',
+        topics: [
+          '0xt',
+          '0x' + pool.slice(2).padStart(64, '0'),
+          '0x' + token.slice(2).padStart(64, '0'),
+          '0x2',
+        ],
+        data: mk(25),
+      },
     ]
 
     const buckets = decodeSwapLogsToBuckets(logs, () => 5 * HOUR)
@@ -163,7 +184,11 @@ describe('decodeSwapLogsToBuckets', () => {
   it('skips malformed logs (missing topics/data)', () => {
     const logs = [
       { blockNumber: '0x1', topics: ['0xonly-one'], data: '0x' },
-      { blockNumber: '0x1', topics: ['0xt', '0xa'.padStart(64, '0'), '0xb'.padStart(64, '0'), '0xc'.padStart(64, '0')], data: '0xshort' },
+      {
+        blockNumber: '0x1',
+        topics: ['0xt', '0xa'.padStart(64, '0'), '0xb'.padStart(64, '0'), '0xc'.padStart(64, '0')],
+        data: '0xshort',
+      },
     ]
 
     expect(decodeSwapLogsToBuckets(logs, () => 0)).toHaveLength(0)
@@ -176,9 +201,27 @@ describe('aggregateSwapBuckets', () => {
     const pool = '0xpool1'
 
     const buckets = [
-      { hour: Math.floor((now - 30 * HOUR) / HOUR), pool, token: '0xa', amountInRaw: U(1000).toString(), feeAmountRaw: U(3).toString() },
-      { hour: Math.floor((now - 23 * HOUR) / HOUR), pool, token: '0xa', amountInRaw: U(100).toString(), feeAmountRaw: UF(0.3).toString() },
-      { hour: Math.floor((now - 2 * HOUR) / HOUR), pool, token: '0xb', amountInRaw: U(50).toString(), feeAmountRaw: UF(0.15).toString() },
+      {
+        hour: Math.floor((now - 30 * HOUR) / HOUR),
+        pool,
+        token: '0xa',
+        amountInRaw: U(1000).toString(),
+        feeAmountRaw: U(3).toString(),
+      },
+      {
+        hour: Math.floor((now - 23 * HOUR) / HOUR),
+        pool,
+        token: '0xa',
+        amountInRaw: U(100).toString(),
+        feeAmountRaw: UF(0.3).toString(),
+      },
+      {
+        hour: Math.floor((now - 2 * HOUR) / HOUR),
+        pool,
+        token: '0xb',
+        amountInRaw: U(50).toString(),
+        feeAmountRaw: UF(0.15).toString(),
+      },
     ]
 
     const prices = { '0xa': 10, '0xb': 2 }
@@ -199,7 +242,7 @@ describe('aggregateSwapBuckets', () => {
           pool: '0xpool1',
           token: '0xusdc',
           amountInRaw: (2n * 10n ** 6n).toString(),
-          feeAmountRaw: (6_000n).toString(),
+          feeAmountRaw: 6_000n.toString(),
         },
       ],
       prices: { '0xusdc': 1 },
@@ -216,7 +259,15 @@ describe('aggregateSwapBuckets', () => {
 
     const agg = aggregateSwapBuckets({
       pool: '0xpool1',
-      buckets: [{ hour: Math.floor(now / HOUR) - 1, pool: '0xother', token: '0xa', amountInRaw: U(999).toString(), feeAmountRaw: U(9).toString() }],
+      buckets: [
+        {
+          hour: Math.floor(now / HOUR) - 1,
+          pool: '0xother',
+          token: '0xa',
+          amountInRaw: U(999).toString(),
+          feeAmountRaw: U(9).toString(),
+        },
+      ],
       prices: { '0xa': 10 },
       now,
     })
@@ -290,8 +341,20 @@ describe('computePoolMetrics', () => {
     const pool = '0xpool'
 
     const buckets = [
-      { hour: Math.floor((now - 25 * HOUR) / HOUR), pool, token: '0xa', amountInRaw: U(10000).toString(), feeAmountRaw: U(30).toString() },
-      { hour: Math.floor((now - 2 * HOUR) / HOUR), pool, token: '0xa', amountInRaw: U(100).toString(), feeAmountRaw: UF(0.3).toString() },
+      {
+        hour: Math.floor((now - 25 * HOUR) / HOUR),
+        pool,
+        token: '0xa',
+        amountInRaw: U(10000).toString(),
+        feeAmountRaw: U(30).toString(),
+      },
+      {
+        hour: Math.floor((now - 2 * HOUR) / HOUR),
+        pool,
+        token: '0xa',
+        amountInRaw: U(100).toString(),
+        feeAmountRaw: UF(0.3).toString(),
+      },
     ]
 
     const m = computePoolMetrics({
@@ -312,6 +375,85 @@ describe('computePoolMetrics', () => {
     expect(m.aprItems[0]?.apr).toBeCloseTo(54.75, 4)
     expect(m.aprItems[0]?.type).toBe('SWAP_FEE_24H')
     expect(m.aprItems[0]?.id).toBe(`${pool}-swap-fee-24h`)
+  })
+
+  // S130 helper: one fee bucket at N hours before `now` (token 0xa, $10).
+  // feeAmountRaw U(0.3) = 0.3 tokens x $10 = $3 fee per bucket.
+  const mkBucket = (atMs: number, hoursAgo: number) => ({
+    hour: Math.floor(atMs / HOUR) - hoursAgo,
+    pool: '0xpool',
+    token: '0xa',
+    amountInRaw: '0',
+    feeAmountRaw: String(UF(0.3)),
+  })
+
+  it('S130: 7d-window APR item when ledger covers the week (one-item law)', () => {
+    // 7 days of $3/day fees = $21; TVL $20 -> 7d APR = 21*365/7/20 = 54.75
+    const now = 100 * 24 * HOUR
+    // 7 daily buckets, hoursAgo 0..144 — all inside the window
+    // (fromHour = nowHour - 167; a bucket at exactly 168h is EXCLUDED).
+    // 7 x $3 = $21 7d fees; APR = 21 x 365 / 7 / 20 = 54.75
+    const buckets = Array.from({ length: 7 }, (_, i) => mkBucket(now, i * 24))
+
+    const m = computePoolMetrics({
+      poolId: '0xpool',
+      tokens,
+      balancesRaw,
+      weights,
+      prices,
+      buckets,
+      hasFullCoverage: true,
+      now,
+      coverageStartMs: now - 8 * 24 * HOUR, // ledger covers 8 days
+    })
+
+    expect(m.aprItems).toHaveLength(1)
+    expect(m.aprItems[0]?.id).toBe('0xpool-swap-fee-7d')
+    expect(m.aprItems[0]?.title).toBe('Swap fee APR (7d)')
+    expect(m.aprItems[0]?.apr).toBeCloseTo(54.75, 3)
+  })
+
+  it('S130: 7d coverage incomplete -> falls back to the 24h item (never both)', () => {
+    const now = 100 * 24 * HOUR
+    const buckets = [mkBucket(now, 0)]
+
+    const m = computePoolMetrics({
+      poolId: '0xpool',
+      tokens,
+      balancesRaw,
+      weights,
+      prices,
+      buckets,
+      hasFullCoverage: true,
+      now,
+      coverageStartMs: now - 3 * 24 * HOUR, // only 3 days of coverage
+    })
+
+    expect(m.aprItems).toHaveLength(1)
+    expect(m.aprItems[0]?.id).toBe('0xpool-swap-fee-24h')
+    expect(m.aprItems[0]?.title).toBe('Swap fee APR')
+  })
+
+  it('S130: unpriced token inside the 7d window -> 7d item suppressed, 24h fallback', () => {
+    const now = 100 * 24 * HOUR
+
+    const buckets = [mkBucket(now, 0), { ...mkBucket(now, 5 * 24), token: '0xunpriced' }]
+
+    const m = computePoolMetrics({
+      poolId: '0xpool',
+      tokens,
+      balancesRaw,
+      weights,
+      prices,
+      buckets,
+      hasFullCoverage: true,
+      now,
+      coverageStartMs: now - 8 * 24 * HOUR,
+    })
+
+    // 24h window has only the priced bucket -> 24h item stands
+    expect(m.aprItems).toHaveLength(1)
+    expect(m.aprItems[0]?.id).toBe('0xpool-swap-fee-24h')
   })
 
   it('no coverage → fees/volume/APR null, TVL still real', () => {
@@ -343,7 +485,15 @@ describe('computePoolMetrics', () => {
       balancesRaw,
       weights,
       prices,
-      buckets: [{ hour: Math.floor(now / HOUR) - 1, pool: '0xpool', token: '0xa', amountInRaw: U(5).toString(), feeAmountRaw: UF(0.015).toString() }],
+      buckets: [
+        {
+          hour: Math.floor(now / HOUR) - 1,
+          pool: '0xpool',
+          token: '0xa',
+          amountInRaw: U(5).toString(),
+          feeAmountRaw: UF(0.015).toString(),
+        },
+      ],
       hasFullCoverage: false,
       now,
     })
@@ -361,7 +511,15 @@ describe('computePoolMetrics', () => {
       balancesRaw: [U(1)],
       weights: null,
       prices: {},
-      buckets: [{ hour: Math.floor(now / HOUR) - 1, pool: '0xpool', token: '0xa', amountInRaw: U(5).toString(), feeAmountRaw: U(1).toString() }],
+      buckets: [
+        {
+          hour: Math.floor(now / HOUR) - 1,
+          pool: '0xpool',
+          token: '0xa',
+          amountInRaw: U(5).toString(),
+          feeAmountRaw: U(1).toString(),
+        },
+      ],
       hasFullCoverage: true,
       now,
     })

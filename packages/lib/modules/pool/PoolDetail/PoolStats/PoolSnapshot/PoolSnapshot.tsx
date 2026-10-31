@@ -23,7 +23,11 @@ const COMMON_NOISY_CARD_PROPS: { contentProps: BoxProps; cardProps: BoxProps } =
   },
   cardProps: {
     position: 'relative',
-    height: 'full',
+    // S130 (live-caught 2026-10-31): the window chips + APY rows grew the
+    // content past the old fixed-height card; the card now sizes to its
+    // content within the min-height stats row.
+    height: 'fit-content',
+    minHeight: 'full',
   },
 }
 

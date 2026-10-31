@@ -214,6 +214,21 @@ async function fetchChainMetrics(
     const state = states.find(s => s.poolId === pool.address.toLowerCase())
     if (!state) return pool
 
+    // S130: 7d-window APR coverage start — merged truth: the visitor scan's
+    // continuous coverage (savedAt-anchored) bridged with the baked histogram
+    // start when the scan bridged the bake; the baked start alone only
+    // counts when the visitor scan is at the tip (fresh save = covered tail).
+    const visitorLedger = loadSwapLedger(scanConfig.chainId)
+
+    const coverageStartMs =
+      visitorLedger && now - visitorLedger.savedAt <= 3_600_000
+        ? Math.min(
+            Number(baked?.coverageStartMs ?? Infinity),
+            visitorLedger.savedAt -
+              (Math.max(visitorLedger.cursor, latest) - visitorLedger.coverageStartBlock) * 2_000
+          )
+        : undefined
+
     const metrics = computePoolMetrics({
       poolId: state.poolId,
       tokens: state.tokens,
@@ -223,6 +238,7 @@ async function fetchChainMetrics(
       buckets,
       hasFullCoverage: fullCoverage,
       now,
+      coverageStartMs,
     })
 
     return {

@@ -79,7 +79,13 @@ export function decodeSwapLogsToBuckets(
       existing.amountInRaw = (BigInt(existing.amountInRaw) + amountInRaw).toString()
       existing.feeAmountRaw = (BigInt(existing.feeAmountRaw) + feeAmountRaw).toString()
     } else {
-      map.set(key, { hour, pool, token, amountInRaw: amountInRaw.toString(), feeAmountRaw: feeAmountRaw.toString() })
+      map.set(key, {
+        hour,
+        pool,
+        token,
+        amountInRaw: amountInRaw.toString(),
+        feeAmountRaw: feeAmountRaw.toString(),
+      })
     }
   }
 
@@ -196,6 +202,13 @@ export interface PoolMetricsInput {
   hasFullCoverage: boolean
   /** Current time (epoch ms). */
   now: number
+  /**
+   * S130 (2026-10-31): continuous ledger coverage start (epoch ms). When
+   * the trailing 7d window is covered, the list/detail APR prefers the
+   * smoother 7d projection (title names the window). Absent -> 24h item
+   * only (upstream behavior).
+   */
+  coverageStartMs?: number
 }
 
 export interface PoolMetrics {
@@ -208,7 +221,8 @@ export interface PoolMetrics {
 
 /** Compute display metrics for one onchain-sourced pool. */
 export function computePoolMetrics(input: PoolMetricsInput): PoolMetrics {
-  const { poolId, tokens, balancesRaw, weights, buckets, hasFullCoverage, now } = input
+  const { poolId, tokens, balancesRaw, weights, buckets, hasFullCoverage, now, coverageStartMs } =
+    input
 
   // ---- prices: known + derived (weighted pools only) ----
   const prices: Record<string, number> = { ...input.prices }
@@ -263,20 +277,64 @@ export function computePoolMetrics(input: PoolMetricsInput): PoolMetrics {
     // multiplies by 100 at display. Live-caught round 2: shipping percent
     // units (9.2) displayed as 924.04% — the x100 here double-scales.
     if (totalLiquidity !== null && agg.feesUsd !== null && Number(totalLiquidity) > 0) {
+      // S130: 7d projection when the ledger covers the trailing week —
+      // smoother than one loud day, same SWAP_FEE_24H type (tooltip shape).
+      // ONE item, never both: getTotalAprLabel sums aprItems.
+      const sevenDayCovered =
+        coverageStartMs !== undefined && coverageStartMs <= now - 7 * 86_400_000 + 3_600_000
+
+      if (sevenDayCovered) {
+        // Direct 7d window sum — aggregateSwapBuckets hardcodes a 24h
+        // window and cannot express a week (live-caught before ship).
+        const nowHour = Math.floor(now / 3_600_000)
+        const fromHour = nowHour - 7 * 24 + 1
+        let fees7: number | null = 0
+
+        for (const b of buckets) {
+          if (b.pool !== poolId.toLowerCase()) continue
+          if (b.hour < fromHour) continue
+          const price = prices[b.token]
+
+          if (price === undefined) {
+            fees7 = null // unpriced token in window — never fabricate
+            break
+          }
+
+          const dec = decimals[b.token] ?? 18
+          fees7 = (fees7 ?? 0) + (Number(BigInt(b.feeAmountRaw)) / 10 ** dec) * price
+        }
+
+        if (fees7 !== null) {
+          aprItems = [
+            {
+              __typename: 'GqlPoolAprItem' as const,
+              apr: (fees7 * 365) / 7 / Number(totalLiquidity),
+              id: `${poolId.toLowerCase()}-swap-fee-7d`,
+              rewardTokenAddress: null,
+              rewardTokenSymbol: null,
+              title: 'Swap fee APR (7d)',
+              type: 'SWAP_FEE_24H' as const,
+            },
+          ]
+        }
+      }
+
       // APR (fraction) = fees24h * 365 / TVL — GqlPoolAprItem units.
       const apr = (agg.feesUsd * 365) / Number(totalLiquidity)
 
-      aprItems = [
-        {
-          __typename: 'GqlPoolAprItem' as const,
-          apr,
-          id: `${poolId.toLowerCase()}-swap-fee-24h`,
-          rewardTokenAddress: null,
-          rewardTokenSymbol: null,
-          title: 'Swap fee APR',
-          type: 'SWAP_FEE_24H' as const,
-        },
-      ]
+      if (aprItems.length === 0) {
+        aprItems = [
+          {
+            __typename: 'GqlPoolAprItem' as const,
+            apr,
+            id: `${poolId.toLowerCase()}-swap-fee-24h`,
+            rewardTokenAddress: null,
+            rewardTokenSymbol: null,
+            title: 'Swap fee APR',
+            type: 'SWAP_FEE_24H' as const,
+          },
+        ]
+      }
     }
   }
 

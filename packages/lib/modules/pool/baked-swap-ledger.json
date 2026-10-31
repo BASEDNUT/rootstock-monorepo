@@ -1,8 +1,30 @@
 {
   "version": 1,
   "chainId": 84532,
-  "cursor": 0,
-  "savedAt": 0,
-  "coverageStartMs": null,
-  "buckets": []
+  "cursor": 52693879,
+  "savedAt": 1793464436241,
+  "coverageStartMs": 1782044678241,
+  "buckets": [
+    {
+      "hour": 495013,
+      "pool": "0xbec8de18d5fe6277670d989d12aeffed8000f1d6",
+      "token": "0x4200000000000000000000000000000000000006",
+      "amountInRaw": "30000000000000",
+      "feeAmountRaw": "300000000000"
+    },
+    {
+      "hour": 495182,
+      "pool": "0x1aba4e89fd64e41fe3081fabf6ce33cb613977c7",
+      "token": "0x4200000000000000000000000000000000000006",
+      "amountInRaw": "100000000000000",
+      "feeAmountRaw": "300000000000"
+    },
+    {
+      "hour": 497331,
+      "pool": "0x1aba4e89fd64e41fe3081fabf6ce33cb613977c7",
+      "token": "0x8c6487b86a73554431d514371184916b0b61b876",
+      "amountInRaw": "10000000000000000",
+      "feeAmountRaw": "30000000000000"
+    }
+  ]
 }

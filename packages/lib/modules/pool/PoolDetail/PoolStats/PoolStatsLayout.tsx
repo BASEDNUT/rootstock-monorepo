@@ -8,8 +8,8 @@ export function PoolStatsLayout() {
   return (
     <Stack
       direction={{ base: 'column', md: 'row' }}
-      h={{ md: '484px' }}
       justifyContent="stretch"
+      minH={{ md: '484px' }}
       spacing="md"
       w="full"
     >
