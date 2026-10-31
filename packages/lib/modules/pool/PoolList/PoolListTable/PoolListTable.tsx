@@ -54,7 +54,7 @@ export function PoolListTable({ pools, count, loading }: Props) {
       // S131 round-3 (vision-caught): xxs (2px) gap made Volume/APR read
       // as merged numbers on phones ($11.84 + 1.44% -> "$11.8444%");
       // 6px separates the tracks cleanly and still fits 390px.
-      gap: { base: '6px', xl: 'lg' },
+      gap: { base: '10px', xl: 'lg' },
     }),
     [userAddress, furthestLeftColWidth, numberColumnWidth, mobileGrid, desktopGrid]
   )
