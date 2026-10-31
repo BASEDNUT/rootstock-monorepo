@@ -25,7 +25,7 @@ const CHAIN_CONFIGS = {
     rpc: 'https://sepolia.base.org',
     viemChain: baseSepolia,
     from: 46_984_000,
-    chunk: 500,
+    chunk: 200,
     blockMs: 2_000,
     output: 'baked-swap-ledger.json',
   },
