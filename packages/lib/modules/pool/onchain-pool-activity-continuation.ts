@@ -164,5 +164,8 @@ export function useOnchainPoolActivity(
       (chain === GqlChainValues.Base || chain === GqlChainValues.BaseSepolia) &&
       isOnchainOnlyNetwork(chain),
     staleTime: 60_000,
+    // Live activity: incremental continuation from the stored cursor keeps
+    // the table fresh without refocus (new swaps appear within 30s).
+    refetchInterval: 30_000,
   })
 }

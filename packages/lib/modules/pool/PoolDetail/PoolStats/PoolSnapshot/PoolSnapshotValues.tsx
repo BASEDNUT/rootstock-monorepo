@@ -111,7 +111,7 @@ export function PoolSnapshotValues() {
     isOnchainOnly && selected
       ? selected.feesUsd === null
         ? '—'
-        : toCurrency(selected.feesUsd, { abbreviated: false, noDecimals: true })
+        : toCurrency(selected.feesUsd, { abbreviated: false })
       : isCowAmmPool(pool.type)
         ? toCurrency(pool.dynamicData.surplus24h, { abbreviated: false, noDecimals: true })
         : poolMetricDisplay(pool.dynamicData.fees24h, v =>

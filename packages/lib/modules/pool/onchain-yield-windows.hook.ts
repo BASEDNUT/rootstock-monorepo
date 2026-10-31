@@ -107,6 +107,10 @@ export function useOnchainYieldWindows(
     },
     enabled: enabled && !!chain && !!poolId && !!isOnchainOnlyNetwork(chain!),
     staleTime: 60_000,
+    // Live windows + first-visit race cover: the visitor ledger saves
+    // seconds after load (metrics scan); the next refetch picks it up and
+    // coverage/coverage-gated APRs compute. Incremental = cheap.
+    refetchInterval: 20_000,
   })
 
   return useMemo(() => query, [query])
