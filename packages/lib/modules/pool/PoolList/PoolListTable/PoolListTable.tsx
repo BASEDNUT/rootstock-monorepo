@@ -29,16 +29,25 @@ export function PoolListTable({ pools, count, loading }: Props) {
   const numberColumnWidth = userAddress ? '120px' : '175px'
   const furthestLeftColWidth = '120px'
 
+  // S131 (2026-10-31, Boss-caught): the old fixed grid (~1027px min) pushed
+  // the APR column off-screen on phones — the table scrolled horizontally
+  // and mobile visitors saw NO APR column at all. Mobile-first responsive
+  // grid: compact columns at base so TVL/Volume/APR all fit; the desktop
+  // layout is unchanged from md up.
+  const desktopGrid = `32px minmax(320px, 1fr) 180px ${
+    userAddress ? furthestLeftColWidth : ''
+  } ${userAddress ? numberColumnWidth : furthestLeftColWidth} ${numberColumnWidth} 200px`
+
+  const mobileGrid = `32px minmax(120px, 1fr) 90px 90px 80px 70px`
+
   const rowProps = useMemo(
     () => ({
       px: { base: 'sm', sm: '0' },
-      gridTemplateColumns: `32px minmax(320px, 1fr) 180px ${
-        userAddress ? furthestLeftColWidth : ''
-      } ${userAddress ? numberColumnWidth : furthestLeftColWidth} ${numberColumnWidth} 200px`,
+      gridTemplateColumns: { base: mobileGrid, md: desktopGrid },
       alignItems: 'center',
       gap: { base: 'xxs', xl: 'lg' },
     }),
-    [userAddress, furthestLeftColWidth, numberColumnWidth]
+    [userAddress, furthestLeftColWidth, numberColumnWidth, mobileGrid, desktopGrid]
   )
 
   const needsMarginForPoints = pools.some(pool => pool.tags?.some(tag => tag && tag === 'POINTS'))
