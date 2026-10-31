@@ -38,7 +38,13 @@ export function PoolListTable({ pools, count, loading }: Props) {
     userAddress ? furthestLeftColWidth : ''
   } ${userAddress ? numberColumnWidth : furthestLeftColWidth} ${numberColumnWidth} 200px`
 
-  const mobileGrid = `32px minmax(120px, 1fr) 90px 90px 80px 70px`
+  // S131 round-2 (live-caught): round-1 mobile grid (482px min) STILL
+  // overflowed 390px — vision-verified APR still off-screen. Round 2:
+  // Details column hides at base; compact tracks fit a phone (~333px
+  // min + gaps) with TVL/Volume/APR all visible.
+  const mobileGrid = userAddress
+    ? `32px minmax(70px, 1fr) 60px 70px 65px 60px`
+    : `32px minmax(90px, 1fr) 70px 65px 60px`
 
   const rowProps = useMemo(
     () => ({

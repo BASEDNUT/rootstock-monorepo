@@ -44,7 +44,7 @@ export function PoolListTableHeader({ ...rest }) {
           <Text fontWeight="bold">Name</Text>
         )}
       </GridItem>
-      <GridItem justifySelf="start">
+      <GridItem display={{ base: 'none', md: 'block' }} justifySelf="start">
         <Text fontWeight="bold" textAlign="left">
           Details
         </Text>

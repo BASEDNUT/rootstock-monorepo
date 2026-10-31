@@ -85,7 +85,7 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
                 poolDisplayType={poolDisplayType}
               />
             </GridItem>
-            <GridItem minW="32">
+            <GridItem display={{ base: 'none', md: 'block' }} minW="32">
               <PoolListTableDetailsCell pool={pool} />
             </GridItem>
             {userAddress ? (
