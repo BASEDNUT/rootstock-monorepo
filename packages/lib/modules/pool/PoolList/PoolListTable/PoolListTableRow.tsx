@@ -57,10 +57,21 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
   const { yieldWindow } = usePoolList()
   const isOnchainOnly = isOnchainOnlyNetwork(pool.chain)
   // S132: per-window metrics attached by the onchain metrics hook.
-  type PoolWithWindows = { yieldWindows?: Record<YieldWindow, { apr: number | null }> }
+  type WindowMetrics = { apr: number | null }
+  type PoolWithWindows = {
+    yieldWindows?: { w24h: WindowMetrics; w7d: WindowMetrics; lifetime: WindowMetrics }
+  }
   const windows = (pool as unknown as PoolWithWindows).yieldWindows
 
-  const windowApr = isOnchainOnly && windows ? (windows[yieldWindow].apr ?? null) : null
+  const windowMetrics = windows
+    ? yieldWindow === YieldWindow.W24h
+      ? windows.w24h
+      : yieldWindow === YieldWindow.W7d
+        ? windows.w7d
+        : windows.lifetime
+    : undefined
+
+  const windowApr = isOnchainOnly && windowMetrics ? (windowMetrics.apr ?? null) : null
 
   const hasPoints = pool.tags?.some(tag => tag === 'POINTS')
 
@@ -144,7 +155,7 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
             </GridItem>
             <GridItem justifySelf="end" pr={{ base: 'md', lg: 'sm', xl: '0' }}>
               <HStack gap="xxs" mr={needsMarginForPoints && !hasPoints ? '12px' : '0'} pr="0">
-                {isOnchainOnly && windows ? (
+                {isOnchainOnly && windowMetrics ? (
                   <Text fontWeight="medium" textAlign="right">
                     {windowApr !== null && windowApr !== undefined ? fNum('apr', windowApr) : '—'}
                   </Text>
