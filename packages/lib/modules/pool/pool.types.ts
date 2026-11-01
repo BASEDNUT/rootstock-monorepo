@@ -165,6 +165,13 @@ export type PoolToken = ApiToken &
     nestedPool?: GqlNestedPool
   }
 
+// S132 (2026-10-31): list-table yield-window toggle (Name/Tokens pattern).
+export enum YieldWindow {
+  W24h = '24h',
+  W7d = '7d',
+  Lifetime = 'lifetime',
+}
+
 export enum PoolDisplayType {
   Name = 'name',
   TokenPills = 'token-pills',

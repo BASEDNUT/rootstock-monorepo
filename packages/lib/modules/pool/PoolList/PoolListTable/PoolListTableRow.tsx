@@ -21,7 +21,10 @@ import { PoolListItem } from '../../pool.types'
 import { getPoolPath } from '../../pool.utils'
 import { getUserTotalBalanceUsd } from '../../user-balance.helpers'
 import { poolMetricDisplay } from '../../pool-metrics'
+import { YieldWindow } from '../../pool.types'
 import { usePoolList } from '../PoolListProvider'
+import { fNum } from '@repo/lib/shared/utils/numbers'
+import { isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { PoolListPoolDisplay } from '../PoolListPoolDisplay'
 import { isLiquidityBootstrapping, isV3Pool } from '../../pool.helpers'
 import { isDev, isStaging } from '@repo/lib/config/app.config'
@@ -48,6 +51,16 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
 
   const { name } = usePoolMetadata(pool)
   const { toCurrency } = useCurrency()
+
+  // S132: yield-window toggle (header chips) — row renders the selected
+  // window's APR for onchain-only pools.
+  const { yieldWindow } = usePoolList()
+  const isOnchainOnly = isOnchainOnlyNetwork(pool.chain)
+  // S132: per-window metrics attached by the onchain metrics hook.
+  type PoolWithWindows = { yieldWindows?: Record<YieldWindow, { apr: number | null }> }
+  const windows = (pool as unknown as PoolWithWindows).yieldWindows
+
+  const windowApr = isOnchainOnly && windows ? (windows[yieldWindow].apr ?? null) : null
 
   const hasPoints = pool.tags?.some(tag => tag === 'POINTS')
 
@@ -131,14 +144,20 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
             </GridItem>
             <GridItem justifySelf="end" pr={{ base: 'md', lg: 'sm', xl: '0' }}>
               <HStack gap="xxs" mr={needsMarginForPoints && !hasPoints ? '12px' : '0'} pr="0">
-                <MemoizedMainAprTooltip
-                  aprItems={pool.dynamicData.aprItems}
-                  chain={pool.chain}
-                  height="auto"
-                  pool={pool}
-                  poolId={pool.id}
-                  textProps={{ fontWeight: 'medium', textAlign: 'right' }}
-                />
+                {isOnchainOnly && windows ? (
+                  <Text fontWeight="medium" textAlign="right">
+                    {windowApr !== null && windowApr !== undefined ? fNum('apr', windowApr) : '—'}
+                  </Text>
+                ) : (
+                  <MemoizedMainAprTooltip
+                    aprItems={pool.dynamicData.aprItems}
+                    chain={pool.chain}
+                    height="auto"
+                    pool={pool}
+                    poolId={pool.id}
+                    textProps={{ fontWeight: 'medium', textAlign: 'right' }}
+                  />
+                )}
                 {hasPoints && (
                   <Tooltip
                     backgroundColor="background.level4"

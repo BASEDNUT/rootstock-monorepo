@@ -12,7 +12,7 @@ import { usePoolListQueryState } from './usePoolListQueryState'
 import { useMandatoryContext } from '@repo/lib/shared/utils/contexts'
 import { useUserAccount } from '../../web3/UserAccountProvider'
 import { isAddress } from 'viem'
-import { PoolDisplayType } from '../pool.types'
+import { PoolDisplayType, YieldWindow } from '../pool.types'
 import { PROJECT_CONFIG, isOnchainOnlyNetwork } from '@repo/lib/config/getProjectConfig'
 import { removeHookDataFromPoolIfNecessary } from '../pool.utils'
 import { PoolListItem } from '../pool.types'
@@ -43,6 +43,10 @@ export function usePoolListLogic({
   const [poolDisplayType, setPoolDisplayType] = useState<PoolDisplayType>(
     PROJECT_CONFIG.options.poolDisplayType
   )
+
+  // S132: list-table yield window (24h | 7d | Lifetime) — drives the APR
+  // column for onchain-only pools; default 7d (matches the detail page).
+  const [yieldWindow, setYieldWindow] = useState<YieldWindow>(YieldWindow.W7d)
 
   const { queryVariables, toggleUserAddress, joinablePools } = queryState
 
@@ -264,6 +268,8 @@ export function usePoolListLogic({
     refetch,
     poolDisplayType,
     setPoolDisplayType,
+    yieldWindow,
+    setYieldWindow,
     aggregateStats,
   }
 }

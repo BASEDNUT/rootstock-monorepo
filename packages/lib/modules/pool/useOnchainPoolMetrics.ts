@@ -26,6 +26,7 @@ import {
 } from './onchain-metrics-io'
 import { getOnchainScanConfig, type OnchainPoolListItem } from './onchain-pool-discovery'
 import { computePoolMetrics, type SwapBucket } from './onchain-metrics'
+import { computeYieldWindows } from './onchain-yield-windows'
 import {
   loadSwapLedger,
   mergeBuckets,
@@ -241,6 +242,21 @@ async function fetchChainMetrics(
       coverageStartMs,
     })
 
+    // S132: per-window yield metrics for the list APR toggle — same
+    // computeYieldWindows the detail page uses (stats/list/detail can
+    // never contradict).
+    const windows = computeYieldWindows({
+      buckets,
+      pool: state.poolId,
+      prices,
+      decimals,
+      tvl: metrics.totalLiquidity !== null ? Number(metrics.totalLiquidity) : 0,
+      now,
+      coverage:
+        coverageStartMs !== undefined ? { startMs: coverageStartMs, savedAtMs: now } : undefined,
+      poolAgeDays: pool.createTime ? Math.max(0, (now - pool.createTime * 1000) / 86_400_000) : 0,
+    })
+
     return {
       ...pool,
       dynamicData: {
@@ -250,6 +266,7 @@ async function fetchChainMetrics(
         fees24h: metrics.fees24h,
         aprItems: metrics.aprItems,
       },
+      yieldWindows: windows,
     }
   })
 }

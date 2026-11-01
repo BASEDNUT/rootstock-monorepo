@@ -8,15 +8,34 @@ import { Globe } from 'lucide-react'
 import { SortableHeader, Sorting } from '@repo/lib/shared/components/tables/SortableHeader'
 import { usePoolList } from '../PoolListProvider'
 import { PROJECT_CONFIG } from '@repo/lib/config/getProjectConfig'
+import { YieldWindow } from '../../pool.types'
+import ButtonGroupComponent, {
+  type ButtonGroupOption,
+} from '@repo/lib/shared/components/btns/button-group/ButtonGroup'
+import { HStack } from '@chakra-ui/react'
 import { PoolListPoolNamesTokens } from './PoolListPoolNamesTokens'
 
 const setIsDesc = (id: GqlPoolOrderBy, currentSortingObj: PoolsColumnSort) =>
   currentSortingObj.id === id ? !currentSortingObj.desc : true
 
+const WINDOW_OPTIONS: ButtonGroupOption[] = [
+  { value: YieldWindow.W24h, label: '24h' },
+  { value: YieldWindow.W7d, label: '7d' },
+  { value: YieldWindow.Lifetime, label: 'Life' },
+]
+
 export function PoolListTableHeader({ ...rest }) {
   const {
     queryState: { sorting, setSorting, joinablePools },
+    yieldWindow,
+    setYieldWindow,
   } = usePoolList()
+
+  const windowOption = WINDOW_OPTIONS.find(opt => opt.value === yieldWindow) || WINDOW_OPTIONS[1]
+
+  const handleWindowChange = (selected: ButtonGroupOption) => {
+    setYieldWindow(selected.value as YieldWindow)
+  }
 
   const { orderBy } = usePoolOrderByState()
   const sortingObj = sorting[0]!
@@ -49,23 +68,39 @@ export function PoolListTableHeader({ ...rest }) {
           Details
         </Text>
       </GridItem>
-      {orderBy.map((orderByItem, index) => (
-        <GridItem
-          justifySelf="end"
-          key={orderByItem}
-          position="relative"
-          pr={index === orderBy.length - 1 ? { base: 'md', sm: 'lg', lg: 'sm', xl: '0' } : '0'}
-          right="-6px"
-        >
-          <SortableHeader
-            isDisabled={joinablePools}
-            isSorted={sortingObj.id === orderByItem}
-            label={orderByHash[orderByItem]!}
-            onSort={() => handleSort(orderByItem)}
-            sorting={sortingObj.desc ? Sorting.desc : Sorting.asc}
-          />
-        </GridItem>
-      ))}
+      {orderBy.map((orderByItem, index) => {
+        const isAprColumn = orderByHash[orderByItem] === 'APR'
+
+        return (
+          <GridItem
+            justifySelf="end"
+            key={orderByItem}
+            position="relative"
+            pr={index === orderBy.length - 1 ? { base: 'md', sm: 'lg', lg: 'sm', xl: '0' } : '0'}
+            right="-6px"
+          >
+            {isAprColumn && (
+              <HStack justify="flex-end" mb="2px">
+                <ButtonGroupComponent
+                  currentOption={windowOption!}
+                  groupId="pool-yield-window-list"
+                  isGray
+                  onChange={handleWindowChange}
+                  options={WINDOW_OPTIONS}
+                  size="xxs"
+                />
+              </HStack>
+            )}
+            <SortableHeader
+              isDisabled={joinablePools}
+              isSorted={sortingObj.id === orderByItem}
+              label={orderByHash[orderByItem]!}
+              onSort={() => handleSort(orderByItem)}
+              sorting={sortingObj.desc ? Sorting.desc : Sorting.asc}
+            />
+          </GridItem>
+        )
+      })}
     </Grid>
   )
 }
