@@ -1,9 +1,9 @@
 {
   "version": 1,
   "chainId": 8453,
-  "cursor": 53319250,
-  "savedAt": 1793427973294,
-  "coverageStartMs": 1791052573294,
+  "cursor": 53358338,
+  "savedAt": 1793506152168,
+  "coverageStartMs": 1791052576168,
   "buckets": [
     {
       "hour": 497835,
@@ -263,6 +263,27 @@
       "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
       "amountInRaw": "164069211484435376",
       "feeAmountRaw": "492207634453307"
+    },
+    {
+      "hour": 498182,
+      "pool": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "562696418287954638637447",
+      "feeAmountRaw": "1688089254863863915913"
+    },
+    {
+      "hour": 498184,
+      "pool": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "202040401183402352037077",
+      "feeAmountRaw": "606121203550207056112"
+    },
+    {
+      "hour": 498193,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "1972",
+      "feeAmountRaw": "5"
     }
   ]
 }
