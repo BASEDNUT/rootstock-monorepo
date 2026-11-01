@@ -149,3 +149,33 @@ describe('unmapped factory law', () => {
     expect(item.type).toBe('UNKNOWN')
   })
 })
+
+describe('S133 createTime unit law (unix seconds, never a block number)', () => {
+  it('mapDiscoveredPoolToListItem maps blockTimestamp (unix sec) into createTime', () => {
+    const r = mapDiscoveredPoolToListItem(
+      {
+        address: '0x1111111111111111111111111111111111111111',
+        factory: '0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92',
+        blockNumber: 53_258_802,
+        blockTimestamp: 1_793_306_951,
+        symbol: 'T',
+      } as unknown as DiscoveredPool,
+      GqlChainValues.Base
+    )
+
+    expect(r.createTime).toBe(1_793_306_951)
+  })
+
+  it('falls back to blockNumber when blockTimestamp missing (legacy record)', () => {
+    const r = mapDiscoveredPoolToListItem(
+      {
+        address: '0x1111111111111111111111111111111111111111',
+        factory: '0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92',
+        blockNumber: 100,
+      } as unknown as DiscoveredPool,
+      GqlChainValues.Base
+    )
+
+    expect(r.createTime).toBe(100)
+  })
+})

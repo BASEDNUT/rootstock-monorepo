@@ -24,6 +24,8 @@ import bakedLedgerSepolia from './baked-swap-ledger.json'
 interface BakedLedgerFile {
   cursor: number
   coverageStartMs: number
+  /** Epoch ms of the bake — the ledger's DATA END (S133 window anchor). */
+  savedAt?: number
   buckets?: SwapBucket[]
 }
 
@@ -75,22 +77,35 @@ export function useOnchainYieldWindows(
 
       const now = Date.now()
 
-      const poolAgeDays =
-        poolCreateTime > 0 ? Math.max(0, (now - poolCreateTime * 1000) / 86_400_000) : 0
+      // S133: createTime sanity — unix SECONDS only (> 1e9). Legacy
+      // blockNumber-shaped values are refused (0 -> Lifetime null).
+      const poolCreateTimeMs = poolCreateTime > 1_000_000_000 ? poolCreateTime * 1000 : 0
 
       // Coverage law: baked file anchors the history start (deploy); the
       // visitor scan anchors its own range end (savedAt fresh). Combined
-      // coverage = min(starts) with visitor freshness. Baked cursor aging
-      // past the visitor scan window leaves a gap the compute module gates
-      // honestly (7d/lifetime APR null until the next bake or bridging scan).
+      // coverage = min(starts) with visitor freshness.
+      //
+      // S133 BAKED FALLBACK: a deep-link visitor with no/stale visitor
+      // ledger anchors at the BAKED envelope (start = bake coverageStart,
+      // data end = bake time; computeYieldWindows gates the 48h grace).
+      // Before S133 this path had NO coverage — every window rendered as
+      // a dash while real lifetime swaps sat in the baked buckets.
       let coverage: { startMs: number; savedAtMs: number } | undefined
 
-      if (ledger && baked) {
+      const VISITOR_FRESH_MS = 3_600_000
+      const visitorFresh = ledger !== null && now - ledger.savedAt <= VISITOR_FRESH_MS
+
+      if (visitorFresh && ledger && baked) {
         const visitorStartMs = ledger.savedAt - (ledger.cursor - ledger.coverageStartBlock) * 2_000
 
         coverage = {
           startMs: Math.min(Number(baked.coverageStartMs ?? Infinity), visitorStartMs),
           savedAtMs: ledger.savedAt,
+        }
+      } else if (baked) {
+        coverage = {
+          startMs: Number(baked.coverageStartMs ?? 0),
+          savedAtMs: Number(baked.savedAt ?? 0),
         }
       }
 
@@ -102,7 +117,7 @@ export function useOnchainYieldWindows(
         tvl,
         now,
         coverage,
-        poolAgeDays,
+        poolCreateTimeMs,
       })
     },
     enabled: enabled && !!chain && !!poolId && !!isOnchainOnlyNetwork(chain!),

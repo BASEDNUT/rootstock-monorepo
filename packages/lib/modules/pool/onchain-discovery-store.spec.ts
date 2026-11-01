@@ -21,7 +21,7 @@ const FROM_BLOCK = 46_984_000
 
 function freshStore(): DiscoveredPoolsStore {
   return {
-    version: 2,
+    version: 3,
     chainId: CHAIN_ID,
     fromBlock: FROM_BLOCK,
     cursor: FROM_BLOCK + 500,
@@ -89,7 +89,7 @@ describe('discovered pools store', () => {
   it('load discards a store with a wrong version or chain id', () => {
     localStorage.setItem(
       discoveredPoolsStoreKey(CHAIN_ID),
-      JSON.stringify({ ...freshStore(), version: 3 })
+      JSON.stringify({ ...freshStore(), version: 4 })
     )
 
     expect(loadDiscoveredPoolsStore(CHAIN_ID, FROM_BLOCK)).toBeNull()

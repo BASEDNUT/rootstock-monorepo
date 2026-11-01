@@ -245,6 +245,11 @@ async function fetchChainMetrics(
     // S132: per-window yield metrics for the list APR toggle — same
     // computeYieldWindows the detail page uses (stats/list/detail can
     // never contradict).
+    // S133: when the visitor scan is absent/stale the BAKED ledger
+    // envelope anchors the windows (data end = bake time; compute
+    // gates the 48h grace). A bake-only session shows real windowed
+    // APRs instead of fabricated zeros with live volume beside them
+    // (live-caught 2026-10-31).
     const windows = computeYieldWindows({
       buckets,
       pool: state.poolId,
@@ -253,8 +258,17 @@ async function fetchChainMetrics(
       tvl: metrics.totalLiquidity !== null ? Number(metrics.totalLiquidity) : 0,
       now,
       coverage:
-        coverageStartMs !== undefined ? { startMs: coverageStartMs, savedAtMs: now } : undefined,
-      poolAgeDays: pool.createTime ? Math.max(0, (now - pool.createTime * 1000) / 86_400_000) : 0,
+        coverageStartMs !== undefined
+          ? { startMs: coverageStartMs, savedAtMs: now }
+          : baked
+            ? {
+                startMs: Number(baked.coverageStartMs ?? 0),
+                savedAtMs: Number(baked.savedAt ?? 0),
+              }
+            : undefined,
+      // createTime sanity: unix SECONDS only (> 1e9). Legacy
+      // blockNumber-shaped values are refused (0 -> Lifetime null).
+      poolCreateTimeMs: pool.createTime > 1_000_000_000 ? pool.createTime * 1000 : 0,
     })
 
     return {
@@ -304,5 +318,10 @@ export function useOnchainPoolMetrics(
     },
     enabled: enabled && pools.length > 0,
     staleTime: 60_000,
+    // S133: the visitor swap scan saves its ledger seconds AFTER first
+    // paint; without a refetch the list kept the pre-scan (null coverage)
+    // APRs forever — 24h column showed dashes next to real volume
+    // (boss-caught 2026-10-31). Poll like the detail hook does.
+    refetchInterval: 30_000,
   })
 }

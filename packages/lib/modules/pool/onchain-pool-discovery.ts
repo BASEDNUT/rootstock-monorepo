@@ -64,6 +64,10 @@ export interface DiscoveredPool {
   address: string
   factory: string
   blockNumber: number
+  /** Block timestamp (unix seconds) — S133: the ONLY sound createTime
+   * source. blockNumber is NOT a time (live-caught: fed as seconds it
+   * made every pool ~55y old and killed the Lifetime window). */
+  blockTimestamp?: number
   name?: string
   symbol?: string
   tokens?: (string | DiscoveredPoolToken)[]
@@ -174,7 +178,7 @@ export function mapDiscoveredPoolToListItem(
     symbol: dp.symbol ?? '',
     name: dp.name ?? dp.symbol ?? dp.address,
     factory: dp.factory,
-    createTime: dp.blockNumber,
+    createTime: dp.blockTimestamp ?? dp.blockNumber,
     poolTokens: (dp.tokens ?? []).map(t =>
       typeof t === 'string'
         ? { address: t }

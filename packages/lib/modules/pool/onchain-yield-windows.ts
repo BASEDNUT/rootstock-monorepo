@@ -1,5 +1,6 @@
 /**
- * Multi-window yield metrics for onchain-only pools (P1, 2026-10-31).
+ * Multi-window yield metrics for onchain-only pools (P1, 2026-10-31;
+ * S133 anchor rework 2026-10-31).
  *
  * The swap-ledger buckets (full history since deploy, hourly) are the single
  * fee/volume source. This module derives 24h / 7d / Lifetime windows with
@@ -8,14 +9,21 @@
  * Laws:
  * - Coverage NEVER derives from bucket presence: quiet hours legitimately
  *   have no bucket (zero volume is real, not missing). Window coverage comes
- *   from the ledger ENVELOPE — scan range start + freshness — mirroring
- *   hasLedgerFullCoverage. A fresh full-history ledger with zero in-window
- *   buckets is COVERED with honest zero fees; a stale ledger never claims a
- *   window (APR null, fees still shown understated-but-real).
+ *   from the ledger ENVELOPE — scan range start + data end. A full-history
+ *   ledger with zero in-window buckets is COVERED with honest zero fees.
+ * - S133 ANCHOR LAW: windows are measured against the ledger DATA END
+ *   (savedAtMs), not wall-clock now. A bake-only or scan-failed session
+ *   still shows real, windowed APRs from the data it has; buckets after the
+ *   anchor are excluded (never counted into a window they postdate).
+ * - S133 GRACE: a ledger older than 48h never claims a window (too stale to
+ *   present as current). Within the grace, 24h/7d windows are honest — the
+ *   column names the window and the anchor is the data end. The 2h gate
+ *   before S133 zeroed every APR once a bake aged — with real volume on
+ *   screen (live-caught 2026-10-31).
  * - Unpriced in-window token -> fees/volume null (never fabricate USD).
- * - APR annualizes fees over the window (365/windowDays); lifetime uses the
- *   pool's actual age. TVL 0 or age unknown -> APR null (never divide by
- *   zero, never annualize over an unknown period).
+ * - APR annualizes fees over the window (365/windowDays); lifetime uses
+ *   the pool's actual age from createTime (unix ms) measured at the
+ *   anchor. TVL 0 or age unknown -> APR null (never divide by zero).
  * - APY compounds the APR daily: (1 + apr/365)^365 - 1.
  * - NET = APR x (1 - protocolCutBps/10_000); cut 0 (today's truth) -> NET
  *   equals APR. The field is future-proofed for when a fee cut is enabled.
@@ -28,8 +36,12 @@ export type YieldBucket = SwapBucket
 const HOUR = 3_600_000
 const DAY_MS = 86_400_000
 
-/** Ledger freshness bound — a scan older than this never claims a window. */
-const COVERAGE_FRESHNESS_MS = 2 * HOUR
+/**
+ * S133 ledger grace — data older than this never claims a window. The
+ * pre-S133 2h freshness gate zeroed every APR hours after each bake on a
+ * static deployment; 48h keeps numbers real while bounding staleness.
+ */
+const COVERAGE_GRACE_MS = 48 * HOUR
 
 export interface YieldWindowMetrics {
   /** Sum of priced in-window swap fees, USD. Null when a token is unpriced. */
@@ -66,6 +78,7 @@ function windowMetrics({
   prices,
   decimals,
   fromHour,
+  toHour,
   tvl,
   windowDays,
   protocolCutBps,
@@ -77,6 +90,8 @@ function windowMetrics({
   decimals: Record<string, number>
   /** Inclusive lower hour bound (epoch-ms/HOUR); null = full history. */
   fromHour: number | null
+  /** Inclusive upper hour bound (the anchor hour). */
+  toHour: number
   tvl: number
   /** Period the window annualizes over (365/windowDays). */
   windowDays: number | null
@@ -91,6 +106,7 @@ function windowMetrics({
   for (const b of buckets) {
     if (b.pool !== poolKey) continue
     if (fromHour !== null && b.hour < fromHour) continue
+    if (b.hour > toHour) continue // S133 anchor: never count post-anchor data
     const price = prices[b.token]
 
     if (price === undefined) {
@@ -122,8 +138,13 @@ function windowMetrics({
 
 /**
  * Compute 24h / 7d / Lifetime yield windows for one pool from the merged
- * swap ledger. Coverage comes from the ledger envelope (startMs + savedAtMs);
- * omit it and no window is ever claimed (fees still aggregate honestly).
+ * swap ledger.
+ *
+ * S133: windows anchor at the ledger DATA END (min(now, savedAtMs)) — a
+ * bake-only or scan-failed session computes real numbers from its data;
+ * buckets newer than the anchor are excluded. Coverage comes from the
+ * envelope (startMs + savedAtMs within the 48h grace); omit it and no
+ * window is ever claimed (fees still aggregate honestly).
  */
 export function computeYieldWindows({
   buckets,
@@ -133,7 +154,7 @@ export function computeYieldWindows({
   tvl,
   now,
   coverage,
-  poolAgeDays,
+  poolCreateTimeMs,
   protocolCutBps = 0,
 }: {
   buckets: YieldBucket[]
@@ -144,27 +165,30 @@ export function computeYieldWindows({
   tvl: number
   /** Current time (epoch ms). */
   now: number
-  /** Ledger envelope: continuous scan start + last save. */
+  /** Ledger envelope: continuous scan start + last save (data end). */
   coverage?: { startMs: number; savedAtMs: number }
-  /** Pool age in days (createTime -> now). 0/unknown -> lifetime APR null. */
-  poolAgeDays?: number
+  /** Pool creation time (unix ms). 0/unknown -> lifetime APR null. */
+  poolCreateTimeMs?: number
   /** Protocol aggregate-fee cut in bps (0 today). */
   protocolCutBps?: number
 }): YieldWindowsResult {
-  const nowHour = Math.floor(now / HOUR)
+  // S133 anchor: the data end, never the wall clock.
+  const anchor = coverage !== undefined ? Math.min(now, coverage.savedAtMs) : now
+  const anchorHour = Math.floor(anchor / HOUR)
 
-  // envelope laws: fresh scan + range covering the window
-  const fresh = coverage !== undefined && now - coverage.savedAtMs <= COVERAGE_FRESHNESS_MS
+  // envelope laws: data within the grace + range covering the window
+  const fresh = coverage !== undefined && now - coverage.savedAtMs <= COVERAGE_GRACE_MS
 
   const covers = (days: number) =>
-    fresh && coverage !== undefined && coverage.startMs <= now - days * DAY_MS + HOUR
+    fresh && coverage !== undefined && coverage.startMs <= anchor - days * DAY_MS + HOUR
 
   const w24h = windowMetrics({
     buckets,
     pool,
     prices,
     decimals,
-    fromHour: nowHour - 23,
+    fromHour: anchorHour - 23,
+    toHour: anchorHour,
     tvl,
     windowDays: 1,
     protocolCutBps,
@@ -176,14 +200,21 @@ export function computeYieldWindows({
     pool,
     prices,
     decimals,
-    fromHour: nowHour - 7 * 24 + 1,
+    fromHour: anchorHour - 7 * 24 + 1,
+    toHour: anchorHour,
     tvl,
     windowDays: 7,
     protocolCutBps,
     covered: covers(7),
   })
 
-  const lifetimeAge = poolAgeDays ?? 0
+  // S133: lifetime age is measured from the pool's REAL creation time
+  // (unix ms) to the anchor; the ledger must span the pool's whole life
+  // (startMs <= birth) to claim the window. The pre-S133 poolAgeDays input
+  // was fed a BLOCK NUMBER as seconds (age ~55y) — lifetime was always
+  // '—' despite real history (live-caught 2026-10-31).
+  const birthMs = poolCreateTimeMs ?? 0
+  const lifetimeAgeDays = birthMs > 0 ? Math.max(0, (anchor - birthMs) / DAY_MS) : 0
 
   const lifetime = windowMetrics({
     buckets,
@@ -191,10 +222,11 @@ export function computeYieldWindows({
     prices,
     decimals,
     fromHour: null,
+    toHour: anchorHour,
     tvl,
-    windowDays: lifetimeAge > 0 ? lifetimeAge : null,
+    windowDays: lifetimeAgeDays > 0 ? lifetimeAgeDays : null,
     protocolCutBps,
-    covered: covers(lifetimeAge > 0 ? lifetimeAge : 1),
+    covered: fresh && coverage !== undefined && birthMs > 0 && coverage.startMs <= birthMs,
   })
 
   return { w24h, w7d, lifetime }

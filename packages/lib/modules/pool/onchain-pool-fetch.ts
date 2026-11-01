@@ -134,7 +134,7 @@ export function getBakedPools(chain: GqlChain): OnchainPoolListItem[] {
       symbol: p.symbol || '',
       name: p.name || p.symbol || p.address,
       factory: p.factory,
-      createTime: p.blockNumber,
+      createTime: p.blockTimestamp ?? p.blockNumber,
       // audit fix F6: registry tokens may carry ERC20 metadata
       // (symbol/name/decimals) — pass it through so pool list pills render
       // token symbols, not icon-only (browser-verified defect).
@@ -178,6 +178,8 @@ interface BakedPool {
   address: string
   factory: string
   blockNumber: number
+  /** Unix seconds of the registration block (S133 createTime source). */
+  blockTimestamp?: number
   type: string
   name?: string
   symbol?: string
@@ -246,8 +248,22 @@ export async function scanDiscoveredPools(
   lastScannedBlock.set(chain, finalizedHead)
   lastScanTimestamp.set(chain, Date.now())
 
+  // S133: registration block numbers for the persistence records — the
+  // item's createTime is a TIME (unix sec); the record's blockNumber must
+  // stay a BLOCK for reorg/cursor math.
+  const blockNumbersByPool = new Map<string, number>()
+
   const items = await Promise.all(
     logs.map(async ({ pool, factory, blockNumber }) => {
+      blockNumbersByPool.set(pool.toLowerCase(), Number(blockNumber))
+
+      // Approx block time from tip distance (Base 2s blocks) — exact
+      // enough for pool-age math; a getBlock round-trip per pool is
+      // not worth the RPC budget.
+      const createTime = Math.floor(
+        (Date.now() - (Number(latest) - Number(blockNumber)) * 2_000) / 1000
+      )
+
       const item: OnchainPoolListItem = {
         id: pool,
         address: pool,
@@ -260,7 +276,7 @@ export async function scanDiscoveredPools(
         symbol: '',
         name: pool,
         factory,
-        createTime: Number(blockNumber),
+        createTime,
         poolTokens: [],
         dynamicData: {
           totalLiquidity: null,
@@ -360,7 +376,8 @@ export async function scanDiscoveredPools(
     const records: DiscoveredPoolRecord[] = realItems.map(item => ({
       address: item.address,
       factory: item.factory,
-      blockNumber: item.createTime,
+      blockNumber: blockNumbersByPool.get(item.address.toLowerCase()) ?? 0,
+      blockTimestamp: item.createTime,
       name: item.name,
       symbol: item.symbol,
       tokens: item.poolTokens,

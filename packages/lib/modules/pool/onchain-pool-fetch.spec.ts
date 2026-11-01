@@ -78,14 +78,16 @@ describe('reEnrichIncompleteRecords', () => {
         if (functionName === 'name') return 'Healed Pool'
         if (functionName === 'symbol') return 'HPL'
 
-        if (functionName === 'getHooksConfig')
-          {return {
+        if (functionName === 'getHooksConfig') {
+          return {
             hooksContract: '0x0000000000000000000000000000000000000000',
-          }}
+          }
+        }
 
         if (functionName === 'getPoolTokenInfo')
-          // viem returns positional arrays — [tokens, tokenInfo, balances, last]
-          {return [
+        // viem returns positional arrays — [tokens, tokenInfo, balances, last]
+        {
+          return [
             [
               '0x1111111111111111111111111111111111111111',
               '0x2222222222222222222222222222222222222222',
@@ -93,7 +95,8 @@ describe('reEnrichIncompleteRecords', () => {
             [{ tokenType: 0, rateProvider: '0x0', paysYieldFees: false }],
             [0n, 0n],
             [0n, 0n],
-          ]}
+          ]
+        }
 
         return [
           '0x1111111111111111111111111111111111111111',
@@ -162,5 +165,38 @@ describe('shouldDropCachedScan (in-flight dedup)', () => {
   it('no cached promise means nothing to drop', () => {
     expect(shouldDropCachedScan(false, true, true)).toBe(false)
     expect(shouldDropCachedScan(false, false, false)).toBe(false)
+  })
+})
+
+describe('S133 getBakedPools createTime law', () => {
+  it('baked registry pools carry createTime from blockTimestamp (unix sec)', async () => {
+    const { getBakedPools } = await import('./onchain-pool-fetch')
+    const pools = getBakedPools(GqlChainValues.Base)
+
+    expect(pools.length).toBeGreaterThan(0)
+
+    for (const p of pools) {
+      // unix-seconds sanity: 2020-01-01 < createTime < 2100-01-01
+      expect(p.createTime).toBeGreaterThan(1_577_836_800)
+      expect(p.createTime).toBeLessThan(4_102_444_800)
+    }
+  })
+
+  it('live-scan record roundtrip preserves createTime seconds (never a block number)', async () => {
+    const { mapDiscoveredPoolToListItem } = await import('./onchain-pool-discovery')
+
+    const item = mapDiscoveredPoolToListItem(
+      {
+        address: '0x2222222222222222222222222222222222222222',
+        factory: '0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92',
+        blockNumber: 53_000_000,
+        blockTimestamp: 1_793_306_951,
+      } as never,
+      GqlChainValues.Base
+    )
+
+    // persisted record shape keeps blockNumber for cursor math; the LIST
+    // item must carry unix seconds.
+    expect(item.createTime).toBe(1_793_306_951)
   })
 })

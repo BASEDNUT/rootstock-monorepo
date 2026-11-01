@@ -21,13 +21,18 @@ import { isMockPoolAddress } from './mock-pool-blocklist'
 // voids legacy stores — the next scan rebuilds every record with the new
 // schema (no half-migrated records: old records lack hook facts and the
 // incremental cursor would never re-read them).
-export const DISCOVERED_POOLS_STORE_VERSION = 2
+// v3 (2026-10-31, S133): records gain blockTimestamp (unix sec) — the only
+// sound createTime source (blockNumber-as-seconds made every pool ~55y old
+// and killed Lifetime APR). Legacy stores void and self-heal on next scan.
+export const DISCOVERED_POOLS_STORE_VERSION = 3
 
 /** A discovered pool — registry facts + any metadata the scan enriched. */
 export interface DiscoveredPoolRecord {
   address: string
   factory: string
   blockNumber: number
+  /** Unix seconds of the registration block (S133 createTime source). */
+  blockTimestamp?: number
   /** Enriched metadata (persisted so reloads render without re-reads). */
   name?: string
   symbol?: string
@@ -231,6 +236,7 @@ export function mergeDiscoveredPoolsStore(
         address: pool.address,
         factory: pool.factory,
         blockNumber: pool.blockNumber,
+        blockTimestamp: pool.blockTimestamp ?? prev.blockTimestamp,
         name: prev.name,
         symbol: prev.symbol,
         tokens: prev.tokens,
@@ -243,6 +249,7 @@ export function mergeDiscoveredPoolsStore(
         address: pool.address,
         factory: pool.factory,
         blockNumber: pool.blockNumber,
+        blockTimestamp: pool.blockTimestamp,
         name: pool.name,
         symbol: pool.symbol,
         tokens: pool.tokens,

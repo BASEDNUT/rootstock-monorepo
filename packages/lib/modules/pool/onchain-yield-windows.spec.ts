@@ -122,7 +122,30 @@ describe('computeYieldWindows — window laws', () => {
     expect(r.w24h.covered).toBe(true)
   })
 
-  it('stale ledger never claims a window (savedAt older than 2h)', () => {
+  it('anchored windows: ledger saved 10h ago still claims (grace 48h), window sums to the data end', () => {
+    // S133: windows anchor at the ledger DATA END (savedAt), not wall-clock
+    // now — a bake-only or scan-failed session still shows real APRs.
+    const buckets = mkBuckets(now, [
+      { hoursAgo: 15, feeRaw: String(1e18) }, // inside [anchor-24h, anchor]
+      { hoursAgo: 5, feeRaw: String(1e18) }, // AFTER the data end -> excluded
+    ])
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      coverage: { startMs: now - 29 * DAY, savedAtMs: now - 10 * HOUR },
+    })
+
+    expect(r.w24h.covered).toBe(true)
+    expect(r.w24h.feesUsd).toBe(2) // only the pre-anchor bucket
+    expect(r.w24h.apr).toBeCloseTo((2 * 365) / 100, 6)
+  })
+
+  it('ledger older than the 48h grace never claims a window', () => {
     const buckets = mkBuckets(now, [{ hoursAgo: 1, feeRaw: String(1e18) }])
 
     const r = computeYieldWindows({
@@ -132,14 +155,17 @@ describe('computeYieldWindows — window laws', () => {
       decimals: DECIMALS,
       tvl: 100,
       now,
-      coverage: { startMs: now - 29 * DAY, savedAtMs: now - 3 * HOUR },
+      coverage: { startMs: now - 29 * DAY, savedAtMs: now - 50 * HOUR },
     })
 
     expect(r.w24h.covered).toBe(false)
     expect(r.w24h.apr).toBeNull()
+    expect(r.lifetime.covered).toBe(false)
   })
 
-  it('lifetime window: full ledger sum, annualized over pool age', () => {
+  it('lifetime window: full ledger sum, annualized over pool age from createTime', () => {
+    // S133: poolCreateTimeMs (unix ms) replaces poolAgeDays — the age is
+    // measured at the DATA END anchor, never a block number in seconds.
     // 28 days x 24h of $1/hr fee = $672; TVL $100 -> APR = 672 x (365/28) / 100
     const pattern = Array.from({ length: 28 * 24 }, (_, i) => ({
       hoursAgo: i,
@@ -155,7 +181,7 @@ describe('computeYieldWindows — window laws', () => {
       decimals: DECIMALS,
       tvl: 100,
       now,
-      poolAgeDays: 28,
+      poolCreateTimeMs: now - 28 * DAY,
       coverage: FULL_COVERAGE(now),
     })
 
@@ -164,7 +190,7 @@ describe('computeYieldWindows — window laws', () => {
     expect(r.lifetime.covered).toBe(true)
   })
 
-  it('lifetime APR null when pool age unknown (0)', () => {
+  it('lifetime APR null when pool createTime unknown (0)', () => {
     const buckets = mkBuckets(now, [{ hoursAgo: 1, feeRaw: String(1e18) }])
 
     const r = computeYieldWindows({
@@ -174,7 +200,7 @@ describe('computeYieldWindows — window laws', () => {
       decimals: DECIMALS,
       tvl: 100,
       now,
-      poolAgeDays: 0,
+      poolCreateTimeMs: 0,
       coverage: FULL_COVERAGE(now),
     })
 
@@ -274,6 +300,24 @@ describe('computeYieldWindows — window laws', () => {
     })
 
     expect(r.w24h.feesUsd).toBe(2)
+  })
+
+  it('lifetime covered when the ledger spans the whole life (start <= pool createTime)', () => {
+    // S133: lifetime coverage = the ledger start precedes the pool birth.
+    const buckets = mkBuckets(now, [{ hoursAgo: 5, feeRaw: String(1e18) }])
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      poolCreateTimeMs: now - 28 * DAY,
+      coverage: { startMs: now - 28 * DAY, savedAtMs: now },
+    })
+
+    expect(r.lifetime.covered).toBe(true)
   })
 
   it('no coverage metadata -> windows never claimed (null APR, fees observed)', () => {

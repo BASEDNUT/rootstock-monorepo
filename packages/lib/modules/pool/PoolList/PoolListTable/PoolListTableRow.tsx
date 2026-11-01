@@ -155,7 +155,7 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
             </GridItem>
             <GridItem justifySelf="end" pr={{ base: 'md', lg: 'sm', xl: '0' }}>
               <HStack gap="xxs" mr={needsMarginForPoints && !hasPoints ? '12px' : '0'} pr="0">
-                {isOnchainOnly && windowMetrics ? (
+                {isOnchainOnly ? (
                   <Text fontWeight="medium" textAlign="right">
                     {windowApr !== null && windowApr !== undefined ? fNum('apr', windowApr) : '—'}
                   </Text>
