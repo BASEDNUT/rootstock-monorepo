@@ -107,3 +107,62 @@ describe('sortOnchainPools', () => {
     expect(pools).toEqual(snapshot)
   })
 })
+
+/**
+ * S133 (boss-caught 2026-10-31): the APR column renders the SELECTED
+ * window's APR (yieldWindows[window].apr) but the sort read the fixed
+ * aprItems value — clicking APR on the 24h tab reordered nothing visible.
+ * The sort must rank by the SAME number the row shows.
+ */
+describe('sortOnchainPools — window-aware APR (S133)', () => {
+  const windows = (w24h: number | null, w7d: number | null, life: number | null) => ({
+    w24h: { apr: w24h },
+    w7d: { apr: w7d },
+    lifetime: { apr: life },
+  })
+
+  const wp = (
+    id: string,
+    aprItems: number[],
+    w: ReturnType<typeof windows>
+  ): TestPool & { yieldWindows: ReturnType<typeof windows> } => ({
+    ...pool(id, '10', null, aprItems),
+    yieldWindows: w,
+  })
+
+  it('sorts by the 24h window APR when the 24h window is selected', () => {
+    const pools = [
+      wp('a', [0.5], windows(0.01, 0.5, 2)),
+      wp('b', [0.5], windows(0.9, 0.1, 0.2)),
+      wp('c', [0.5], windows(0.3, 0.3, 0.3)),
+    ]
+
+    const out = sortOnchainPools(pools, [{ id: 'apr', desc: true }], 0, '24h')
+    expect(out.map(p => p.id)).toEqual(['b', 'c', 'a'])
+  })
+
+  it('sorts by the lifetime window APR when lifetime is selected', () => {
+    const pools = [
+      wp('a', [0.5], windows(0.01, 0.5, 2)),
+      wp('b', [0.5], windows(0.9, 0.1, 0.2)),
+      wp('c', [0.5], windows(0.3, 0.3, 0.3)),
+    ]
+
+    const out = sortOnchainPools(pools, [{ id: 'apr', desc: true }], 0, 'lifetime')
+    expect(out.map(p => p.id)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('falls back to aprItems when a pool carries no yieldWindows', () => {
+    const pools = [pool('a', '10', null, [0.1]), pool('b', '10', null, [0.9])]
+
+    const out = sortOnchainPools(pools, [{ id: 'apr', desc: true }], 0, '24h')
+    expect(out.map(p => p.id)).toEqual(['b', 'a'])
+  })
+
+  it('null window APR sorts last (never treated as zero)', () => {
+    const pools = [wp('a', [5], windows(null, 0.5, 0.5)), wp('b', [0.5], windows(0.01, 0.5, 0.5))]
+
+    const out = sortOnchainPools(pools, [{ id: 'apr', desc: true }], 0, '24h')
+    expect(out.map(p => p.id)).toEqual(['b', 'a'])
+  })
+})

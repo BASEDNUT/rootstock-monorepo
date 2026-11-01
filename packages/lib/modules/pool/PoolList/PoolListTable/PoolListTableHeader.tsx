@@ -79,8 +79,18 @@ export function PoolListTableHeader({ ...rest }) {
             pr={index === orderBy.length - 1 ? { base: 'md', sm: 'lg', lg: 'sm', xl: '0' } : '0'}
             right="-6px"
           >
+            <SortableHeader
+              isDisabled={joinablePools}
+              isSorted={sortingObj.id === orderByItem}
+              label={orderByHash[orderByItem]!}
+              onSort={() => handleSort(orderByItem)}
+              sorting={sortingObj.desc ? Sorting.desc : Sorting.asc}
+            />
+            {/* S133 (boss-caught 2026-10-31): the window chips belong
+                BELOW the APR sort header, not above it — the header is the
+                column identity, the chips refine it. */}
             {isAprColumn && (
-              <HStack justify="flex-end" mb="2px">
+              <HStack justify="flex-end" mt="2px">
                 <ButtonGroupComponent
                   currentOption={windowOption!}
                   groupId="pool-yield-window-list"
@@ -91,13 +101,6 @@ export function PoolListTableHeader({ ...rest }) {
                 />
               </HStack>
             )}
-            <SortableHeader
-              isDisabled={joinablePools}
-              isSorted={sortingObj.id === orderByItem}
-              label={orderByHash[orderByItem]!}
-              onSort={() => handleSort(orderByItem)}
-              sorting={sortingObj.desc ? Sorting.desc : Sorting.asc}
-            />
           </GridItem>
         )
       })}

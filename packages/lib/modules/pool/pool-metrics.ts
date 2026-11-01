@@ -55,6 +55,35 @@ export function compareByTotalLiquidityDesc(
  * state = honest default TVL desc; minTvl > 0 drops pools below the floor
  * AND null-TVL pools. Never mutates the input.
  */
+export type AprSortWindow = '24h' | '7d' | 'lifetime'
+
+/** Per-window APR carried on enriched onchain list items (S132/S133). */
+type WithYieldWindows = {
+  yieldWindows?: {
+    w24h?: { apr: number | null }
+    w7d?: { apr: number | null }
+    lifetime?: { apr: number | null }
+  }
+}
+
+/**
+ * S133 (boss-caught 2026-10-31): the APR column renders the SELECTED
+ * window's APR but the sort read the fixed `aprItems` value — clicking
+ * APR on the 24h tab reordered nothing visible. Rank by the same number
+ * the row shows; fall back to `aprItems` when a pool carries no windows.
+ */
+export function windowAprOf(
+  pool: WithYieldWindows & { dynamicData?: { aprItems?: { apr: number }[] } | null },
+  window: AprSortWindow
+): number | null {
+  const w = pool.yieldWindows
+  const item = window === '24h' ? w?.w24h : window === 'lifetime' ? w?.lifetime : w?.w7d
+
+  if (item) return item.apr === null || item.apr === undefined ? null : item.apr
+
+  return totalApr(pool.dynamicData?.aprItems)
+}
+
 export function sortOnchainPools<
   T extends {
     dynamicData?: {
@@ -62,8 +91,13 @@ export function sortOnchainPools<
       volume24h?: string | null
       aprItems?: { apr: number }[]
     } | null
-  },
->(pools: T[], sorting: { id: string; desc: boolean }[], minTvl: number = 0): T[] {
+  } & WithYieldWindows,
+>(
+  pools: T[],
+  sorting: { id: string; desc: boolean }[],
+  minTvl: number = 0,
+  aprWindow: AprSortWindow = '7d'
+): T[] {
   const floor = minTvl > 0 ? minTvl : 0
 
   const filtered =
@@ -92,7 +126,8 @@ export function sortOnchainPools<
       return d.volume24h === null || d.volume24h === undefined ? null : Number(d.volume24h)
     }
 
-    if (id === 'apr') return totalApr(d.aprItems)
+    // S133: rank by the window the column actually renders.
+    if (id === 'apr') return windowAprOf(pool, aprWindow)
     return null
   }
 
@@ -143,8 +178,9 @@ export function aggregatePoolListMetrics<T extends PoolListAggregateInput>(
     const dd = pool.dynamicData
     if (!dd) continue
 
-    if (dd.totalLiquidity != null)
-      {totalLiquidity = (totalLiquidity ?? 0) + Number(dd.totalLiquidity)}
+    if (dd.totalLiquidity != null) {
+      totalLiquidity = (totalLiquidity ?? 0) + Number(dd.totalLiquidity)
+    }
 
     if (dd.volume24h != null) volume24h = (volume24h ?? 0) + Number(dd.volume24h)
     if (dd.fees24h != null) fees24h = (fees24h ?? 0) + Number(dd.fees24h)

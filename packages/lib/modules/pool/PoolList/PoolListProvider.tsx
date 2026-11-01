@@ -116,7 +116,10 @@ export function usePoolListLogic({
     ? sortOnchainPools(
         [...((metricsData?.pools || onchainPools || []) as unknown as PoolListItem[]), ...apiPools],
         queryState.sorting,
-        queryState.minTvl
+        queryState.minTvl,
+        // S133: the APR sort must rank by the SELECTED window's APR —
+        // the same number the row renders (boss-caught 2026-10-31).
+        yieldWindow
       )
     : apiPools
 
