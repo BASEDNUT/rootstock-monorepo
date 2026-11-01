@@ -119,6 +119,9 @@ export function usePoolListLogic({
         queryState.minTvl,
         // S133: the APR sort must rank by the SELECTED window's APR —
         // the same number the row renders (boss-caught 2026-10-31).
+        yieldWindow,
+        // S134 (2026-11-01): the shared selector drives the Volume sort
+        // too — one control, APR + Volume follow the same window.
         yieldWindow
       )
     : apiPools

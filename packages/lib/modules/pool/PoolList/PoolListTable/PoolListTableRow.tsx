@@ -54,12 +54,19 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
 
   // S132: yield-window toggle (header chips) — row renders the selected
   // window's APR for onchain-only pools.
+  // S134: the shared selector drives the Volume cell too — same window,
+  // same number as the sort key (display/sort never diverge).
   const { yieldWindow } = usePoolList()
   const isOnchainOnly = isOnchainOnlyNetwork(pool.chain)
   // S132: per-window metrics attached by the onchain metrics hook.
-  type WindowMetrics = { apr: number | null }
+  type WindowMetrics = { apr: number | null; volumeUsd: number | null }
   type PoolWithWindows = {
-    yieldWindows?: { w24h: WindowMetrics; w7d: WindowMetrics; lifetime: WindowMetrics }
+    yieldWindows?: {
+      w24h: WindowMetrics
+      w7d: WindowMetrics
+      w30d: WindowMetrics
+      lifetime: WindowMetrics
+    }
   }
   const windows = (pool as unknown as PoolWithWindows).yieldWindows
 
@@ -68,10 +75,30 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
       ? windows.w24h
       : yieldWindow === YieldWindow.W7d
         ? windows.w7d
-        : windows.lifetime
+        : yieldWindow === YieldWindow.W30d
+          ? windows.w30d
+          : windows.lifetime
     : undefined
 
   const windowApr = isOnchainOnly && windowMetrics ? (windowMetrics.apr ?? null) : null
+
+  // S134: windowed volume for onchain-only pools; API pools keep their
+  // fixed dynamicData.volume24h (unchanged upstream behavior).
+  const windowVolume = isOnchainOnly && windowMetrics ? (windowMetrics.volumeUsd ?? null) : null
+
+  const volumeDisplay =
+    isOnchainOnly && windowMetrics
+      ? windowVolume !== null
+        ? toCurrency(windowVolume)
+        : '—'
+      : poolMetricDisplay(pool.dynamicData.volume24h, v => toCurrency(v))
+
+  const volumeTitle =
+    isOnchainOnly && windowMetrics
+      ? windowVolume !== null
+        ? toCurrency(windowVolume, { abbreviated: false })
+        : '—'
+      : poolMetricDisplay(pool.dynamicData.volume24h, v => toCurrency(v, { abbreviated: false }))
 
   const hasPoints = pool.tags?.some(tag => tag === 'POINTS')
 
@@ -145,11 +172,9 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
                       ? 'line-through'
                       : 'none'
                   }
-                  title={poolMetricDisplay(pool.dynamicData.volume24h, v =>
-                    toCurrency(v, { abbreviated: false })
-                  )}
+                  title={volumeTitle}
                 >
-                  {poolMetricDisplay(pool.dynamicData.volume24h, v => toCurrency(v))}
+                  {volumeDisplay}
                 </Text>
               </TooltipWithTouch>
             </GridItem>

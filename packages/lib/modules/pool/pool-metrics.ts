@@ -55,14 +55,18 @@ export function compareByTotalLiquidityDesc(
  * state = honest default TVL desc; minTvl > 0 drops pools below the floor
  * AND null-TVL pools. Never mutates the input.
  */
-export type AprSortWindow = '24h' | '7d' | 'lifetime'
+export type AprSortWindow = '24h' | '7d' | '30d' | 'lifetime'
 
-/** Per-window APR carried on enriched onchain list items (S132/S133). */
+/** Per-window APR carried on enriched onchain list items (S132/S133).
+ * S134: volumeUsd joins — the Volume column renders the same window.
+ * volumeUsd stays optional: window shapes may carry APR-only (the
+ * computeYieldWindows result always provides both). */
 type WithYieldWindows = {
   yieldWindows?: {
-    w24h?: { apr: number | null }
-    w7d?: { apr: number | null }
-    lifetime?: { apr: number | null }
+    w24h?: { apr: number | null; volumeUsd?: number | null }
+    w7d?: { apr: number | null; volumeUsd?: number | null }
+    w30d?: { apr: number | null; volumeUsd?: number | null }
+    lifetime?: { apr: number | null; volumeUsd?: number | null }
   }
 }
 
@@ -77,11 +81,46 @@ export function windowAprOf(
   window: AprSortWindow
 ): number | null {
   const w = pool.yieldWindows
-  const item = window === '24h' ? w?.w24h : window === 'lifetime' ? w?.lifetime : w?.w7d
+
+  const item =
+    window === '24h'
+      ? w?.w24h
+      : window === 'lifetime'
+        ? w?.lifetime
+        : window === '30d'
+          ? w?.w30d
+          : w?.w7d
 
   if (item) return item.apr === null || item.apr === undefined ? null : item.apr
 
   return totalApr(pool.dynamicData?.aprItems)
+}
+
+/**
+ * S134 (2026-11-01): the Volume column renders the SELECTED window's
+ * volume — the sort ranks by the same number (same law as the S133 APR
+ * fix: display and sort key can never diverge). Falls back to the fixed
+ * `volume24h` when a pool carries no windows (API-sourced pools).
+ */
+export function windowVolumeOf(
+  pool: WithYieldWindows & { dynamicData?: { volume24h?: string | null } | null },
+  window: AprSortWindow
+): number | null {
+  const w = pool.yieldWindows
+
+  const item =
+    window === '24h'
+      ? w?.w24h
+      : window === 'lifetime'
+        ? w?.lifetime
+        : window === '30d'
+          ? w?.w30d
+          : w?.w7d
+
+  if (item) return item.volumeUsd === null || item.volumeUsd === undefined ? null : item.volumeUsd
+
+  const v = pool.dynamicData?.volume24h
+  return v === null || v === undefined ? null : Number(v)
 }
 
 export function sortOnchainPools<
@@ -96,7 +135,10 @@ export function sortOnchainPools<
   pools: T[],
   sorting: { id: string; desc: boolean }[],
   minTvl: number = 0,
-  aprWindow: AprSortWindow = '7d'
+  aprWindow: AprSortWindow = '7d',
+  // S134: the shared selector drives the Volume sort too — ranks by the
+  // same windowed number the row renders (fallback: fixed volume24h).
+  volumeWindow: AprSortWindow = '7d'
 ): T[] {
   const floor = minTvl > 0 ? minTvl : 0
 
@@ -123,7 +165,9 @@ export function sortOnchainPools<
     }
 
     if (id === 'volume24h') {
-      return d.volume24h === null || d.volume24h === undefined ? null : Number(d.volume24h)
+      // S134: rank by the window the column actually renders — same law
+      // as the S133 APR fix (display and sort key can never diverge).
+      return windowVolumeOf(pool, volumeWindow)
     }
 
     // S133: rank by the window the column actually renders.

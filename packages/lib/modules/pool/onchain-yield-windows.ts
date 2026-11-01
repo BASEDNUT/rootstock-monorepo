@@ -63,6 +63,7 @@ export interface YieldWindowMetrics {
 export interface YieldWindowsResult {
   w24h: YieldWindowMetrics
   w7d: YieldWindowMetrics
+  w30d: YieldWindowMetrics
   lifetime: YieldWindowMetrics
 }
 
@@ -208,6 +209,23 @@ export function computeYieldWindows({
     covered: covers(7),
   })
 
+  // S134 (2026-11-01): 30d joins the selector — same anchor + coverage
+  // laws as 24h/7d. Pools born 2026-10-03 only truly span 30d from
+  // 2026-11-02; before that the envelope honestly does NOT cover the
+  // window (APR dashes) while the observed fee/volume sums stay real.
+  const w30d = windowMetrics({
+    buckets,
+    pool,
+    prices,
+    decimals,
+    fromHour: anchorHour - 30 * 24 + 1,
+    toHour: anchorHour,
+    tvl,
+    windowDays: 30,
+    protocolCutBps,
+    covered: covers(30),
+  })
+
   // S133: lifetime age is measured from the pool's REAL creation time
   // (unix ms) to the anchor; the ledger must span the pool's whole life
   // (startMs <= birth) to claim the window. The pre-S133 poolAgeDays input
@@ -229,5 +247,5 @@ export function computeYieldWindows({
     covered: fresh && coverage !== undefined && birthMs > 0 && coverage.startMs <= birthMs,
   })
 
-  return { w24h, w7d, lifetime }
+  return { w24h, w7d, w30d, lifetime }
 }

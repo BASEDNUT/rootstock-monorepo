@@ -166,9 +166,11 @@ export type PoolToken = ApiToken &
   }
 
 // S132 (2026-10-31): list-table yield-window toggle (Name/Tokens pattern).
+// S134 (2026-11-01): W30d joins — one shared selector drives APR + Volume.
 export enum YieldWindow {
   W24h = '24h',
   W7d = '7d',
+  W30d = '30d',
   Lifetime = 'lifetime',
 }
 

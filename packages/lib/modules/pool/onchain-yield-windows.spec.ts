@@ -338,3 +338,89 @@ describe('computeYieldWindows — window laws', () => {
     expect(r.lifetime.apr).toBeNull()
   })
 })
+
+/**
+ * S134 (2026-11-01): the 30d window joins the selector. Same anchor +
+ * coverage laws as 24h/7d — the window spans 30 days back from the
+ * ledger DATA END; APR claims only when the envelope covers the full
+ * 30d span (fees/volume stay observed-but-understated when it does not).
+ */
+describe('computeYieldWindows — 30d window (S134)', () => {
+  const now = 1_800_000_000_000
+
+  it('w30d sums the trailing 30 days; APR annualized over 30d when covered', () => {
+    // 720 hourly buckets of $1 fee = $720; TVL $100 -> APR = 720 x (365/30) / 100
+    const buckets = mkBuckets(
+      now,
+      Array.from({ length: 30 * 24 }, (_, i) => ({ hoursAgo: i, feeRaw: String(0.5e18) }))
+    )
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      coverage: { startMs: now - 31 * DAY, savedAtMs: now },
+    })
+
+    expect(r.w30d.feesUsd).toBeCloseTo(720, 6)
+    expect(r.w30d.apr).toBeCloseTo((720 * 365) / 30 / 100, 6)
+    expect(r.w30d.covered).toBe(true)
+  })
+
+  it('30d boundary: a bucket exactly 30 days old is excluded', () => {
+    const buckets = mkBuckets(now, [
+      { hoursAgo: 719, feeRaw: String(1e18) },
+      { hoursAgo: 720, feeRaw: String(1e18) }, // outside the window
+    ])
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      coverage: { startMs: now - 31 * DAY, savedAtMs: now },
+    })
+
+    expect(r.w30d.feesUsd).toBe(2) // only the 719h bucket
+  })
+
+  it('ledger starting 29d ago: 30d NOT covered -> APR null, fees still observed', () => {
+    const buckets = mkBuckets(now, [{ hoursAgo: 1, feeRaw: String(1e18) }])
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      coverage: FULL_COVERAGE(now), // starts 29d ago
+    })
+
+    expect(r.w30d.feesUsd).toBe(2)
+    expect(r.w30d.covered).toBe(false)
+    expect(r.w30d.apr).toBeNull()
+  })
+
+  it('stale ledger (past grace): 30d window never claimed', () => {
+    const buckets = mkBuckets(now, [{ hoursAgo: 1, feeRaw: String(1e18) }])
+
+    const r = computeYieldWindows({
+      buckets,
+      pool: '0xpool',
+      prices: PRICES,
+      decimals: DECIMALS,
+      tvl: 100,
+      now,
+      coverage: { startMs: now - 31 * DAY, savedAtMs: now - 50 * HOUR },
+    })
+
+    expect(r.w30d.covered).toBe(false)
+    expect(r.w30d.apr).toBeNull()
+  })
+})
