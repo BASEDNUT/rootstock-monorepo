@@ -134,7 +134,7 @@ export function PoolListTableHeader({ ...rest }) {
 
         return (
           <GridItem
-            justifySelf="end"
+            justifySelf={isAprColumn || isVolumeColumn ? { base: 'stretch', md: 'end' } : 'end'}
             key={orderByItem}
             position="relative"
             pr={index === orderBy.length - 1 ? { base: 'md', sm: 'lg', lg: 'sm', xl: '0' } : '0'}
@@ -142,6 +142,30 @@ export function PoolListTableHeader({ ...rest }) {
           >
             <HStack justify="flex-end" spacing="2px">
               <SortableHeader
+                buttonProps={
+                  isAprColumn || isVolumeColumn
+                    ? {
+                        // S134b wrap fix (approved mock anatomy): phones wrap
+                        // the windowed label to two lines — the cell STRETCHES
+                        // to its grid track at base (fit-content would never
+                        // constrain), so the button can finally wrap; desktop
+                        // keeps the upstream one-line ghost button.
+                        minW: { base: '0', md: 'auto' },
+                        whiteSpace: { base: 'normal', md: 'nowrap' },
+                        maxW: { base: '100%', md: 'none' },
+                      }
+                    : undefined
+                }
+                containerProps={
+                  isAprColumn || isVolumeColumn
+                    ? {
+                        // S134b wrap fix: SortableHeader's GridItem is a flex
+                        // child of the HStack — min-width:auto refuses to
+                        // shrink, so the button could never wrap without it.
+                        minW: { base: '0', md: 'auto' },
+                      }
+                    : undefined
+                }
                 isDisabled={joinablePools}
                 isSorted={sortingObj.id === orderByItem}
                 label={columnLabel}

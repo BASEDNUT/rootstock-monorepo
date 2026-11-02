@@ -15,6 +15,28 @@ vi.mock('../PoolListProvider', async importOriginal => {
   return { ...actual, usePoolList: vi.fn() }
 })
 
+vi.mock('@repo/lib/shared/components/tables/SortableHeader', () => ({
+  SortableHeader: ({
+    label,
+    buttonProps,
+    containerProps,
+  }: {
+    label: string
+    buttonProps?: unknown
+    containerProps?: unknown
+  }) => (
+    <button
+      data-button-props={JSON.stringify(buttonProps ?? null)}
+      data-container-props={JSON.stringify(containerProps ?? null)}
+      data-label={label}
+      data-testid="sortable-header"
+    >
+      {label}
+    </button>
+  ),
+  Sorting: { asc: 'asc', desc: 'desc' },
+}))
+
 import { usePoolList } from '../PoolListProvider'
 
 const mockedUsePoolList = vi.mocked(usePoolList)
@@ -78,12 +100,55 @@ describe('PoolListTableHeader — independent per-column windows (S134b)', () =>
     }
   })
 
+  it('windowed header labels carry mobile-wrap props; TVL carries none (approved mock: two-line Volume/(7d))', () => {
+    renderHeader(YieldWindow.W7d, YieldWindow.W7d)
+    // Chakra responsive props compile to emotion CSS that jsdom cannot
+    // honestly resolve (getComputedStyle and CSSOM scans both proved
+    // dishonest here). Honest unit law: the CONTRACT — windowed columns
+    // receive the wrap/shrink props, non-windowed columns receive none.
+    // The visual wrap itself is proven live post-deploy (geometry probe +
+    // vision), where emotion media queries actually apply.
+    const headers = [...screen.getAllByTestId('sortable-header')]
+    const byLabel = (label: string) => headers.find(h => h.dataset.label === label)
+
+    const vol = byLabel('Volume (7d)')
+    const apr = byLabel('APR (7d)')
+    const tvl = byLabel('TVL')
+    expect(vol).toBeTruthy()
+    expect(apr).toBeTruthy()
+    expect(tvl).toBeTruthy()
+
+    const buttonPropsOf = (el: Element) =>
+      JSON.parse((el as HTMLElement).dataset.buttonProps || 'null')
+
+    const containerPropsOf = (el: Element) =>
+      JSON.parse((el as HTMLElement).dataset.containerProps || 'null')
+
+    // windowed labels: base (mobile) allows wrap + shrink, md+ restored
+    for (const el of [vol!, apr!]) {
+      const bp = buttonPropsOf(el)
+      const cp = containerPropsOf(el)
+      expect(bp).toBeTruthy()
+      expect(cp).toBeTruthy()
+      expect(bp.whiteSpace).toEqual({ base: 'normal', md: 'nowrap' })
+      expect(bp.minW).toEqual({ base: '0', md: 'auto' })
+      expect(bp.maxW).toEqual({ base: '100%', md: 'none' })
+      expect(cp.minW).toEqual({ base: '0', md: 'auto' })
+    }
+
+    // non-windowed columns keep upstream behavior — no wrap props leak
+    expect(buttonPropsOf(tvl!)).toBeNull()
+    expect(containerPropsOf(tvl!)).toBeNull()
+  })
+
   it('APR caret menu sets only the APR window', async () => {
     renderHeader(YieldWindow.W7d, YieldWindow.W7d)
     fireEvent.click(screen.getByRole('button', { name: 'APR window' }))
     fireEvent.click(await screen.findByRole('menuitem', { name: '30d' }))
     expect(mockSetAprWindow).toHaveBeenCalledWith(YieldWindow.W30d)
     expect(mockSetVolumeWindow).not.toHaveBeenCalled()
+    // the caret never sorts — sorting stays untouched
+    expect(mockSetSorting).not.toHaveBeenCalled()
   })
 
   it('Volume caret menu sets only the Volume window', async () => {
@@ -92,5 +157,7 @@ describe('PoolListTableHeader — independent per-column windows (S134b)', () =>
     fireEvent.click(await screen.findByRole('menuitem', { name: '24h' }))
     expect(mockSetVolumeWindow).toHaveBeenCalledWith(YieldWindow.W24h)
     expect(mockSetAprWindow).not.toHaveBeenCalled()
+    // the caret never sorts — sorting stays untouched
+    expect(mockSetSorting).not.toHaveBeenCalled()
   })
 })

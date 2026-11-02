@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonProps,
   GridItem,
   HStack,
   Popover,
@@ -31,6 +32,7 @@ type SortableHeaderProps = {
   usePortal?: string
   containerProps?: GridItemProps
   textProps?: TextProps
+  buttonProps?: ButtonProps
 }
 
 export function SortableHeader({
@@ -44,6 +46,7 @@ export function SortableHeader({
   usePortal,
   containerProps,
   textProps,
+  buttonProps,
 }: SortableHeaderProps) {
   const renderSortIcon = () => {
     return !isSorted ? (
@@ -64,6 +67,7 @@ export function SortableHeader({
       onClick={() => onSort(label.toLowerCase())}
       size="sm"
       variant="ghost"
+      {...buttonProps}
     >
       <HStack alignItems="center" gap="0">
         <Text
