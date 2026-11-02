@@ -253,3 +253,33 @@ describe('sortOnchainPools — window-aware volume (S134)', () => {
     expect(out.map(p => p.id)).toEqual(['b', 'a'])
   })
 })
+
+describe('sortOnchainPools — window independence (S134b)', () => {
+  // Boss-caught defect class: a shared window coupled APR and Volume.
+  // Law: the APR sort ranks by aprWindow ONLY — the volumeWindow value
+  // must not influence APR ordering, and vice versa, in the same call.
+  type Win = { apr: number | null; volumeUsd: number | null }
+  type Wins = { w24h: Win; w7d: Win; w30d: Win; lifetime: Win }
+
+  const w = (apr: number | null, vol: number | null): Win => ({ apr, volumeUsd: vol })
+  const wins = (a: Win, b: Win, c: Win, d: Win): Wins => ({ w24h: a, w7d: b, w30d: c, lifetime: d })
+
+  const p = (id: string, x: Wins) =>
+    ({ ...pool(id, '10', '0', []), yieldWindows: x }) as TestPool & { yieldWindows: Wins }
+
+  it('APR sort ranks by aprWindow while volumeWindow is different (and vice versa)', () => {
+    // a: 24h APR high, lifetime volume high; b: opposite
+    const pools = [
+      p('a', wins(w(9, 1), w(1, 1), w(1, 1), w(1, 100))),
+      p('b', wins(w(1, 100), w(9, 100), w(9, 100), w(9, 1))),
+    ]
+
+    // APR sort with APR=24h, Volume=lifetime: APR key is the 24h APR only
+    const aprOut = sortOnchainPools(pools, [{ id: 'apr', desc: true }], 0, '24h', 'lifetime')
+    expect(aprOut.map(x => x.id)).toEqual(['a', 'b'])
+
+    // Volume sort in the same call shape: Volume key is the lifetime volume only
+    const volOut = sortOnchainPools(pools, [{ id: 'volume24h', desc: true }], 0, '24h', 'lifetime')
+    expect(volOut.map(x => x.id)).toEqual(['a', 'b'])
+  })
+})

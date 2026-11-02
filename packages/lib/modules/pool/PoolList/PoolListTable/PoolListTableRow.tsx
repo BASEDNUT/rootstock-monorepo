@@ -52,11 +52,12 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
   const { name } = usePoolMetadata(pool)
   const { toCurrency } = useCurrency()
 
-  // S132: yield-window toggle (header chips) — row renders the selected
-  // window's APR for onchain-only pools.
-  // S134: the shared selector drives the Volume cell too — same window,
-  // same number as the sort key (display/sort never diverge).
-  const { yieldWindow } = usePoolList()
+  // S132: yield-window toggle — row renders the selected window's APR for
+  // onchain-only pools.
+  // S134b (2026-11-01): APR and Volume read their OWN windows — fully
+  // independent (boss-caught: a shared window under APR silently changed
+  // Volume; each cell follows its own header, never a foreign one).
+  const { aprWindow, volumeWindow } = usePoolList()
   const isOnchainOnly = isOnchainOnlyNetwork(pool.chain)
   // S132: per-window metrics attached by the onchain metrics hook.
   type WindowMetrics = { apr: number | null; volumeUsd: number | null }
@@ -70,31 +71,34 @@ export function PoolListTableRow({ pool, keyValue, needsMarginForPoints, ...rest
   }
   const windows = (pool as unknown as PoolWithWindows).yieldWindows
 
-  const windowMetrics = windows
-    ? yieldWindow === YieldWindow.W24h
-      ? windows.w24h
-      : yieldWindow === YieldWindow.W7d
-        ? windows.w7d
-        : yieldWindow === YieldWindow.W30d
-          ? windows.w30d
-          : windows.lifetime
-    : undefined
+  const windowOf = (win: YieldWindow) =>
+    win === YieldWindow.W24h
+      ? windows?.w24h
+      : win === YieldWindow.W7d
+        ? windows?.w7d
+        : win === YieldWindow.W30d
+          ? windows?.w30d
+          : windows?.lifetime
 
-  const windowApr = isOnchainOnly && windowMetrics ? (windowMetrics.apr ?? null) : null
+  const aprWindowMetrics = windows ? windowOf(aprWindow) : undefined
+  const volumeWindowMetrics = windows ? windowOf(volumeWindow) : undefined
 
-  // S134: windowed volume for onchain-only pools; API pools keep their
-  // fixed dynamicData.volume24h (unchanged upstream behavior).
-  const windowVolume = isOnchainOnly && windowMetrics ? (windowMetrics.volumeUsd ?? null) : null
+  const windowApr = isOnchainOnly && aprWindowMetrics ? (aprWindowMetrics.apr ?? null) : null
+
+  // S134b: windowed volume for onchain-only pools, by ITS OWN window;
+  // API pools keep their fixed dynamicData.volume24h (unchanged upstream).
+  const windowVolume =
+    isOnchainOnly && volumeWindowMetrics ? (volumeWindowMetrics.volumeUsd ?? null) : null
 
   const volumeDisplay =
-    isOnchainOnly && windowMetrics
+    isOnchainOnly && volumeWindowMetrics
       ? windowVolume !== null
         ? toCurrency(windowVolume)
         : '—'
       : poolMetricDisplay(pool.dynamicData.volume24h, v => toCurrency(v))
 
   const volumeTitle =
-    isOnchainOnly && windowMetrics
+    isOnchainOnly && volumeWindowMetrics
       ? windowVolume !== null
         ? toCurrency(windowVolume, { abbreviated: false })
         : '—'

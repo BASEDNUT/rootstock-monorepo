@@ -1,6 +1,6 @@
 import { vi, type Mock } from 'vitest'
-import { waitFor } from '@testing-library/react'
-import { PoolList as PoolListType } from '@repo/lib/modules/pool/pool.types'
+import { act, waitFor } from '@testing-library/react'
+import { PoolList as PoolListType, YieldWindow } from '@repo/lib/modules/pool/pool.types'
 import { defaultPoolListMock, mockPoolList } from '@repo/lib/test/msw/handlers/PoolList.handlers'
 import { aGqlPoolMinimalMock } from '@repo/lib/test/msw/builders/gqlPoolMinimal.builders'
 import { testHook } from '@repo/lib/test/utils/custom-renderers'
@@ -109,6 +109,33 @@ test('BASESEP filter yields onchain pools, not API pools; count is onchain count
 
   // count reflects onchain pools — NOT the API's global pool count
   expect(result.current.count).toBe(result.current.pools.length)
+})
+
+// ─── S134b (2026-11-01): independent per-column windows ───
+//
+// Law: APR and Volume each own their window — the shared yieldWindow is
+// dead. setAprWindow moves ONLY aprWindow; setVolumeWindow moves ONLY
+// volumeWindow; the shared yieldWindow no longer exists in the context.
+
+test('aprWindow and volumeWindow are independent states (S134b)', async () => {
+  const { result } = testHook(() => usePoolListLogic(), { wrapper: withBaseSepNetworks })
+
+  // honest defaults: both 7d
+  expect(result.current.aprWindow).toBe(YieldWindow.W7d)
+  expect(result.current.volumeWindow).toBe(YieldWindow.W7d)
+
+  // APR window moves alone
+  act(() => result.current.setAprWindow(YieldWindow.W30d))
+  await waitFor(() => expect(result.current.aprWindow).toBe(YieldWindow.W30d))
+  expect(result.current.volumeWindow).toBe(YieldWindow.W7d)
+
+  // Volume window moves alone
+  act(() => result.current.setVolumeWindow(YieldWindow.Lifetime))
+  await waitFor(() => expect(result.current.volumeWindow).toBe(YieldWindow.Lifetime))
+  expect(result.current.aprWindow).toBe(YieldWindow.W30d)
+
+  // the shared window is dead — the context must not expose it
+  expect((result.current as unknown as Record<string, unknown>).yieldWindow).toBeUndefined()
 })
 
 test('onchain pool list items carry dynamicData so table rows render', async () => {

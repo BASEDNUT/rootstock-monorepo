@@ -46,7 +46,11 @@ export function usePoolListLogic({
 
   // S132: list-table yield window (24h | 7d | Lifetime) — drives the APR
   // column for onchain-only pools; default 7d (matches the detail page).
-  const [yieldWindow, setYieldWindow] = useState<YieldWindow>(YieldWindow.W7d)
+  // S134b (2026-11-01): APR and Volume each own an INDEPENDENT window —
+  // the shared yieldWindow is dead (boss-caught: a selector under APR
+  // silently changed Volume; each column must follow its own header).
+  const [aprWindow, setAprWindow] = useState<YieldWindow>(YieldWindow.W7d)
+  const [volumeWindow, setVolumeWindow] = useState<YieldWindow>(YieldWindow.W7d)
 
   const { queryVariables, toggleUserAddress, joinablePools } = queryState
 
@@ -119,10 +123,10 @@ export function usePoolListLogic({
         queryState.minTvl,
         // S133: the APR sort must rank by the SELECTED window's APR —
         // the same number the row renders (boss-caught 2026-10-31).
-        yieldWindow,
-        // S134 (2026-11-01): the shared selector drives the Volume sort
-        // too — one control, APR + Volume follow the same window.
-        yieldWindow
+        aprWindow,
+        // S134b: the Volume sort ranks by ITS OWN window — independent of
+        // the APR window (the shared selector is dead).
+        volumeWindow
       )
     : apiPools
 
@@ -274,8 +278,10 @@ export function usePoolListLogic({
     refetch,
     poolDisplayType,
     setPoolDisplayType,
-    yieldWindow,
-    setYieldWindow,
+    aprWindow,
+    setAprWindow,
+    volumeWindow,
+    setVolumeWindow,
     aggregateStats,
   }
 }
