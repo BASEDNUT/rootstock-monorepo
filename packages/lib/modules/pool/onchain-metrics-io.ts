@@ -22,7 +22,6 @@ import {
 } from './onchain-metrics-topics'
 import { getOnchainScanConfig } from './onchain-pool-discovery'
 import type { GqlChain } from '@repo/lib/shared/services/api/generated/graphql'
-import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 
 /** Per-pool onchain state needed for metrics. */
 export interface PoolState {
@@ -31,11 +30,6 @@ export interface PoolState {
   balancesRaw: bigint[]
   weights: number[] | null
   staticSwapFee: number | null
-}
-
-/** GT network id by chain. */
-const GT_NETWORK: Partial<Record<GqlChain, string>> = {
-  [GqlChainValues.Base]: 'base',
 }
 
 // Reuse the pinned discovery client factory — instantiating a second
@@ -225,44 +219,6 @@ export async function fetchPoolState(
   }
 
   return { poolId: pool, tokens, balancesRaw: balancesOut, weights, staticSwapFee }
-}
-
-/**
- * Fetch USD prices for token addresses via GeckoTerminal multi-price.
- * Keyless, CORS-open (live-verified). Unknown chains → empty map.
- * GT does not serve Base Sepolia — BASESEP honestly returns {}.
- */
-export async function fetchTokenPrices(
-  chain: GqlChain,
-  addresses: string[]
-): Promise<Record<string, number>> {
-  const network = GT_NETWORK[chain]
-  if (!network || addresses.length === 0) return {}
-  // lowercase canonical form — checksummed addresses can miss on GT.
-  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/multi/${addresses.map(a => a.toLowerCase()).join(',')}`
-
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return {}
-
-    const json = (await res.json()) as {
-      data?: { attributes: { address: string; price_usd?: string } }[]
-    }
-
-    const prices: Record<string, number> = {}
-
-    for (const token of json.data || []) {
-      const usd = Number(token.attributes?.price_usd)
-
-      if (Number.isFinite(usd) && usd > 0) {
-        prices[token.attributes.address.toLowerCase()] = usd
-      }
-    }
-
-    return prices
-  } catch {
-    return {}
-  }
 }
 
 /**

@@ -17,13 +17,18 @@ import { GqlChainValues } from '@repo/lib/shared/services/api/graphql-enums'
 import {
   createMetricsClient,
   fetchPoolState,
-  fetchTokenPrices,
   fetchMissingTokenDecimals,
   resolveTokenDecimals,
   scanSwapBuckets,
   ARCHIVE_FALLBACK_RPC,
   type PoolState,
 } from './onchain-metrics-io'
+// P0 (S134d): price fetching moved to its own module — bounded retry on 429
+// plus a last-good cache, so a GT rate wall no longer blanks every price.
+import { fetchTokenPrices } from './onchain-price-source'
+// P2/P3 (S134d): fill what GT leaves unpriced — wNUT at NUT 1:1 (ERC20Wrapper),
+// PIPS from its own GT pool. Unresolvable tokens stay absent, never guessed.
+import { augmentWithDerivedPrices } from './onchain-derived-prices'
 import { getOnchainScanConfig, type OnchainPoolListItem } from './onchain-pool-discovery'
 import { computePoolMetrics, type SwapBucket } from './onchain-metrics'
 import { computeYieldWindows } from './onchain-yield-windows'
@@ -88,9 +93,16 @@ async function fetchChainMetrics(
     states.push(...batch)
   }
 
-  // 2. GT prices for every pool token
+  // 2. GT prices for every pool token, then fill what GT leaves unpriced
+  // (wNUT at NUT 1:1, PIPS from its own pool). Tokens with no resolvable
+  // source stay ABSENT so the metrics layer reports null, never a guess.
   const allTokens = [...new Set(states.flatMap(s => s.tokens.map(t => t.address)))]
-  const prices = await fetchTokenPrices(chain, allTokens)
+
+  const prices = await augmentWithDerivedPrices({
+    chain,
+    addresses: allTokens,
+    prices: await fetchTokenPrices(chain, allTokens),
+  })
 
   // 3. swap ledger: baked base (build-time archive scan) + visitor
   // localStorage + fresh scan since max(baked cursor, stored cursor).
@@ -322,6 +334,11 @@ export function useOnchainPoolMetrics(
     // paint; without a refetch the list kept the pre-scan (null coverage)
     // APRs forever — 24h column showed dashes next to real volume
     // (boss-caught 2026-10-31). Poll like the detail hook does.
-    refetchInterval: 30_000,
+    // S134d: 30s was INSIDE GeckoTerminal's tolerance — live-probed, the 5th
+    // rapid multi call returns 429 and recovers in ~40s, so two open tabs
+    // rate-limited themselves and blanked every price. 90s keeps the list
+    // fresh without self-inflicting the wall; the price module also retries
+    // and holds last-good values, so a wall no longer blanks the board.
+    refetchInterval: 90_000,
   })
 }
