@@ -92,9 +92,39 @@ for (let to = latest; to > config.from; to -= config.chunk) {
 }
 console.log('total swap events:', logs.length)
 
-// 2. bucket by hour|pool|tokenIn
+// 2. bucket by hour|pool|tokenIn — S134e: hours come from REAL block
+// timestamps (eth_getBlockByNumber), never `block x assumed cadence`.
+// Base's Sun Valley upgrade (~Nov 5) cut the cadence from 2.0s to 0.200s
+// per block; the old `bakedAt - (latest - block) x blockMs` math warped
+// post-switch events ~10x into the past and dropped them outside the
+// trailing-24h window — the pools band showed $0.00 volume while real
+// swaps existed on-chain. Unique event blocks are probed sequentially
+// (no RPC burst); a probe failure skips that block's events honestly
+// (understated-but-real beats mis-timed).
 const bakedAt = Date.now()
-const blockToMs = block => bakedAt - (latest - block) * config.blockMs
+
+const tsCache = new Map()
+async function blockTsMs(block) {
+  if (tsCache.has(block)) return tsCache.get(block)
+  let tsMs = null
+  try {
+    const blk = await rpcRetry(() =>
+      client.request({
+        method: 'eth_getBlockByNumber',
+        params: ['0x' + block.toString(16), false],
+      })
+    )
+    if (blk?.timestamp) {
+      const ms = Number(BigInt(blk.timestamp)) * 1000
+      if (Number.isFinite(ms) && ms > 0) tsMs = ms
+    }
+  } catch {
+    tsMs = null
+  }
+  tsCache.set(block, tsMs)
+  return tsMs
+}
+
 const map = new Map()
 for (const l of logs) {
   if (!l.topics || l.topics.length < 4) continue
@@ -104,7 +134,13 @@ for (const l of logs) {
   const token = ('0x' + l.topics[2].slice(-40)).toLowerCase()
   const amountInRaw = BigInt('0x' + data.slice(0, 64))
   const feeAmountRaw = BigInt('0x' + data.slice(3 * 64, 4 * 64))
-  const hour = Math.floor(blockToMs(parseInt(l.blockNumber, 16)) / HOUR_MS)
+  const block = parseInt(l.blockNumber, 16)
+  const tsMs = await blockTsMs(block)
+  if (tsMs === null) {
+    console.log('skip swap @ block', block, '- timestamp probe failed')
+    continue
+  }
+  const hour = Math.floor(tsMs / HOUR_MS)
   const key = `${hour}|${pool}|${token}`
   const ex = map.get(key)
   if (ex) {
@@ -121,15 +157,26 @@ for (const l of logs) {
   }
 }
 
-// 3. coverage start = deploy-block timestamp (approx via block math)
-const coverageStartMs = blockToMs(config.from)
+// 3. coverage start = REAL deploy-block timestamp (S134e; the old
+// block-math approximation drifted with the cadence change).
+const coverageStartMs = await blockTsMs(config.from)
+if (coverageStartMs === null) {
+  console.error(
+    'FATAL: deploy-block timestamp probe failed — refusing to bake a',
+    'ledger without a real coverage start (null would corrupt window math).'
+  )
+  process.exit(1)
+}
 
 const out = {
-  version: 1,
+  version: 2,
   chainId: config.chainId,
   cursor: latest,
   savedAt: bakedAt,
   coverageStartMs,
+  // S134e: real coverage-start block (deploy block) — the hook prefers
+  // this over inverting coverageStartMs through an assumed cadence.
+  coverageStartBlock: config.from,
   buckets: [...map.values()].sort((a, b) => a.hour - b.hour),
 }
 writeFileSync(new URL(`./${config.output}`, import.meta.url), JSON.stringify(out))

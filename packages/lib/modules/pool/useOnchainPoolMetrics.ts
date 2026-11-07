@@ -20,6 +20,8 @@ import {
   fetchMissingTokenDecimals,
   resolveTokenDecimals,
   scanSwapBuckets,
+  measureBlockMs,
+  blockTimestampMs,
   ARCHIVE_FALLBACK_RPC,
   type PoolState,
 } from './onchain-metrics-io'
@@ -113,8 +115,12 @@ async function fetchChainMetrics(
   // B3: scan the whole trailing 24h window every time (cutoff-aware), NOT
   // just latest-10k — the visitor scan is the only thing that can cover the
   // window; the archive fallback bridges publicnode's wall per chunk.
-  const BLOCK_MS = 2_000
-  const cutoffBlock = Math.floor(latest - (24 * 3_600_000) / BLOCK_MS)
+  // S134e: Base's Sun Valley upgrade (~Nov 5) cut the cadence from 2.0s
+  // to 0.200s/block — a hardcoded 2s cutoff under-scans the window by 10x.
+  // Measure the REAL cadence from two block probes (probe failure falls
+  // back to the legacy 2s).
+  const blockMs = await measureBlockMs(client, latest, Math.max(1, latest - 1_000))
+  const cutoffBlock = Math.floor(latest - (24 * 3_600_000) / blockMs)
   // continue from the farthest known cursor (visitor ledger or fresh bake);
   // a fresh bake covers [deploy, bakedCursor] itself, so the visitor only
   // scans [bakedCursor, latest] — until the bake ages past the window, then
@@ -144,13 +150,17 @@ async function fetchChainMetrics(
     : undefined
 
   try {
+    // S134e: strict timestamp mode — hour buckets from REAL block
+    // timestamps (Sun Valley cadence change; see onchain-metrics-io).
     const fresh = await scanSwapBuckets(
       client,
       scanConfig.vault,
       fromBlock,
       latest,
       chunk,
-      fallbackClient
+      fallbackClient,
+      1_000,
+      client
     )
 
     // display: all observed logs (pre-hole included — understated-but-real)
@@ -172,12 +182,14 @@ async function fetchChainMetrics(
 
       // baked coverage start (block) = block-time inverse of coverageStartMs
       const bakedCoverageStartBlock =
-        baked?.coverageStartMs !== undefined
-          ? Math.max(
-              0,
-              latest - Math.floor((Date.now() - Number(baked.coverageStartMs)) / BLOCK_MS)
-            )
-          : undefined
+        baked && typeof (baked as { coverageStartBlock?: number }).coverageStartBlock === 'number'
+          ? Number((baked as { coverageStartBlock?: number }).coverageStartBlock)
+          : baked?.coverageStartMs !== undefined
+            ? Math.max(
+                0,
+                latest - Math.floor((Date.now() - Number(baked.coverageStartMs)) / blockMs)
+              )
+            : undefined
 
       const coverageStartBlock = computeCoverageStartBlock({
         previous:
@@ -195,12 +207,18 @@ async function fetchChainMetrics(
       // cursor, and re-scanning their range cannot double-count.
       const visitorBuckets = mergeBuckets(ledger?.buckets ?? [], fresh.contiguousBuckets)
 
+      // S134e: REAL epoch-ms of the coverage start, probed from the block
+      // itself — window math downstream must never multiply blocks by an
+      // assumed cadence again (Sun Valley: 2.0s -> 0.200s).
+      const coverageStartMs = (await blockTimestampMs(client, coverageStartBlock)) ?? undefined
+
       saveSwapLedger({
-        version: 3,
+        version: 4,
         chainId: scanConfig.chainId,
         cursor: Math.max(ledger?.cursor ?? 0, fresh.coveredTo),
         savedAt: Date.now(),
         coverageStartBlock,
+        coverageStartMs,
         buckets: visitorBuckets,
       })
     }
@@ -219,7 +237,7 @@ async function fetchChainMetrics(
       : null,
     latest,
     now,
-    BLOCK_MS
+    blockMs
   )
 
   // 4. compute per-pool metrics + enrich

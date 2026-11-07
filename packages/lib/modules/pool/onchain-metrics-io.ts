@@ -222,6 +222,53 @@ export async function fetchPoolState(
 }
 
 /**
+ * S134e (2026-11-05, live-probed): Base's Sun Valley upgrade switched block
+ * cadence from 2.0 s/block to 0.200 s/block. Any hardcoded `block x 2000ms`
+ * math now time-warps recent events ~10x into the past, dropping them
+ * outside trailing windows. This probe measures the REAL cadence from two
+ * block timestamps; probes that fail or invert fall back to the legacy 2s.
+ */
+export const LEGACY_BLOCK_MS = 2_000
+
+/** One block's REAL epoch-ms timestamp; null when the probe fails. */
+export async function blockTimestampMs(
+  client: Pick<DiscoveryClient, 'request'>,
+  block: number
+): Promise<number | null> {
+  try {
+    const blk = (await client.request({
+      method: 'eth_getBlockByNumber',
+      params: [('0x' + BigInt(block).toString(16)) as `0x${string}`, false],
+    })) as { timestamp?: string } | null
+
+    const ts = blk?.timestamp ? Number(BigInt(blk.timestamp)) * 1_000 : null
+    return ts !== null && Number.isFinite(ts) && ts > 0 ? ts : null
+  } catch {
+    return null
+  }
+}
+
+export async function measureBlockMs(
+  client: Pick<DiscoveryClient, 'request'>,
+  highBlock: number,
+  lowBlock: number
+): Promise<number> {
+  const [highTs, lowTs] = await Promise.all([
+    blockTimestampMs(client, highBlock),
+    blockTimestampMs(client, lowBlock),
+  ])
+
+  if (highTs === null || lowTs === null) return LEGACY_BLOCK_MS
+
+  const span = highTs - lowTs
+  const blocks = highBlock - lowBlock
+  if (blocks <= 0 || span <= 0) return LEGACY_BLOCK_MS
+
+  const ms = Math.round(span / blocks)
+  return ms > 0 ? ms : LEGACY_BLOCK_MS
+}
+
+/**
  * Scan Vault Swap events since `fromBlock` (exclusive) in provider-range
  * chunks (B3, live-probed 2026-10-21): publicnode archive-walls any range
  * older than its recent window ("Archive requests require a personal
@@ -229,6 +276,12 @@ export async function fetchPoolState(
  * (CORS-open, browser-verified) serves 1000-block archive ranges. A
  * walled chunk falls back per-chunk; non-archive errors never hit the
  * fallback; both fail → the chunk is skipped honestly (never throws).
+ *
+ * S134e: `timestampClient` (defaults to `client`) supplies REAL block
+ * timestamps via eth_getBlockByNumber so hour buckets survive cadence
+ * changes; when the probe fails for a block that block's events keep the
+ * legacy 2s display-grade estimate (never throws, never fabricates
+ * precision).
  */
 const ARCHIVE_WALL_MARKERS = ['archive requests require', 'personal token', 'block range too large']
 
@@ -266,7 +319,8 @@ export async function scanSwapBuckets(
   latestBlock: number,
   chunkSize: number,
   fallbackClient?: Pick<DiscoveryClient, 'request'>,
-  fallbackChunkSize = 1_000
+  fallbackChunkSize = 1_000,
+  timestampClient?: Pick<DiscoveryClient, 'request'>
 ): Promise<ScanSwapBucketsResult> {
   const allLogs: { blockNumber: string; topics: string[]; data: string }[] = []
   const prefixLogs: { blockNumber: string; topics: string[]; data: string }[] = []
@@ -306,14 +360,44 @@ export async function scanSwapBuckets(
 
   const coveredTo = prefixEnd !== null ? prefixEnd : emptyRange ? fromBlock : fromBlock
 
-  // block → epoch ms via Base 2s block time, anchored at latestBlock/now.
+  // S134e: hour buckets come from REAL block timestamps. The old
+  // `now - (latest - block) x 2000ms` math assumed a fixed 2s cadence —
+  // Base's Sun Valley upgrade (~Nov 5) cut it to 0.200s/block, warping
+  // recent events ~10x into the past and outside the trailing windows.
+  // Strict mode (timestampClient given): each unique event block is probed
+  // once, sequentially (no RPC burst); a failed probe SKIPS that block's
+  // events (understated-but-real, decode drops non-finite ts) — a mis-timed
+  // bucket would corrupt every window it lands in, so skipping beats
+  // guessing. Legacy mode (no timestampClient): unchanged 2s math for the
+  // pre-existing call sites.
   const now = Date.now()
-  const blockToMs = (block: number) => now - (latestBlock - block) * 2_000
+  const legacyBlockToMs = (block: number) => now - (latestBlock - block) * LEGACY_BLOCK_MS
+
+  let buckets: SwapBucket[]
+  let contiguousBuckets: SwapBucket[]
+
+  if (!timestampClient) {
+    buckets = decodeSwapLogsToBuckets(allLogs, legacyBlockToMs)
+    contiguousBuckets = decodeSwapLogsToBuckets(prefixLogs, legacyBlockToMs)
+  } else {
+    const uniqueBlocks = [...new Set(allLogs.map(l => parseInt(l.blockNumber, 16)))]
+    const blockTsCache = new Map<number, number>()
+
+    for (const block of uniqueBlocks) {
+      const ts = await blockTimestampMs(timestampClient, block)
+      blockTsCache.set(block, ts ?? Number.NaN)
+    }
+
+    const tsMap = (block: number) => blockTsCache.get(block) ?? Number.NaN
+    buckets = decodeSwapLogsToBuckets(allLogs, tsMap)
+    contiguousBuckets = decodeSwapLogsToBuckets(prefixLogs, tsMap)
+  }
+
   return {
-    buckets: decodeSwapLogsToBuckets(allLogs, blockToMs),
+    buckets,
     coveredFrom,
     coveredTo,
-    contiguousBuckets: decodeSwapLogsToBuckets(prefixLogs, blockToMs),
+    contiguousBuckets,
   }
 }
 

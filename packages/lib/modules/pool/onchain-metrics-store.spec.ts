@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
   hasLedgerFullCoverage,
   computeCoverageStartBlock,
+  loadSwapLedger,
+  SWAP_LEDGER_STORE_VERSION,
   type SwapLedgerStore,
 } from './onchain-metrics-store'
 
@@ -76,7 +78,13 @@ describe('hasLedgerFullCoverage — continuous-coverage honest gate (B3)', () =>
 
   it('visitor coverage born mid-window (after cutoff) → NOT covered', () => {
     expect(
-      hasLedgerFullCoverage(store({ coverageStartBlock: latest - 100 }), null, latest, now, BLOCK_MS)
+      hasLedgerFullCoverage(
+        store({ coverageStartBlock: latest - 100 }),
+        null,
+        latest,
+        now,
+        BLOCK_MS
+      )
     ).toBe(false)
   })
 
@@ -124,12 +132,14 @@ describe('hasLedgerFullCoverage — continuous-coverage honest gate (B3)', () =>
 describe('computeCoverageStartBlock — bridging math (B3)', () => {
   it('scan bridging a fresh bake extends the start to the baked coverage start', () => {
     const bakedStartBlock = latest - 200_000
+
     const start = computeCoverageStartBlock({
       previous: undefined,
       fromBlock: latest - W,
       bridgesBaked: true,
       bakedCoverageStartBlock: bakedStartBlock,
     })
+
     expect(start).toBe(bakedStartBlock)
   })
 
@@ -140,6 +150,7 @@ describe('computeCoverageStartBlock — bridging math (B3)', () => {
       bridgesBaked: false,
       bakedCoverageStartBlock: latest - 200_000,
     })
+
     expect(start).toBe(latest - W)
   })
 
@@ -150,6 +161,7 @@ describe('computeCoverageStartBlock — bridging math (B3)', () => {
       bridgesBaked: false,
       bakedCoverageStartBlock: undefined,
     })
+
     expect(start).toBe(latest - 60_000)
   })
 
@@ -160,6 +172,7 @@ describe('computeCoverageStartBlock — bridging math (B3)', () => {
       bridgesBaked: false,
       bakedCoverageStartBlock: undefined,
     })
+
     expect(start).toBe(latest - 2_000)
   })
 
@@ -170,6 +183,71 @@ describe('computeCoverageStartBlock — bridging math (B3)', () => {
       bridgesBaked: false,
       bakedCoverageStartBlock: undefined,
     })
+
     expect(start).toBe(latest - 80_000)
+  })
+})
+
+describe('store v4 — cadence-poisoned bucket purge (S134e)', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('voids a v3 store (hours derived from dead 2s math) on load', () => {
+    localStorage.setItem(
+      'rootstock.swap-ledger.8453',
+      JSON.stringify({
+        version: 3,
+        chainId: 8453,
+        cursor: 54_000_000,
+        savedAt: Date.now(),
+        coverageStartBlock: 53_900_000,
+        buckets: [
+          {
+            hour: 496_000,
+            pool: '0x' + 'a'.repeat(40),
+            token: '0x' + 'b'.repeat(40),
+            amountInRaw: '1',
+            feeAmountRaw: '1',
+          },
+        ],
+      })
+    )
+
+    expect(loadSwapLedger(8453)).toBeNull()
+    expect(localStorage.getItem('rootstock.swap-ledger.8453')).toBeNull()
+  })
+
+  it('loads a v4 store carrying the real coverageStartMs', () => {
+    localStorage.setItem(
+      'rootstock.swap-ledger.8453',
+      JSON.stringify({
+        version: SWAP_LEDGER_STORE_VERSION,
+        chainId: 8453,
+        cursor: 54_000_000,
+        savedAt: Date.now(),
+        coverageStartBlock: 52_131_550,
+        coverageStartMs: 1_759_000_000_000,
+        buckets: [],
+      })
+    )
+
+    const s = loadSwapLedger(8453)
+    expect(s).not.toBeNull()
+    expect(s!.coverageStartMs).toBe(1_759_000_000_000)
+  })
+
+  it('voids a store whose version is unknown', () => {
+    localStorage.setItem(
+      'rootstock.swap-ledger.8453',
+      JSON.stringify({
+        version: 99,
+        chainId: 8453,
+        cursor: 1,
+        savedAt: 1,
+        coverageStartBlock: 1,
+        buckets: [],
+      })
+    )
+
+    expect(loadSwapLedger(8453)).toBeNull()
   })
 })

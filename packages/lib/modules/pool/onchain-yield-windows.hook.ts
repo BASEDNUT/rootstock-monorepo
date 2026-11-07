@@ -96,7 +96,14 @@ export function useOnchainYieldWindows(
       const visitorFresh = ledger !== null && now - ledger.savedAt <= VISITOR_FRESH_MS
 
       if (visitorFresh && ledger && baked) {
-        const visitorStartMs = ledger.savedAt - (ledger.cursor - ledger.coverageStartBlock) * 2_000
+        // S134e: prefer the store's REAL coverageStartMs (v4, probed from
+        // the block timestamp) — never blocks x assumed cadence (Sun Valley
+        // cut Base's 2.0s cadence to 0.200s ~Nov 5). Legacy stores without
+        // the field fall back to the old estimate.
+        const visitorStartMs =
+          typeof ledger.coverageStartMs === 'number'
+            ? ledger.coverageStartMs
+            : ledger.savedAt - (ledger.cursor - ledger.coverageStartBlock) * 2_000
 
         coverage = {
           startMs: Math.min(Number(baked.coverageStartMs ?? Infinity), visitorStartMs),

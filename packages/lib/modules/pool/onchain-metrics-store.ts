@@ -22,14 +22,19 @@
 
 import type { SwapBucket } from './onchain-metrics'
 
-export const SWAP_LEDGER_STORE_VERSION = 3
-// v3 (2026-10-27, D3): buckets are VISITOR-SCAN ONLY — the baked ledger
-// is merged at display time, never persisted here. v2 stores contained
-// the baked buckets merged in (later-wins replace era); under sum-merge
-// semantics re-merging them would DOUBLE-COUNT baked history, so v2
-// stores are voided on load and rebuilt from a fresh window scan.
-// v3 also pairs with the coveredTo cursor law: the cursor only advances
-// over the contiguous run (holes re-attempt next scan).
+export const SWAP_LEDGER_STORE_VERSION = 4
+// v4 (2026-11-05, S134e): the Base Sun Valley upgrade switched block
+// cadence from 2.0 s/block to 0.200 s/block (~Nov 5, live-probed). Every
+// v3 bucket hour was derived from `block x 2000ms` math anchored at the
+// chain tip, so post-switch events time-warped ~10x into the past and
+// fell outside the trailing-24h window — the pools band showed $0.00
+// volume while real swaps existed on-chain. v4 voids every poisoned v3
+// store (rebuilt from a fresh window scan) and carries coverageStartMs
+// — the REAL epoch-ms coverage start, so downstream window math never
+// multiplies blocks by an assumed cadence again.
+// v3 lineage kept: buckets are VISITOR-SCAN ONLY (baked merged at
+// display, never persisted); sum-merge voids v2; the coveredTo cursor
+// law holds (holes re-attempt next scan).
 /** Prune buckets older than this (hours) — the display window is 24h. */
 export const LEDGER_RETENTION_HOURS = 48
 
@@ -46,6 +51,13 @@ export interface SwapLedgerStore {
    * an unbridged scan restarts coverage at its own fromBlock.
    */
   coverageStartBlock: number
+  /**
+   * REAL epoch-ms of coverageStartBlock (S134e), read from the block's
+   * timestamp — never derived from block x assumed-cadence math. Downstream
+   * window gates compare ms against ms. Optional only for legacy writers;
+   * v4 writers must always set it.
+   */
+  coverageStartMs?: number
   buckets: SwapBucket[]
 }
 
