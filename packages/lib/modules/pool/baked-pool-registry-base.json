@@ -2,9 +2,133 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-10-29T21:04:21.967Z",
+  "generatedAt": "2026-11-17T14:08:16.376Z",
   "fromBlock": 52131550,
   "pools": [
+    {
+      "address": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707792,
+      "type": "WEIGHTED",
+      "name": "Bitcoin Twin Graft",
+      "symbol": "gtBTC",
+      "blockTimestamp": 1792204931,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "symbol": "tBTC",
+          "name": "Base tBTC v2",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "13494103140943"
+    },
+    {
+      "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707828,
+      "type": "WEIGHTED",
+      "name": "Silicon Twin Graft",
+      "symbol": "gtSIL",
+      "blockTimestamp": 1792205003,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb20000000000000000000078ee7ce2fE4908108C",
+          "symbol": "NVDAc",
+          "name": "NVIDIA Corporation",
+          "decimals": 8
+        },
+        {
+          "address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
+          "symbol": "AAPLc",
+          "name": "Apple Inc.",
+          "decimals": 8
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "1253412168013012"
+    },
+    {
+      "address": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082679,
+      "type": "WEIGHTED",
+      "name": "Dollar Oven Root",
+      "symbol": "rtUSD+",
+      "blockTimestamp": 1792954705,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376",
+          "symbol": "USD+",
+          "name": "USD+",
+          "decimals": 6
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "10493752834957796"
+    },
+    {
+      "address": "0x36b8b05325612d2a9f0fb2fac601ba12539a50f9",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53014437,
+      "type": "WEIGHTED",
+      "name": "Rootstock NUT/WETH Pool",
+      "symbol": "rks-NUT-WETH",
+      "blockTimestamp": 1792818221,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "635615417537736"
+    },
     {
       "address": "0x36d9a3a8261f22746ac3874d4604b7d767d238a6",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
@@ -32,118 +156,6 @@
         }
       ],
       "totalSupply": "219799999999995"
-    },
-    {
-      "address": "0x8908a60b03a0d5a2a7a524e4f00240c83d44ce48",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 53259112,
-      "type": "WEIGHTED",
-      "name": "Kernel Shell",
-      "symbol": "kSHELL",
-      "blockTimestamp": 1793307571,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "hook": null,
-      "tags": [],
-      "tokens": [
-        {
-          "address": "0x36D9a3a8261f22746ac3874d4604B7D767d238A6",
-          "symbol": "kCORE",
-          "name": "Kernel Core",
-          "decimals": 18
-        },
-        {
-          "address": "0x4200000000000000000000000000000000000006",
-          "symbol": "WETH",
-          "name": "Wrapped Ether",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "231801351358720"
-    },
-    {
-      "address": "0x93ef211b7b088fd89df019af387b19b01c9c7bc2",
-      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
-      "blockNumber": 53119697,
-      "type": "STABLE",
-      "name": "Philosopher's Soil",
-      "symbol": "tsPHILO",
-      "blockTimestamp": 1793028741,
-      "swapFee": "0.0005",
-      "holdersCount": 1,
-      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
-      "tags": [],
-      "tokens": [
-        {
-          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          "symbol": "USDC",
-          "name": "USD Coin",
-          "decimals": 6
-        },
-        {
-          "address": "0x877014E21c32feA108B6A1f45f367efc9a2d9B9F",
-          "symbol": "alUSDb",
-          "name": "Alchemic USD Base",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "33607519030205587200"
-    },
-    {
-      "address": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
-      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
-      "blockNumber": 53118288,
-      "type": "RECLAMM",
-      "name": "Terra Preta Topsoil",
-      "symbol": "tsPRETA",
-      "blockTimestamp": 1793025923,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "hook": null,
-      "tags": ["BOOSTED"],
-      "tokens": [
-        {
-          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
-          "symbol": "cbETH",
-          "name": "Coinbase Wrapped Staked ETH",
-          "decimals": 18
-        },
-        {
-          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-          "symbol": "cbBTC",
-          "name": "Coinbase Wrapped BTC",
-          "decimals": 8
-        }
-      ],
-      "totalSupply": "322771441786920"
-    },
-    {
-      "address": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
-      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
-      "blockNumber": 53119008,
-      "type": "RECLAMM",
-      "name": "Loam Top Soil",
-      "symbol": "tsLOAM",
-      "blockTimestamp": 1793027363,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "hook": null,
-      "tags": ["BOOSTED"],
-      "tokens": [
-        {
-          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
-          "symbol": "wstETH",
-          "name": "Wrapped liquid staked Ether 2.0",
-          "decimals": 18
-        },
-        {
-          "address": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
-          "symbol": "waBasUSDC",
-          "name": "Wrapped Aave Base USDC",
-          "decimals": 6
-        }
-      ],
-      "totalSupply": "158950654877297652"
     },
     {
       "address": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
@@ -202,78 +214,22 @@
       "totalSupply": "10737375225387824"
     },
     {
-      "address": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 53082679,
-      "type": "WEIGHTED",
-      "name": "Dollar Oven Root",
-      "symbol": "rtUSD+",
-      "blockTimestamp": 1792954705,
+      "address": "0x6e5cd525de6db571df4c270510206c1a620470d7",
+      "factory": "0x74c9804b4659feb7d056f150a810c4b5ae926da1",
+      "blockNumber": 53014441,
+      "type": "STABLE",
+      "name": "Rootstock tBTC/cbBTC Pool",
+      "symbol": "rks-TBTC-CBBTC",
+      "blockTimestamp": 1792818229,
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
       "tags": [],
       "tokens": [
         {
-          "address": "0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376",
-          "symbol": "USD+",
-          "name": "USD+",
-          "decimals": 6
-        },
-        {
-          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
-          "symbol": "NUT",
-          "name": "BASED NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "10493752834957796"
-    },
-    {
-      "address": "0x9fe26527e90167c764f79cff1fe5c8b70d5c4f91",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 53082811,
-      "type": "WEIGHTED",
-      "name": "Coinbase Ether Root",
-      "symbol": "rtcbETH",
-      "blockTimestamp": 1792954969,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "hook": null,
-      "tags": ["BOOSTED"],
-      "tokens": [
-        {
-          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
-          "symbol": "cbETH",
-          "name": "Coinbase Wrapped Staked ETH",
-          "decimals": 18
-        },
-        {
-          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
-          "symbol": "NUT",
-          "name": "BASED NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "3456388499518750"
-    },
-    {
-      "address": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 53082936,
-      "type": "WEIGHTED",
-      "name": "Coinbase Bitcoin Root",
-      "symbol": "rtcbBTC",
-      "blockTimestamp": 1792955219,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "hook": null,
-      "tags": [],
-      "tokens": [
-        {
-          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
-          "symbol": "NUT",
-          "name": "BASED NUT",
+          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+          "symbol": "tBTC",
+          "name": "Base tBTC v2",
           "decimals": 18
         },
         {
@@ -283,7 +239,125 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "2330209658361514"
+      "totalSupply": "88342097088168"
+    },
+    {
+      "address": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 52707813,
+      "type": "RECLAMM",
+      "name": "NUT/SALT reCLAMM",
+      "symbol": "nutSALT-rCLP",
+      "blockTimestamp": 1792204973,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x1EDe2AFC985F6D7aEb3F4c84B95A103c00D5dE81",
+          "symbol": "SALT",
+          "name": "SALT",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "641291499607955645076"
+    },
+    {
+      "address": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707813,
+      "type": "WEIGHTED",
+      "name": "FX Twin Graft",
+      "symbol": "gtFX",
+      "blockTimestamp": 1792204973,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+          "symbol": "EURC",
+          "name": "EURC",
+          "decimals": 6
+        },
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "105127125624769554"
+    },
+    {
+      "address": "0x8908a60b03a0d5a2a7a524e4f00240c83d44ce48",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53259112,
+      "type": "WEIGHTED",
+      "name": "Kernel Shell",
+      "symbol": "kSHELL",
+      "blockTimestamp": 1793307571,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x36D9a3a8261f22746ac3874d4604B7D767d238A6",
+          "symbol": "kCORE",
+          "name": "Kernel Core",
+          "decimals": 18
+        },
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "231801351358720"
+    },
+    {
+      "address": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 53119008,
+      "type": "RECLAMM",
+      "name": "Loam Top Soil",
+      "symbol": "tsLOAM",
+      "blockTimestamp": 1793027363,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED"],
+      "tokens": [
+        {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "symbol": "wstETH",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "decimals": 18
+        },
+        {
+          "address": "0xC768c589647798a6EE01A91FdE98EF2ed046DBD6",
+          "symbol": "waBasUSDC",
+          "name": "Wrapped Aave Base USDC",
+          "decimals": 6
+        }
+      ],
+      "totalSupply": "158950654877297652"
     },
     {
       "address": "0x90be902deea848a38ca1b0d8ef36782d6606fd84",
@@ -314,6 +388,220 @@
       "totalSupply": "56454374088558675"
     },
     {
+      "address": "0x93ef211b7b088fd89df019af387b19b01c9c7bc2",
+      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
+      "blockNumber": 53119697,
+      "type": "STABLE",
+      "name": "Philosopher's Soil",
+      "symbol": "tsPHILO",
+      "blockTimestamp": 1793028741,
+      "swapFee": "0.0005",
+      "holdersCount": 1,
+      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6
+        },
+        {
+          "address": "0x877014E21c32feA108B6A1f45f367efc9a2d9B9F",
+          "symbol": "alUSDb",
+          "name": "Alchemic USD Base",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "33607519030205587200"
+    },
+    {
+      "address": "0x98443d8704112d166c89d800e4264318db38e05a",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707792,
+      "type": "WEIGHTED",
+      "name": "Ether Twin Graft",
+      "symbol": "gtETH",
+      "blockTimestamp": 1792204931,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "symbol": "wstETH",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "185966298626682"
+    },
+    {
+      "address": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082936,
+      "type": "WEIGHTED",
+      "name": "Coinbase Bitcoin Root",
+      "symbol": "rtcbBTC",
+      "blockTimestamp": 1792955219,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
+        }
+      ],
+      "totalSupply": "2330209658361514"
+    },
+    {
+      "address": "0x9fe26527e90167c764f79cff1fe5c8b70d5c4f91",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 53082811,
+      "type": "WEIGHTED",
+      "name": "Coinbase Ether Root",
+      "symbol": "rtcbETH",
+      "blockTimestamp": 1792954969,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": ["BOOSTED"],
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
+          "symbol": "NUT",
+          "name": "BASED NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "3456388499518750"
+    },
+    {
+      "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707742,
+      "type": "WEIGHTED",
+      "name": "Inference Twin Graft",
+      "symbol": "gtINF",
+      "blockTimestamp": 1792204831,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
+          "symbol": "VVV",
+          "name": "Venice Token",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        },
+        {
+          "address": "0xF4d97F2da56e8c3098f3a8D538DB630A2606a024",
+          "symbol": "DIEM",
+          "name": "Diem",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "1793555416953319"
+    },
+    {
+      "address": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
+      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
+      "blockNumber": 53014446,
+      "type": "STABLE",
+      "name": "Rootstock WETH/cbETH Surge Pool",
+      "symbol": "rks-WETH-CBETH-SURGE",
+      "blockTimestamp": 1792818239,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
+      "tags": ["BOOSTED"],
+      "tokens": [
+        {
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
+          "decimals": 18
+        },
+        {
+          "address": "0x4200000000000000000000000000000000000006",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "3013442228012486"
+    },
+    {
+      "address": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
+      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
+      "blockNumber": 52707742,
+      "type": "WEIGHTED",
+      "name": "Agent Twin Graft",
+      "symbol": "gtAGT",
+      "blockTimestamp": 1792204831,
+      "swapFee": "0.003",
+      "holdersCount": 1,
+      "hook": null,
+      "tags": [],
+      "tokens": [
+        {
+          "address": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+          "symbol": "VIRTUAL",
+          "name": "Virtual Protocol",
+          "decimals": 18
+        },
+        {
+          "address": "0x7431aDa8a591C955a994a21710752EF9b882b8e3",
+          "symbol": "MOR",
+          "name": "MOR",
+          "decimals": 18
+        },
+        {
+          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
+          "symbol": "wNUT",
+          "name": "Wrapped NUT",
+          "decimals": 18
+        }
+      ],
+      "totalSupply": "93343407688403415"
+    },
+    {
       "address": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
       "blockNumber": 53076191,
@@ -342,99 +630,17 @@
       "totalSupply": "4107787071353789418244"
     },
     {
-      "address": "0x36b8b05325612d2a9f0fb2fac601ba12539a50f9",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 53014437,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792818221,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Rootstock NUT/WETH Pool",
-      "symbol": "rks-NUT-WETH",
-      "tokens": [
-        {
-          "address": "0x4200000000000000000000000000000000000006",
-          "symbol": "WETH",
-          "name": "Wrapped Ether",
-          "decimals": 18
-        },
-        {
-          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
-          "symbol": "NUT",
-          "name": "BASED NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "635615417537736",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0x6e5cd525de6db571df4c270510206c1a620470d7",
-      "factory": "0x74c9804b4659feb7d056f150a810c4b5ae926da1",
-      "blockNumber": 53014441,
-      "type": "STABLE",
-      "blockTimestamp": 1792818229,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Rootstock tBTC/cbBTC Pool",
-      "symbol": "rks-TBTC-CBBTC",
-      "tokens": [
-        {
-          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
-          "symbol": "tBTC",
-          "name": "Base tBTC v2",
-          "decimals": 18
-        },
-        {
-          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-          "symbol": "cbBTC",
-          "name": "Coinbase Wrapped BTC",
-          "decimals": 8
-        }
-      ],
-      "totalSupply": "88342097088168",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0xcb6df91b22b369d199faa69964a26f73d1a529c7",
-      "factory": "0x179bdcaebadf57d6be08db5776781f4d0b64d5ce",
-      "blockNumber": 53014446,
-      "type": "STABLE",
-      "blockTimestamp": 1792818239,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Rootstock WETH/cbETH Surge Pool",
-      "symbol": "rks-WETH-CBETH-SURGE",
-      "tokens": [
-        {
-          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
-          "symbol": "cbETH",
-          "name": "Coinbase Wrapped Staked ETH",
-          "decimals": 18
-        },
-        {
-          "address": "0x4200000000000000000000000000000000000006",
-          "symbol": "WETH",
-          "name": "Wrapped Ether",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "3013442228012486",
-      "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
-      "tags": ["BOOSTED"]
-    },
-    {
       "address": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
       "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
       "blockNumber": 52908198,
       "type": "WEIGHTED",
+      "name": "Based Peanut Whorl",
+      "symbol": "pNUT",
       "blockTimestamp": 1792605743,
       "swapFee": "0.003",
       "holdersCount": 1,
-      "name": "Based Peanut Whorl",
-      "symbol": "pNUT",
+      "hook": null,
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -461,218 +667,20 @@
           "decimals": 8
         }
       ],
-      "totalSupply": "520223807421713174",
-      "hook": null,
-      "tags": ["BOOSTED"]
-    },
-    {
-      "address": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707742,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792204831,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Inference Twin Graft",
-      "symbol": "gtINF",
-      "tokens": [
-        {
-          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
-          "symbol": "VVV",
-          "name": "Venice Token",
-          "decimals": 18
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
-          "decimals": 18
-        },
-        {
-          "address": "0xF4d97F2da56e8c3098f3a8D538DB630A2606a024",
-          "symbol": "DIEM",
-          "name": "Diem",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "1793555416953319",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707742,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792204831,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Agent Twin Graft",
-      "symbol": "gtAGT",
-      "tokens": [
-        {
-          "address": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
-          "symbol": "VIRTUAL",
-          "name": "Virtual Protocol",
-          "decimals": 18
-        },
-        {
-          "address": "0x7431aDa8a591C955a994a21710752EF9b882b8e3",
-          "symbol": "MOR",
-          "name": "MOR",
-          "decimals": 18
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "93343407688403415",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0x98443d8704112d166c89d800e4264318db38e05a",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707792,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792204931,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Ether Twin Graft",
-      "symbol": "gtETH",
-      "tokens": [
-        {
-          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
-          "symbol": "cbETH",
-          "name": "Coinbase Wrapped Staked ETH",
-          "decimals": 18
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
-          "decimals": 18
-        },
-        {
-          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
-          "symbol": "wstETH",
-          "name": "Wrapped liquid staked Ether 2.0",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "185966298626682",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0x10aa6c92b997f05cae68f1698a47b1ead7d2edd6",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707792,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792204931,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "Bitcoin Twin Graft",
-      "symbol": "gtBTC",
-      "tokens": [
-        {
-          "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
-          "symbol": "tBTC",
-          "name": "Base tBTC v2",
-          "decimals": 18
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
-          "decimals": 18
-        },
-        {
-          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-          "symbol": "cbBTC",
-          "name": "Coinbase Wrapped BTC",
-          "decimals": 8
-        }
-      ],
-      "totalSupply": "13494103140943",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707813,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792204973,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "FX Twin Graft",
-      "symbol": "gtFX",
-      "tokens": [
-        {
-          "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
-          "symbol": "EURC",
-          "name": "EURC",
-          "decimals": 6
-        },
-        {
-          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          "symbol": "USDC",
-          "name": "USD Coin",
-          "decimals": 6
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "105127125624769554",
-      "hook": null,
-      "tags": []
-    },
-    {
-      "address": "0x73a1fc96827b43898cb3deb5a345b55b8467fb6d",
-      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
-      "blockNumber": 52707813,
-      "type": "RECLAMM",
-      "blockTimestamp": 1792204973,
-      "swapFee": "0.003",
-      "holdersCount": 1,
-      "name": "NUT/SALT reCLAMM",
-      "symbol": "nutSALT-rCLP",
-      "tokens": [
-        {
-          "address": "0x1EDe2AFC985F6D7aEb3F4c84B95A103c00D5dE81",
-          "symbol": "SALT",
-          "name": "SALT",
-          "decimals": 18
-        },
-        {
-          "address": "0xb8DE15Fb529d98C93C749De63c749D48D25A30DF",
-          "symbol": "NUT",
-          "name": "BASED NUT",
-          "decimals": 18
-        }
-      ],
-      "totalSupply": "641291499607955645076",
-      "hook": null,
-      "tags": []
+      "totalSupply": "520223807421713174"
     },
     {
       "address": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
       "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
       "blockNumber": 52707828,
       "type": "RECLAMM",
+      "name": "PIPS/USDC reCLAMM",
+      "symbol": "pipsUSDC-rCLP",
       "blockTimestamp": 1792205003,
       "swapFee": "0.01",
       "holdersCount": 1,
-      "name": "PIPS/USDC reCLAMM",
-      "symbol": "pipsUSDC-rCLP",
+      "hook": null,
+      "tags": [],
       "tokens": [
         {
           "address": "0x3F2327221Dd4f0BAE660172606D6b288A1cf8aD9",
@@ -687,43 +695,35 @@
           "decimals": 6
         }
       ],
-      "totalSupply": "251450761831912198249218056",
-      "hook": null,
-      "tags": []
+      "totalSupply": "251450761831912198249218056"
     },
     {
-      "address": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
-      "factory": "0x9a5bd368c8da0d7fad33fc89b6be4e39e5a33f92",
-      "blockNumber": 52707828,
-      "type": "WEIGHTED",
-      "blockTimestamp": 1792205003,
+      "address": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "factory": "0x730bf6af759e9e74aa6f9f0950e233df974d1859",
+      "blockNumber": 53118288,
+      "type": "RECLAMM",
+      "name": "Terra Preta Topsoil",
+      "symbol": "tsPRETA",
+      "blockTimestamp": 1793025923,
       "swapFee": "0.003",
       "holdersCount": 1,
-      "name": "Silicon Twin Graft",
-      "symbol": "gtSIL",
+      "hook": null,
+      "tags": ["BOOSTED"],
       "tokens": [
         {
-          "address": "0xb20000000000000000000078ee7ce2fE4908108C",
-          "symbol": "NVDAc",
-          "name": "NVIDIA Corporation",
-          "decimals": 8
-        },
-        {
-          "address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
-          "symbol": "AAPLc",
-          "name": "Apple Inc.",
-          "decimals": 8
-        },
-        {
-          "address": "0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3",
-          "symbol": "wNUT",
-          "name": "Wrapped NUT",
+          "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+          "symbol": "cbETH",
+          "name": "Coinbase Wrapped Staked ETH",
           "decimals": 18
+        },
+        {
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8
         }
       ],
-      "totalSupply": "1253412168013012",
-      "hook": null,
-      "tags": []
+      "totalSupply": "322771441786920"
     }
   ]
 }

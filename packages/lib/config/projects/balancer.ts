@@ -187,7 +187,14 @@ export const ProjectConfigBalancer: ProjectConfig = {
             isExternal: true,
           },
           { label: 'The Orchard', href: 'https://orchard.basednut.com', isExternal: true },
-          { label: 'Terminal (data)', href: '#' },
+          // W4: was '#'. The pinned Terminal target (orchard.basednut.com/terminal)
+          // returns 404, so it is deliberately NOT wired. The live orchard data
+          // surface is the Atlas instrument, verified 200 before wiring.
+          {
+            label: 'Terminal (data)',
+            href: 'https://orchard.basednut.com/atlas/data',
+            isExternal: true,
+          },
         ],
       },
       {
