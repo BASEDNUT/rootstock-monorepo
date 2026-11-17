@@ -232,7 +232,17 @@ export const ProjectConfigBalancer: ProjectConfig = {
             href: 'https://orchard.basednut.com/token/wnut',
             isExternal: true,
           },
-          { label: 'Analytics', href: '#' },
+          // W5/H2: was '#'. Analytics footer -> the LIVE Terminal data machine.
+          // Terminal is served from iris_terminal_host :9200; the public mouth is
+          // http://iris.basednut.com/terminal/ (200, 7,545,929B, ETag identical to
+          // loopback :9200/terminal/, verified 2026-11-17). HTTP ONLY: 443 on that
+          // host presents an expired self-signed akash-default-tls cert, so https://
+          // must not be used. Never link the bare /terminal — it 301s to :8090, closed.
+          {
+            label: 'Analytics',
+            href: 'http://iris.basednut.com/terminal/',
+            isExternal: true,
+          },
           {
             label: 'Brand assets',
             href: 'https://github.com/BASEDNUT',
