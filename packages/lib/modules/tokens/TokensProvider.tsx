@@ -33,6 +33,12 @@ import { fetchOnchainFactoryTokens } from '../primitives/onchain-factory-tokens'
 // onchain-only networks, so priceFor() starved every Rootstock token
 // (detail TVL $0.00, composition prices '—', LP price $0.00).
 import { fetchGtTokenPrices, mergeOnchainTokenPrices, GT_NETWORK_IDS } from './onchain-token-prices'
+// THIRD price tier (Boss cache doctrine 2026-11-17): the exporter bakes IRIS's
+// nut_token.price_usd plane into the registry. When the GT wall outlives the
+// 5-min session cache, this tier is the only thing standing between a priced
+// pool and a '—'. Lowest priority: live always wins.
+import bakedRegistryBase from '../pool/baked-pool-registry-base.json'
+import { getSeedTokenPrices, type SeedPricesBlock } from './seed-token-prices'
 import { PROJECT_CONFIG, toApiNetworks } from '@repo/lib/config/getProjectConfig'
 
 export type UseTokensResult = ReturnType<typeof useTokensLogic>
@@ -167,11 +173,53 @@ export function useTokensLogic() {
   )
 
   // API prices WIN; GT only fills onchain-only gaps (never overrides).
-  const mergedPrices = useMemo(() => {
+  const livePrices = useMemo(() => {
     if (gtPrices.length === 0) return prices
     const known = new Set(prices.map(p => `${p.chain}:${p.address.toLowerCase()}`))
     return [...prices, ...gtPrices.filter(p => !known.has(`${p.chain}:${p.address.toLowerCase()}`))]
   }, [prices, gtPrices])
+
+  // THIRD TIER (Boss cache doctrine 2026-11-17): the baked seed snapshot,
+  // applied ONLY where no live price resolved. The age cap is re-enforced at
+  // read time (a registry on disk only gets older), so a stale seed degrades
+  // to absent exactly like a missing one.
+  const seedPrices = useMemo(() => {
+    if (gtPriceAddresses.length === 0) return {} as Record<string, string>
+    return getSeedTokenPrices(
+      'BASE',
+      gtPriceAddresses,
+      (bakedRegistryBase as { seedPrices?: SeedPricesBlock }).seedPrices
+    )
+  }, [gtPriceAddresses])
+
+  // Addresses whose price came from the SEED tier — a consumer must be able to
+  // tell an understated seed-derived number from a live one instead of
+  // presenting a snapshot as a quote.
+  const seedDerivedAddresses = useMemo(() => {
+    const live = new Set(livePrices.map(p => `${p.chain}:${p.address.toLowerCase()}`))
+
+    return Object.keys(seedPrices).filter(address => !live.has(`BASE:${address.toLowerCase()}`))
+  }, [livePrices, seedPrices])
+
+  const mergedPrices = useMemo(() => {
+    const seedEntries = Object.entries(seedPrices)
+
+    if (seedEntries.length === 0) return livePrices
+
+    const known = new Set(livePrices.map(p => `${p.chain}:${p.address.toLowerCase()}`))
+
+    const seeded = seedEntries
+      .filter(([address]) => !known.has(`BASE:${address.toLowerCase()}`))
+      .map(([address, price]) => ({
+        __typename: 'GqlTokenPrice' as const,
+        address: address.toLowerCase(),
+        chain: 'BASE' as GqlChain,
+        price: Number(price),
+        updatedAt: Math.floor(Date.now() / 1000),
+      }))
+
+    return seeded.length === 0 ? livePrices : [...livePrices, ...seeded]
+  }, [livePrices, seedPrices])
 
   const getToken = (address: string, chain: GqlChain | number): ApiToken | undefined => {
     const chainKey = typeof chain === 'number' ? 'chainId' : 'chain'
@@ -265,6 +313,10 @@ export function useTokensLogic() {
     getNativeAssetToken,
     getWrappedNativeAssetToken,
     priceFor,
+    // THIRD-TIER provenance: addresses whose price resolved from the baked seed
+    // snapshot rather than a live observation. A consumer showing a
+    // seed-derived TVL can label it instead of presenting a snapshot as a quote.
+    seedDerivedAddresses,
     getTokensByChain,
     usdValueForToken,
     usdValueForTokenAddress,
