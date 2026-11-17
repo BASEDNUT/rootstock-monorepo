@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /*
  * B2a (live-caught 2026-10-21): onchain-only networks are excluded from
@@ -14,7 +14,12 @@ vi.mock('viem', async importOriginal => {
   return { ...actual }
 })
 
-import { mergeOnchainTokenPrices, GT_NETWORK_IDS } from './onchain-token-prices'
+import {
+  mergeOnchainTokenPrices,
+  GT_NETWORK_IDS,
+  GT_PRICE_CACHE_TTL_MS,
+  resetGtTokenPriceCacheForTests,
+} from './onchain-token-prices'
 
 describe('mergeOnchainTokenPrices — GT price layer for onchain-only chains', () => {
   const BASE = 'BASE' as const
@@ -87,6 +92,11 @@ describe('mergeOnchainTokenPrices — GT price layer for onchain-only chains', (
 describe('fetchGtTokenPrices — GT multi-price fetch (B2a)', () => {
   const BASE = 'BASE' as const
   const USDC = '0x833589fcd5edb6e6fa2cab1b97bad1b63f34e4d1'
+  const WETH = '0x4200000000000000000000000000000000000006'
+
+  // The last-good cache is module state: without a reset, an earlier test's
+  // observation would leak into the wall tests below and mask a regression.
+  beforeEach(() => resetGtTokenPriceCacheForTests())
 
   it('returns lowercase address → price-string map on 200', async () => {
     const fakeFetch = vi.fn(async () => ({
@@ -165,5 +175,125 @@ describe('fetchGtTokenPrices — GT multi-price fetch (B2a)', () => {
     vi.unstubAllGlobals()
     expect(await fetchGtTokenPrices('BASESEPOLIA' as never, [USDC], fast)).toEqual({})
     expect(await fetchGtTokenPrices(BASE, [], fast)).toEqual({})
+  })
+
+  /*
+   * Last-good cache (live-caught 2026-11-17). GT walls the 24-address multi
+   * call for LONGER than the 23s retry budget and keeps flapping 429/200 past
+   * t=115s (probed: 200 x5, then 429 from call 6). An exhausted budget used to
+   * return {} and the caller recorded an EMPTY SUCCESS, blanking a window that
+   * had been priced seconds earlier. A cached price is a REAL observation with
+   * a timestamp: served inside the TTL, never beyond, never fabricated.
+   */
+  it('a quota wall after a good observation serves the last-good price', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: [{ attributes: { address: USDC, price_usd: '0.9982' } }] }),
+      }))
+    )
+
+    const good = await fetchGtTokenPrices(BASE, [USDC], { now: 1_000_000 })
+    expect(good[USDC]).toBe('0.9982')
+
+    // Now the wall: every attempt 429.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 429, json: async () => ({}) }))
+    )
+
+    const walled = await fetchGtTokenPrices(BASE, [USDC], {
+      now: 1_000_000 + 1_000,
+      retryDelaysMs: [0],
+    })
+
+    expect(walled[USDC]).toBe('0.9982')
+    vi.unstubAllGlobals()
+  })
+
+  it('the cached observation expires past the TTL — never served beyond it', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: [{ attributes: { address: USDC, price_usd: '1.5' } }] }),
+      }))
+    )
+
+    await fetchGtTokenPrices(BASE, [USDC], { now: 2_000_000 })
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 429, json: async () => ({}) }))
+    )
+
+    const expired = await fetchGtTokenPrices(BASE, [USDC], {
+      now: 2_000_000 + GT_PRICE_CACHE_TTL_MS + 1,
+      retryDelaysMs: [0],
+    })
+
+    expect(expired).toEqual({})
+    vi.unstubAllGlobals()
+  })
+
+  it('a fresh observation always beats the cache', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+    let call = 0
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        call += 1
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: [{ attributes: { address: USDC, price_usd: call === 1 ? '1.0' : '2.0' } }],
+          }),
+        }
+      })
+    )
+
+    const first = await fetchGtTokenPrices(BASE, [USDC], { now: 3_000_000 })
+    expect(first[USDC]).toBe('1.0')
+
+    const second = await fetchGtTokenPrices(BASE, [USDC], { now: 3_000_000 + 1_000 })
+    expect(second[USDC]).toBe('2.0')
+    vi.unstubAllGlobals()
+  })
+
+  it('a later 200 that drops a token does not erase the cached one', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+    let call = 0
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        call += 1
+
+        const data =
+          call === 1
+            ? [
+                { attributes: { address: USDC, price_usd: '1.0' } },
+                { attributes: { address: WETH, price_usd: '2425.47' } },
+              ]
+            : [{ attributes: { address: USDC, price_usd: '1.0' } }]
+
+        return { ok: true, status: 200, json: async () => ({ data }) }
+      })
+    )
+
+    await fetchGtTokenPrices(BASE, [USDC, WETH], { now: 4_000_000 })
+    const second = await fetchGtTokenPrices(BASE, [USDC, WETH], { now: 4_000_000 + 1_000 })
+    expect(second[USDC]).toBe('1.0')
+    expect(second[WETH]).toBe('2425.47')
+    vi.unstubAllGlobals()
   })
 })

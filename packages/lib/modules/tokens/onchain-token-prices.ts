@@ -60,9 +60,47 @@ export function mergeOnchainTokenPrices(
  */
 const DEFAULT_RETRY_DELAYS_MS = [2_000, 6_000, 15_000]
 
+/**
+ * How long a real observation may be served while the source is failing.
+ * SAME window as onchain-price-source.ts (same upstream wall, same quota).
+ *
+ * Live-caught 2026-11-17: GT walls the multi call for LONGER than the 23s
+ * retry budget (2+6+15) and keeps flapping 429/200 past t=115s. An exhausted
+ * budget therefore returned {} and the caller recorded an EMPTY SUCCESS —
+ * the priced window went blank even though real prices had been observed
+ * seconds earlier. A cached price is a real observation with a timestamp:
+ * serve it inside the TTL, never beyond, never fabricated.
+ */
+export const GT_PRICE_CACHE_TTL_MS = 5 * 60_000
+
+type GtCacheEntry = { price: string; at: number }
+
+/** chain → address → last real observation. */
+const gtPriceCache = new Map<string, Map<string, GtCacheEntry>>()
+
+/** Test hook: drop every cached observation. */
+export function resetGtTokenPriceCacheForTests(): void {
+  gtPriceCache.clear()
+}
+
+function cacheFor(chain: GqlChain): Map<string, GtCacheEntry> {
+  let m = gtPriceCache.get(chain)
+
+  if (!m) {
+    m = new Map()
+    gtPriceCache.set(chain, m)
+  }
+
+  return m
+}
+
 export interface FetchGtTokenPricesOptions {
   /** Override the retry backoff (tests pass zeros). */
   retryDelaysMs?: number[]
+  /** Injectable clock (epoch ms) — tests need deterministic TTL math. */
+  now?: number
+  /** Override the cache TTL. */
+  ttlMs?: number
 }
 
 /** 429 and 5xx are transient walls worth a retry; 4xx is not. */
@@ -88,11 +126,16 @@ export async function fetchGtTokenPrices(
   const network = GT_NETWORK_IDS[chain]
   if (!network || addresses.length === 0) return {}
 
-  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/multi/${addresses
-    .map(a => a.toLowerCase())
-    .join(',')}`
-
+  const now = options.now ?? Date.now()
   const delays = options.retryDelaysMs ?? DEFAULT_RETRY_DELAYS_MS
+  const ttl = options.ttlMs ?? GT_PRICE_CACHE_TTL_MS
+  const wanted = addresses.map(a => a.toLowerCase())
+
+  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/multi/${wanted.join(
+    ','
+  )}`
+
+  let fresh: Record<string, string> | null = null
 
   for (let attempt = 0; ; attempt++) {
     try {
@@ -104,24 +147,29 @@ export async function fetchGtTokenPrices(
           continue
         }
 
-        return {}
+        break
       }
 
       const json = (await res.json()) as {
         data?: { attributes: { address: string; price_usd?: string } }[]
       }
 
-      const out: Record<string, string> = {}
+      fresh = {}
+      const cache = cacheFor(chain)
 
       for (const token of json.data || []) {
         const usd = token.attributes?.price_usd
+        const address = token.attributes?.address?.toLowerCase()
+
+        if (!address) continue
 
         if (typeof usd === 'string' && usd.length > 0) {
-          out[token.attributes.address.toLowerCase()] = usd
+          fresh[address] = usd
+          cache.set(address, { price: usd, at: now })
         }
       }
 
-      return out
+      break
     } catch {
       // Network-level failure: same bounded budget as a retryable status.
       if (attempt < delays.length) {
@@ -129,7 +177,27 @@ export async function fetchGtTokenPrices(
         continue
       }
 
-      return {}
+      break
     }
   }
+
+  // Merge: a fresh observation wins; a still-fresh cache fills the gaps so a
+  // quota wall cannot blank a window that was priced moments ago.
+  const cache = cacheFor(chain)
+  const out: Record<string, string> = {}
+
+  for (const address of wanted) {
+    const freshPrice = fresh?.[address]
+
+    if (freshPrice !== undefined) {
+      out[address] = freshPrice
+      continue
+    }
+
+    const cached = cache.get(address)
+
+    if (cached && now - cached.at <= ttl) out[address] = cached.price
+  }
+
+  return out
 }

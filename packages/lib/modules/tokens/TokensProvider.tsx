@@ -138,6 +138,11 @@ export function useTokensLogic() {
     ]
   }, [tokensData, onchainPoolTokens, factoryTokens])
 
+  // staleTime alone NEVER refetches: an empty result (quota wall) used to be
+  // recorded as a SUCCESS and pinned for the whole window, so the priced map
+  // stayed blank until a remount (live-caught 2026-11-17). refetchInterval is
+  // what makes the blank self-heal; retry:false keeps react-query from
+  // stacking its own retries on the bounded backoff inside the fetch.
   const gtPricesQueries = useReactQueries({
     queries: (Object.keys(GT_NETWORK_IDS) as GqlChain[]).map(chain => ({
       queryKey: ['onchain-gt-prices', chain, gtPriceAddresses.join(',')],
@@ -147,6 +152,8 @@ export function useTokensLogic() {
       },
       enabled: gtPriceAddresses.length > 0,
       staleTime: 60_000,
+      refetchInterval: mins(1).toMs(),
+      retry: false,
     })),
   })
 
