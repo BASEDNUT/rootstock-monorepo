@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 /*
  * B2a (live-caught 2026-10-21): onchain-only networks are excluded from
@@ -20,7 +20,16 @@ describe('mergeOnchainTokenPrices — GT price layer for onchain-only chains', (
   const BASE = 'BASE' as const
 
   it('GT prices merge into the API price list as GqlTokenPrice-shaped entries', () => {
-    const apiPrices = [{ __typename: 'GqlTokenPrice' as const, price: 2, address: '0xaaa', chain: 'MAINNET' as const, updatedAt: 1 }]
+    const apiPrices = [
+      {
+        __typename: 'GqlTokenPrice' as const,
+        price: 2,
+        address: '0xaaa',
+        chain: 'MAINNET' as const,
+        updatedAt: 1,
+      },
+    ]
+
     const gtPrices = { '0xbbb': '1.5', '0xccc': '0.25' }
     const out = mergeOnchainTokenPrices(apiPrices, gtPrices, BASE)
     expect(out).toHaveLength(3)
@@ -31,7 +40,16 @@ describe('mergeOnchainTokenPrices — GT price layer for onchain-only chains', (
   })
 
   it('API prices WIN over GT (API remains the source of truth where it serves)', () => {
-    const apiPrices = [{ __typename: 'GqlTokenPrice' as const, price: 2, address: '0xaaa', chain: BASE, updatedAt: 1 }]
+    const apiPrices = [
+      {
+        __typename: 'GqlTokenPrice' as const,
+        price: 2,
+        address: '0xaaa',
+        chain: BASE,
+        updatedAt: 1,
+      },
+    ]
+
     const gtPrices = { '0xaaa': '9.9' }
     const out = mergeOnchainTokenPrices(apiPrices, gtPrices, BASE)
     const aaa = out.find(p => p.address === '0xaaa')
@@ -46,7 +64,16 @@ describe('mergeOnchainTokenPrices — GT price layer for onchain-only chains', (
   })
 
   it('empty inputs → API prices unchanged', () => {
-    const apiPrices = [{ __typename: 'GqlTokenPrice' as const, price: 2, address: '0xaaa', chain: BASE, updatedAt: 1 }]
+    const apiPrices = [
+      {
+        __typename: 'GqlTokenPrice' as const,
+        price: 2,
+        address: '0xaaa',
+        chain: BASE,
+        updatedAt: 1,
+      },
+    ]
+
     const out = mergeOnchainTokenPrices(apiPrices, {}, BASE)
     expect(out).toEqual(apiPrices)
   })
@@ -66,6 +93,7 @@ describe('fetchGtTokenPrices — GT multi-price fetch (B2a)', () => {
       ok: true,
       json: async () => ({ data: [{ attributes: { address: USDC, price_usd: '0.9982' } }] }),
     }))
+
     vi.stubGlobal('fetch', fakeFetch)
     const { fetchGtTokenPrices } = await import('./onchain-token-prices')
     const out = await fetchGtTokenPrices(BASE, [USDC])
@@ -74,14 +102,68 @@ describe('fetchGtTokenPrices — GT multi-price fetch (B2a)', () => {
     vi.unstubAllGlobals()
   })
 
+  it('429 is retried with backoff, then succeeds (live-probed GT wall)', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+    let calls = 0
+
+    const fakeFetch = vi.fn(async () => {
+      calls += 1
+      if (calls === 1) return { ok: false, status: 429, json: async () => ({}) }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ data: [{ attributes: { address: USDC, price_usd: '0.9982' } }] }),
+      }
+    })
+
+    vi.stubGlobal('fetch', fakeFetch)
+    const out = await fetchGtTokenPrices(BASE, [USDC], { retryDelaysMs: [0, 0, 0] })
+    expect(out[USDC]).toBe('0.9982')
+    expect(fakeFetch).toHaveBeenCalledTimes(2)
+    vi.unstubAllGlobals()
+  })
+
+  it('retry budget is bounded — a persistent wall still resolves {}', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+    const fakeFetch = vi.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }))
+    vi.stubGlobal('fetch', fakeFetch)
+    const out = await fetchGtTokenPrices(BASE, [USDC], { retryDelaysMs: [0, 0] })
+    expect(out).toEqual({})
+    expect(fakeFetch).toHaveBeenCalledTimes(3)
+    vi.unstubAllGlobals()
+  })
+
+  it('4xx is NOT retried (a client error is final)', async () => {
+    const { fetchGtTokenPrices } = await import('./onchain-token-prices')
+    const fakeFetch = vi.fn(async () => ({ ok: false, status: 400, json: async () => ({}) }))
+    vi.stubGlobal('fetch', fakeFetch)
+    await fetchGtTokenPrices(BASE, [USDC], { retryDelaysMs: [0, 0] })
+    expect(fakeFetch).toHaveBeenCalledTimes(1)
+    vi.unstubAllGlobals()
+  })
+
   it('non-ok / throw / empty-chain → {} (never fabricate)', async () => {
     const { fetchGtTokenPrices } = await import('./onchain-token-prices')
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, json: async () => ({}) })))
-    expect(await fetchGtTokenPrices(BASE, [USDC])).toEqual({})
-    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('net') }))
-    expect(await fetchGtTokenPrices(BASE, [USDC])).toEqual({})
+    // Zero backoff: this asserts the OUTCOME of an exhausted budget, not timing.
+    const fast = { retryDelaysMs: [0, 0, 0] }
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) }))
+    )
+
+    expect(await fetchGtTokenPrices(BASE, [USDC], fast)).toEqual({})
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('net')
+      })
+    )
+
+    expect(await fetchGtTokenPrices(BASE, [USDC], fast)).toEqual({})
     vi.unstubAllGlobals()
-    expect(await fetchGtTokenPrices('BASESEPOLIA' as never, [USDC])).toEqual({})
-    expect(await fetchGtTokenPrices(BASE, [])).toEqual({})
+    expect(await fetchGtTokenPrices('BASESEPOLIA' as never, [USDC], fast)).toEqual({})
+    expect(await fetchGtTokenPrices(BASE, [], fast)).toEqual({})
   })
 })

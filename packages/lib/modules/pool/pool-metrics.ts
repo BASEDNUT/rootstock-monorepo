@@ -185,6 +185,58 @@ export function sortOnchainPools<
   })
 }
 
+/**
+ * Pool-detail TVL display state.
+ *
+ * The detail "Total liquidity" block computes TVL as a price-weighted sum,
+ * so an UNRESOLVED price layer and a REAL zero both arrive as the string
+ * '0'. Rendering '0' unconditionally is what produced the live-caught $0.00
+ * (2026-11-17): the failure was binary — instant fabricated zero or nothing
+ * at all for the whole observation window.
+ *
+ * States:
+ * - 'pending'     price layer still loading — skeleton, never a number
+ * - 'unavailable' nothing priceable — em-dash, never a fabricated zero
+ * - 'zero'        every token priced and the sum really is 0 — render $0.00
+ * - 'value'       a real (possibly understated) number
+ */
+export type PoolTvlDisplayState = 'pending' | 'unavailable' | 'zero' | 'value'
+
+export interface PoolTvlDisplayInput {
+  /** Price-weighted composition sum; null/undefined when absent. */
+  totalLiquidity: string | null | undefined
+  /** Composition tokens considered for the sum. */
+  tokenCount: number
+  /** Composition tokens with no resolvable price. */
+  unpricedTokenCount: number
+  /** Token-price layer query state. */
+  isLoadingPrices: boolean
+}
+
+export function resolvePoolTvlDisplay(input: PoolTvlDisplayInput): {
+  state: PoolTvlDisplayState
+} {
+  const { totalLiquidity, tokenCount, unpricedTokenCount, isLoadingPrices } = input
+
+  // Prices not back yet: any number shown here would be a fabrication.
+  if (isLoadingPrices) return { state: 'pending' }
+
+  // Nothing to price, or no token could be priced at all: the sum is
+  // structurally incapable of expressing value.
+  if (tokenCount <= 0) return { state: 'unavailable' }
+  if (unpricedTokenCount >= tokenCount) return { state: 'unavailable' }
+
+  if (totalLiquidity === null || totalLiquidity === undefined || totalLiquidity === '') {
+    return { state: 'unavailable' }
+  }
+
+  const value = Number(totalLiquidity)
+  if (!Number.isFinite(value) || value < 0) return { state: 'unavailable' }
+  if (value === 0) return { state: 'zero' }
+
+  return { state: 'value' }
+}
+
 /** Total APR = sum of aprItems; null when there are no items. */
 export function totalApr(items: { apr: number }[] | undefined | null): number | null {
   if (!items || items.length === 0) return null

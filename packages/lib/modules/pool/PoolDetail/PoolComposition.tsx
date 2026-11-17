@@ -33,6 +33,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { PoolCompositionChart } from './PoolCompositionChart'
 import { PoolTotalLiquidityDisplay } from './PoolTotalLiquidityDisplay'
 import { formatStringsToSentenceList } from '../usePoolTokenPriceWarnings'
+import { resolvePoolTvlDisplay, UNAVAILABLE_METRIC_DISPLAY } from '../pool-metrics'
 
 type CardContentProps = {
   totalLiquidity: string
@@ -44,7 +45,7 @@ type CardContentProps = {
 function CardContent({ totalLiquidity, poolTokens, chain, pool }: CardContentProps) {
   const { toCurrency } = useCurrency()
   const { poolTokensWithActualWeights } = useGetPoolTokensWithActualWeights(pool)
-  const { priceFor } = useTokens()
+  const { priceFor, isLoadingTokenPrices } = useTokens()
   const isSeedlessLBP = isDynamicLBP(pool) && pool.isSeedless
   let virtualAmount = '0'
 
@@ -58,6 +59,16 @@ function CardContent({ totalLiquidity, poolTokens, chain, pool }: CardContentPro
         : '0'
   }
 
+  // UNRESOLVED vs REAL zero (live-caught 2026-11-17): the price-weighted sum
+  // arrives as '0' both when the pool is genuinely empty and when the price
+  // layer has not resolved. Only the second case must never render $0.00.
+  const tvlDisplay = resolvePoolTvlDisplay({
+    totalLiquidity,
+    tokenCount: poolTokens.length,
+    unpricedTokenCount: poolTokens.filter(token => !priceFor(token.address, chain)).length,
+    isLoadingPrices: isLoadingTokenPrices,
+  })
+
   return (
     <VStack spacing="md" width="full">
       <HStack justifyContent="space-between" width="full">
@@ -67,15 +78,19 @@ function CardContent({ totalLiquidity, poolTokens, chain, pool }: CardContentPro
           </Heading>
         </VStack>
         <VStack alignItems="flex-end">
-          {totalLiquidity ? (
+          {tvlDisplay.state === 'pending' ? (
+            <Skeleton height="24px" w="75px" />
+          ) : tvlDisplay.state === 'unavailable' ? (
+            <Heading color="font.secondary" size="h5">
+              {UNAVAILABLE_METRIC_DISPLAY}
+            </Heading>
+          ) : (
             <PoolTotalLiquidityDisplay
               size="h5"
-              totalLiquidity={toCurrency(bn(totalLiquidity).plus(virtualAmount), {
+              totalLiquidity={toCurrency(bn(totalLiquidity || 0).plus(virtualAmount), {
                 abbreviated: false,
               })}
             />
-          ) : (
-            <Skeleton height="24px" w="75px" />
           )}
         </VStack>
       </HStack>
