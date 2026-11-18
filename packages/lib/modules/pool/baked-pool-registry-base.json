@@ -2,7 +2,7 @@
   "version": 1,
   "chain": "BASE",
   "chainId": 8453,
-  "generatedAt": "2026-11-17T22:01:45.416Z",
+  "generatedAt": "2026-11-18T17:24:46.712Z",
   "fromBlock": 52131550,
   "pools": [
     {
@@ -342,7 +342,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
@@ -488,7 +490,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -550,7 +554,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -612,7 +618,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0x4200000000000000000000000000000000000006",
@@ -640,7 +648,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -708,7 +718,9 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": ["BOOSTED"],
+      "tags": [
+        "BOOSTED"
+      ],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -733,224 +745,132 @@
     "maxAgeSeconds": 3600,
     "count": {
       "tokens": 24,
-      "priced": 10,
-      "unpriced": 14,
-      "stale": 13
+      "priced": 24,
+      "unpriced": 0,
+      "stale": 0
     },
     "tokens": {
       "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
-        "price_usd": 0.442,
+        "price_usd": 0.4295,
         "source": "dexscreener-market",
-        "cached_at": 1794951982.1145196
+        "cached_at": 1795022512.599874
       },
       "0x1ede2afc985f6d7aeb3f4c84b95a103c00d5de81": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 2.02154953e-05,
+        "source": "geckoterminal",
+        "cached_at": 1795022343.2595198
       },
       "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b": {
-        "price_usd": 63819.96,
+        "price_usd": 62277.92,
         "source": "dexscreener-market",
-        "cached_at": 1794951981.3260598
+        "cached_at": 1795022511.5527546
       },
       "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22": {
-        "price_usd": 2075.93,
+        "price_usd": 2001.036,
         "source": "dexscreener-market",
-        "cached_at": 1794951965.362954
+        "cached_at": 1795022488.6079948
       },
       "0x36d9a3a8261f22746ac3874d4604b7d767d238a6": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 40827.96000000093,
+        "source": "reserve-derived:kcore",
+        "cached_at": 1795022493.8492694
       },
       "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 4.591e-06,
+        "source": "dexscreener-verified",
+        "cached_at": 1795022501.5686543
       },
       "0x4200000000000000000000000000000000000006": {
-        "price_usd": 1810.64,
+        "price_usd": 1756.9,
         "source": "dexscreener-market",
-        "cached_at": 1794951984.553431
+        "cached_at": 1795022514.8561068
       },
       "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 1.097,
+        "source": "dexscreener-market",
+        "cached_at": 1795022492.2394996
       },
       "0x7431ada8a591c955a994a21710752ef9b882b8e3": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 0.6809,
+        "source": "dexscreener-market",
+        "cached_at": 1795022495.046654
       },
       "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 1.0,
+        "source": "stable-fallback",
+        "cached_at": 1795022511.553145
       },
       "0x877014e21c32fea108b6a1f45f367efc9a2d9b9f": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 0.9926200063999999,
+        "source": "dexscreener-market+geckoterminal",
+        "cached_at": 1795022471.138333
       },
       "0xac130701aa31c284c36609e2489f150f419ad7ad": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 0.05107229795,
+        "source": "geckoterminal",
+        "cached_at": 1795022344.9190214
       },
       "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf": {
-        "price_usd": 20.48,
+        "price_usd": 20.82,
         "source": "dexscreener-market",
-        "cached_at": 1794951982.8607066
+        "cached_at": 1795022513.8106842
       },
       "0xb20000000000000000000078ee7ce2fe4908108c": {
-        "price_usd": 158.46,
+        "price_usd": 152.42,
         "source": "dexscreener-market",
-        "cached_at": 1794951972.7102697
+        "cached_at": 1795022500.066542
       },
       "0xb200000000000000000000c2e324d24d7eecd1fb": {
-        "price_usd": 350.96600462495,
+        "price_usd": 352.20686375549997,
         "source": "dexscreener-market+geckoterminal",
-        "cached_at": 1794951959.8637338
+        "cached_at": 1795022466.6531646
       },
       "0xb79dd08ea68a908a97220c76d19a6aa9cbde4376": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 1.0,
+        "source": "stable-fallback",
+        "cached_at": 1795022511.5529697
       },
       "0xb8de15fb529d98c93c749de63c749d48d25a30df": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 20413.98,
+        "source": "dexscreener-verified",
+        "cached_at": 1795022497.5612144
       },
       "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 20413.98,
+        "source": "wrapper:nut-1:1",
+        "cached_at": 1795022514.8563354
       },
       "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 2270.83,
+        "source": "dexscreener-market",
+        "cached_at": 1795022516.2184098
       },
       "0xc768c589647798a6ee01a91fde98ef2ed046dbd6": {
-        "price_usd": 1.154574024869,
+        "price_usd": 1.15472604978,
         "source": "on-chain:ERC4626 totalAssets/totalSupply (vault 0xc768c589647798a6ee01a91fde98ef2ed046dbd6)",
-        "cached_at": 1794951996.7727582
+        "cached_at": 1795022528.7548485
       },
       "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": {
-        "price_usd": 64432.3895527607,
+        "price_usd": 62622.188775879345,
         "source": "dexscreener-market+geckoterminal",
-        "cached_at": 1794951964.5651376
+        "cached_at": 1795022472.4664226
       },
       "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 1.0,
+        "source": "stable-fallback",
+        "cached_at": 1795022507.949985
       },
       "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92": {
-        "price_usd": null,
-        "source": null,
-        "cached_at": null
+        "price_usd": 2.696e-06,
+        "source": "dexscreener-market",
+        "cached_at": 1795022489.8324885
       },
       "0xf4d97f2da56e8c3098f3a8d538db630a2606a024": {
-        "price_usd": 1686.98,
+        "price_usd": 1728.85,
         "source": "dexscreener-market",
-        "cached_at": 1794951967.223327
+        "cached_at": 1795022491.0245173
       }
     },
-    "excluded": [
-      {
-        "address": "0x1ede2afc985f6d7aeb3f4c84b95a103c00d5de81",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.893,
-        "price_usd": 2.02154953e-5,
-        "source": "geckoterminal"
-      },
-      {
-        "address": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 193783.551,
-        "price_usd": 4.646030247e-6,
-        "source": "geckoterminal"
-      },
-      {
-        "address": "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 16697.984,
-        "price_usd": 1.1,
-        "source": "dexscreener-market"
-      },
-      {
-        "address": "0x7431ada8a591c955a994a21710752ef9b882b8e3",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 3716.319,
-        "price_usd": 0.7145,
-        "source": "dexscreener-market"
-      },
-      {
-        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.892,
-        "price_usd": 1.0,
-        "source": "stable-fallback"
-      },
-      {
-        "address": "0x877014e21c32fea108b6a1f45f367efc9a2d9b9f",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 5577.408,
-        "price_usd": 0.9908862049,
-        "source": "dexscreener-market+geckoterminal"
-      },
-      {
-        "address": "0xac130701aa31c284c36609e2489f150f419ad7ad",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.894,
-        "price_usd": 0.05107229795,
-        "source": "geckoterminal"
-      },
-      {
-        "address": "0xb79dd08ea68a908a97220c76d19a6aa9cbde4376",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.89,
-        "price_usd": 1.0,
-        "source": "stable-fallback"
-      },
-      {
-        "address": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.896,
-        "price_usd": 20136.039,
-        "source": "dexscreener-verified"
-      },
-      {
-        "address": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 15754.593,
-        "price_usd": 20136.039,
-        "source": "wrapper:nut-1:1"
-      },
-      {
-        "address": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 12045.107,
-        "price_usd": 2256.4,
-        "source": "dexscreener-market"
-      },
-      {
-        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.89,
-        "price_usd": 1.0,
-        "source": "stable-fallback"
-      },
-      {
-        "address": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
-        "reason": "stale-beyond-1h",
-        "age_seconds": 10428.89,
-        "price_usd": 2.787e-6,
-        "source": "dexscreener-market"
-      }
-    ]
+    "excluded": []
   }
 }
