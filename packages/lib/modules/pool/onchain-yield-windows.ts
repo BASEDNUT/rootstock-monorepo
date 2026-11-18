@@ -43,6 +43,16 @@ const DAY_MS = 86_400_000
  */
 const COVERAGE_GRACE_MS = 48 * HOUR
 
+/**
+ * Boss fresh-data doctrine (2026-11-17) — the HARD CEILING for presenting
+ * volume/fees as current. Distinct from COVERAGE_GRACE_MS, which governs
+ * whether a window may be CLAIMED. Past this age the opt-in display gate
+ * turns the sums into an em-dash: a stale-anchored absence is not a
+ * measurement and must never print as a confident $0.00. The bake cadence is
+ * the daily floor, so 48h is the ceiling.
+ */
+export const VOLUME_MAX_AGE_MS = 48 * HOUR
+
 export interface YieldWindowMetrics {
   /** Sum of priced in-window swap fees, USD. Null when a token is unpriced. */
   feesUsd: number | null
@@ -84,6 +94,7 @@ function windowMetrics({
   windowDays,
   protocolCutBps,
   covered,
+  volumeGated = false,
 }: {
   buckets: YieldBucket[]
   pool: string
@@ -98,6 +109,8 @@ function windowMetrics({
   windowDays: number | null
   protocolCutBps: number
   covered: boolean
+  /** Boss doctrine: the sums are not current -> null (em-dash), never 0. */
+  volumeGated?: boolean
 }): YieldWindowMetrics {
   const poolKey = pool.toLowerCase()
   let fees = 0
@@ -120,8 +133,11 @@ function windowMetrics({
     volume += (Number(BigInt(b.amountInRaw)) / 10 ** dec) * price
   }
 
-  const feesUsd = priced ? fees : null
-  const volumeUsd = priced ? volume : null
+  // Boss doctrine gate: a stale ledger's sums are understated HISTORY, not
+  // current volume — dash them rather than present them as measured.
+  const sumsUsable = priced && !volumeGated
+  const feesUsd = sumsUsable ? fees : null
+  const volumeUsd = sumsUsable ? volume : null
 
   const windowHours = windowDays === null ? 0 : Math.round(windowDays * 24)
 
@@ -157,6 +173,7 @@ export function computeYieldWindows({
   coverage,
   poolCreateTimeMs,
   protocolCutBps = 0,
+  maxVolumeAgeMs,
 }: {
   buckets: YieldBucket[]
   pool: string
@@ -172,6 +189,12 @@ export function computeYieldWindows({
   poolCreateTimeMs?: number
   /** Protocol aggregate-fee cut in bps (0 today). */
   protocolCutBps?: number
+  /**
+   * Opt-in freshness gate (Boss doctrine). Pass the ceiling to dash volume and
+   * fees when the data end is older than it. Omitted -> S133 law: observed
+   * sums report as understated-but-real (unchanged behavior).
+   */
+  maxVolumeAgeMs?: number
 }): YieldWindowsResult {
   // S133 anchor: the data end, never the wall clock.
   const anchor = coverage !== undefined ? Math.min(now, coverage.savedAtMs) : now
@@ -182,6 +205,13 @@ export function computeYieldWindows({
 
   const covers = (days: number) =>
     fresh && coverage !== undefined && coverage.startMs <= anchor - days * DAY_MS + HOUR
+
+  // Boss doctrine gate: opt-in only. When the caller passes a ceiling and the
+  // data end is past it (or there is no envelope at all), the sums are NOT
+  // current — dash them instead of printing an unmeasured zero.
+  const volumeGated =
+    maxVolumeAgeMs !== undefined &&
+    (coverage === undefined || now - coverage.savedAtMs > maxVolumeAgeMs)
 
   const w24h = windowMetrics({
     buckets,
@@ -194,6 +224,7 @@ export function computeYieldWindows({
     windowDays: 1,
     protocolCutBps,
     covered: covers(1),
+    volumeGated,
   })
 
   const w7d = windowMetrics({
@@ -207,6 +238,7 @@ export function computeYieldWindows({
     windowDays: 7,
     protocolCutBps,
     covered: covers(7),
+    volumeGated,
   })
 
   // S134 (2026-11-01): 30d joins the selector — same anchor + coverage
@@ -224,6 +256,7 @@ export function computeYieldWindows({
     windowDays: 30,
     protocolCutBps,
     covered: covers(30),
+    volumeGated,
   })
 
   // S133: lifetime age is measured from the pool's REAL creation time
@@ -245,6 +278,7 @@ export function computeYieldWindows({
     windowDays: lifetimeAgeDays > 0 ? lifetimeAgeDays : null,
     protocolCutBps,
     covered: fresh && coverage !== undefined && birthMs > 0 && coverage.startMs <= birthMs,
+    volumeGated,
   })
 
   return { w24h, w7d, w30d, lifetime }

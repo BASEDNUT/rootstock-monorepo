@@ -30,7 +30,13 @@ import {
 import { fetchTokenPrices } from './onchain-price-source'
 // P2/P3 (S134d): fill what GT leaves unpriced — wNUT at NUT 1:1 (ERC20Wrapper),
 // PIPS from its own GT pool. Unresolvable tokens stay absent, never guessed.
-import { augmentWithDerivedPrices } from './onchain-derived-prices'
+import { augmentWithDerivedPrices, mergeSeedPriceTier } from './onchain-derived-prices'
+import { getSeedTokenPrices, type SeedPricesBlock } from '../tokens/seed-token-prices'
+import {
+  fetchRuntimeSwapLedger,
+  resolveEffectiveLedger,
+  VOLUME_MAX_AGE_MS,
+} from './onchain-swap-ledger-runtime'
 import { getOnchainScanConfig, type OnchainPoolListItem } from './onchain-pool-discovery'
 import { computePoolMetrics, type SwapBucket } from './onchain-metrics'
 import { computeYieldWindows } from './onchain-yield-windows'
@@ -43,6 +49,7 @@ import {
 } from './onchain-metrics-store'
 import bakedLedgerBase from './baked-swap-ledger-base.json'
 import bakedLedgerSepolia from './baked-swap-ledger.json'
+import bakedRegistryBase from './baked-pool-registry-base.json'
 
 const CHUNKS: Partial<Record<number, number>> = {
   // B3 (live-probed 2026-10-21): publicnode archive-walls ranges beyond its
@@ -100,15 +107,49 @@ async function fetchChainMetrics(
   // source stay ABSENT so the metrics layer reports null, never a guess.
   const allTokens = [...new Set(states.flatMap(s => s.tokens.map(t => t.address)))]
 
-  const prices = await augmentWithDerivedPrices({
-    chain,
-    addresses: allTokens,
-    prices: await fetchTokenPrices(chain, allTokens),
+  // Boss cache doctrine (2026-11-17): the baked SEED tier is the third price
+  // source. It fills only gaps the live tiers left absent — a snapshot never
+  // overrides a quote, and the module re-enforces its own age cap.
+  const seedPrices = getSeedTokenPrices(
+    'BASE',
+    allTokens.map(address => address.toLowerCase()),
+    (bakedRegistryBase as { seedPrices?: SeedPricesBlock }).seedPrices
+  )
+
+  const prices = mergeSeedPriceTier({
+    prices: await augmentWithDerivedPrices({
+      chain,
+      addresses: allTokens,
+      prices: await fetchTokenPrices(chain, allTokens),
+    }),
+    seedPrices,
   })
 
-  // 3. swap ledger: baked base (build-time archive scan) + visitor
-  // localStorage + fresh scan since max(baked cursor, stored cursor).
-  const baked = scanConfig.chainId === 8453 ? bakedLedgerBase : bakedLedgerSepolia
+  // 3. swap ledger: RUNTIME route is primary (Boss fresh-data doctrine
+  // 2026-11-17) — the orchard route serves a schema-compatible ledger with
+  // freshness fields, while the baked file is a build-time snapshot that ages
+  // by the day. Runtime REPLACES baked (both describe [deploy, X]; summing
+  // double-counts). Baked is the flagged fallback. The visitor scan then
+  // continues from the effective cursor, so ranges stay disjoint.
+  const bakedRaw = scanConfig.chainId === 8453 ? bakedLedgerBase : bakedLedgerSepolia
+  const runtimeLedger = await fetchRuntimeSwapLedger()
+
+  const effective = resolveEffectiveLedger({
+    runtime: runtimeLedger,
+    baked: bakedRaw
+      ? {
+          buckets: (bakedRaw.buckets as SwapBucket[]) ?? [],
+          savedAtMs: Number(bakedRaw.savedAt ?? 0),
+          coverageStartMs:
+            bakedRaw.coverageStartMs !== undefined ? Number(bakedRaw.coverageStartMs) : undefined,
+        }
+      : null,
+    nowMs: Date.now(),
+  })
+
+  // `baked` keeps its meaning for the cursor/coverage-start math below (a
+  // block-shaped hint); the DISPLAY buckets come from the effective ledger.
+  const baked = bakedRaw
   const ledger = loadSwapLedger(scanConfig.chainId)
   const latest = Number(await client.getBlockNumber())
 
@@ -126,9 +167,21 @@ async function fetchChainMetrics(
   // scans [bakedCursor, latest] — until the bake ages past the window, then
   // the cutoff floors the scan. An aged bake (cursor < cutoff) does NOT
   // shrink the scan (max keeps the cutoff).
-  const fromBlock = Math.max(ledger?.cursor ?? 0, Number(baked?.cursor ?? 0), cutoffBlock)
+  // Cursor continuity: prefer the RUNTIME ledger's own end when it served
+  // data, so the visitor scan cannot re-cover ranges the runtime already
+  // counted (that would double-count). Falls back to the bake's cursor.
+  const runtimeCursor = runtimeLedger?.cursor
+
+  const fromBlock = Math.max(
+    ledger?.cursor ?? 0,
+    runtimeCursor !== undefined ? runtimeCursor + 1 : Number(baked?.cursor ?? 0),
+    cutoffBlock
+  )
+
   const chunk = CHUNKS[scanConfig.chainId] ?? 500
-  let buckets = mergeBuckets((baked?.buckets as SwapBucket[]) ?? [], ledger?.buckets ?? [])
+  // Display buckets come from the EFFECTIVE ledger (runtime replaces baked),
+  // plus the visitor's own persisted + fresh scan. Never bake + runtime.
+  let buckets = mergeBuckets(effective.buckets, ledger?.buckets ?? [])
 
   // Tenderly public gateway fallback for archive-walled chunks (B3).
   const fallbackRpc = ARCHIVE_FALLBACK_RPC[scanConfig.chainId]
@@ -287,15 +340,17 @@ async function fetchChainMetrics(
       decimals,
       tvl: metrics.totalLiquidity !== null ? Number(metrics.totalLiquidity) : 0,
       now,
+      // A visitor scan that reached the window IS a fresh measurement
+      // (savedAt = now). Absent that, the effective ledger's own envelope
+      // decides — runtime carries its served savedAt, baked carries its bake
+      // time, so the doctrine gate bites exactly where staleness lives.
       coverage:
         coverageStartMs !== undefined
           ? { startMs: coverageStartMs, savedAtMs: now }
-          : baked
-            ? {
-                startMs: Number(baked.coverageStartMs ?? 0),
-                savedAtMs: Number(baked.savedAt ?? 0),
-              }
-            : undefined,
+          : effective.coverage,
+      // Boss fresh-data doctrine (2026-11-17): past the ceiling, volume and
+      // fees render '—' instead of a confident $0.00 from stale data.
+      maxVolumeAgeMs: VOLUME_MAX_AGE_MS,
       // createTime sanity: unix SECONDS only (> 1e9). Legacy
       // blockNumber-shaped values are refused (0 -> Lifetime null).
       poolCreateTimeMs: pool.createTime > 1_000_000_000 ? pool.createTime * 1000 : 0,

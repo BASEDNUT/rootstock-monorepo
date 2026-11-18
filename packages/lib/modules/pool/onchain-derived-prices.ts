@@ -167,6 +167,41 @@ export interface AugmentPricesOptions {
 }
 
 /**
+ * Merge the baked SEED tier into a metrics price map (Boss cache doctrine).
+ *
+ * The seed tier already existed for token display, but the metrics price map
+ * never saw it — so a pool with one unpriced leg rendered '—' TVL even when
+ * the registry carried a usable seed. Tier order: live wins, seed fills gaps.
+ *
+ * Laws: a seed entry NEVER overwrites a live observation (a snapshot is not a
+ * quote), and a non-finite or non-positive seed is ignored rather than merged
+ * as a zero. Age capping happens upstream in getSeedTokenPrices.
+ */
+export function mergeSeedPriceTier({
+  prices,
+  seedPrices,
+}: {
+  prices: Record<string, number>
+  seedPrices?: Record<string, string | number>
+}): Record<string, number> {
+  if (!seedPrices) return { ...prices }
+
+  const out: Record<string, number> = { ...prices }
+
+  for (const [address, raw] of Object.entries(seedPrices)) {
+    const key = address.toLowerCase()
+    if (out[key] !== undefined) continue // live wins
+
+    const price = typeof raw === 'number' ? raw : Number(raw)
+    if (!Number.isFinite(price) || price <= 0) continue
+
+    out[key] = price
+  }
+
+  return out
+}
+
+/**
  * Fill prices the primary source could not resolve.
  *
  * Order: wrapper derivation first (free, exact, no network), then one GT pool
