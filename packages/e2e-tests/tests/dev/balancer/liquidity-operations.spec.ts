@@ -1,5 +1,6 @@
 import { impersonate } from '@/helpers/e2e.helpers'
 import {
+  assertAddLiquidityEnabled,
   button,
   checkbox,
   clickButton,
@@ -7,8 +8,6 @@ import {
   forceClickButton,
 } from '@/helpers/user.helpers'
 import { test, expect, Page } from '@playwright/test'
-import { aaveWstETH8020Mock } from '@repo/lib/modules/pool/__mocks__/api-mocks/aaveWstETH8020Mock'
-import { aave_GHO_USDT_USDCMock } from '@repo/lib/modules/pool/__mocks__/api-mocks/aave_GHO_USDT_USDCMock'
 import { defaultAnvilAccount } from '@repo/lib/test/utils/wagmi/fork.helpers'
 import { forkClient } from '@repo/lib/test/utils/wagmi/fork.helpers'
 
@@ -18,6 +17,30 @@ import { forkClient } from '@repo/lib/test/utils/wagmi/fork.helpers'
   tokens the Add liquidity tests mint, so the Remove describes seed their own LP in beforeAll and
   revert to that snapshot between tests instead of relying on the Add tests having run.
 */
+
+/*
+  Pool fixtures, live-verified against api-v3.balancer.fi (MAINNET, 2026-11-19). Both report
+  isPaused=false and isInRecoveryMode=false, and every token they hold is funded by the fork balance
+  helper (mainnetTokenBalances):
+
+    - weighted: WEIGHTED / protocolVersion 2, tokens BAL + WETH                        -> variant v2
+    - boosted:  STABLE / protocolVersion 3 + BOOSTED tag, WETH (waEthWETH) + osETH      -> variant v3
+
+  Every reviewed gate in getPoolAddBlockedReason is clean for both: no hook, all tokens isAllowed,
+  priceRateProviderData.summary == 'safe', erc4626ReviewData.summary == 'safe'.
+
+  The pools used before (0x3de27efa…20wstETH-80AAVE and 0x85b2b559…Aave GHO/USDT/USDC) went into
+  recovery mode / paused during the Balancer winddown, which correctly disables the pool-detail
+  "Add liquidity" button. The app was never wrong; the hardcoded pools decayed upstream.
+*/
+const liveWeightedPool = {
+  id: '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014',
+  symbol: 'B-80BAL-20WETH',
+}
+const liveBoostedPool = {
+  id: '0x57c23c58b1d8c3292c15becf07c62c5c52457a42',
+  symbol: 'osETH-waWETH',
+}
 
 async function seedLpForRemoves(
   browser: import('@playwright/test').Browser,
@@ -52,9 +75,12 @@ async function seedLpForRemoves(
 
 test.describe('Weighted pool v2', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(`http://localhost:3000/pools/ethereum/v2/${aaveWstETH8020Mock.id}`)
+    await page.goto(`http://localhost:3000/pools/ethereum/v2/${liveWeightedPool.id}`)
     await impersonate(page, defaultAnvilAccount)
     await expect(button(page, 'Connect')).not.toBeVisible()
+
+    // Fail in seconds, with the blocked reason, if the pool decays upstream
+    await assertAddLiquidityEnabled(page)
   })
 
   test.describe('Add liquidity', () => {
@@ -100,7 +126,7 @@ test.describe('Weighted pool v2', () => {
     test.beforeAll(async ({ browser }) => {
       const seeded = await seedLpForRemoves(
         browser,
-        `http://localhost:3000/pools/ethereum/v2/${aaveWstETH8020Mock.id}`,
+        `http://localhost:3000/pools/ethereum/v2/${liveWeightedPool.id}`,
         false,
       )
       if (!seeded) test.skip()
@@ -121,7 +147,7 @@ test.describe('Weighted pool v2', () => {
       await expect(page.getByText('Transaction confirmed')).toBeVisible()
 
       await forceClickButton(page, 'Return to pool')
-      await expect(page.getByText(aaveWstETH8020Mock.symbol).first()).toBeVisible()
+      await expect(page.getByText(liveWeightedPool.symbol).first()).toBeVisible()
     })
 
     test('single token', async ({ page }) => {
@@ -133,16 +159,19 @@ test.describe('Weighted pool v2', () => {
       await expect(page.getByText('Transaction confirmed')).toBeVisible()
 
       await forceClickButton(page, 'Return to pool')
-      await expect(page.getByText(aaveWstETH8020Mock.symbol).first()).toBeVisible()
+      await expect(page.getByText(liveWeightedPool.symbol).first()).toBeVisible()
     })
   })
 })
 
 test.describe('Boosted stable pool v3', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(`http://localhost:3000/pools/ethereum/v3/${aave_GHO_USDT_USDCMock.id}`)
+    await page.goto(`http://localhost:3000/pools/ethereum/v3/${liveBoostedPool.id}`)
     await impersonate(page, defaultAnvilAccount)
     await expect(button(page, 'Connect')).not.toBeVisible()
+
+    // Fail in seconds, with the blocked reason, if the pool decays upstream
+    await assertAddLiquidityEnabled(page)
   })
 
   test.describe('Add liquidity', () => {
@@ -186,7 +215,7 @@ test.describe('Boosted stable pool v3', () => {
     test.beforeAll(async ({ browser }) => {
       const seeded = await seedLpForRemoves(
         browser,
-        `http://localhost:3000/pools/ethereum/v3/${aave_GHO_USDT_USDCMock.id}`,
+        `http://localhost:3000/pools/ethereum/v3/${liveBoostedPool.id}`,
         true,
       )
       if (!seeded) test.skip()
@@ -203,12 +232,12 @@ test.describe('Boosted stable pool v3', () => {
       await setSliderPercent(page, 50)
       await clickButton(page, 'Next')
 
-      await clickButton(page, `Sign approval: ${aave_GHO_USDT_USDCMock.symbol}`)
+      await clickButton(page, `Sign approval: ${liveBoostedPool.symbol}`)
       await clickButton(page, 'Remove liquidity')
       await expect(page.getByText('Transaction confirmed')).toBeVisible()
 
       await forceClickButton(page, 'Return to pool')
-      await expect(page.getByText(aave_GHO_USDT_USDCMock.symbol).first()).toBeVisible()
+      await expect(page.getByText(liveBoostedPool.symbol).first()).toBeVisible()
     })
 
     test('single token', async ({ page }) => {

@@ -5,6 +5,45 @@ export async function clickButton(page: Page, text: string) {
   return page.getByRole('button', { name: regex }).click()
 }
 
+/*
+  Fails fast when the pool-detail "Add liquidity" button is blocked, instead of letting Playwright
+  spend the whole test timeout retrying a button that will never enable.
+
+  The button's disabled state is a pure function of pool metadata (see getPoolAddBlockedReason in
+  packages/lib/modules/pool/pool.helpers.ts: 'Paused pool' / 'Pool in recovery' / ...), and
+  PoolHeader renders that exact reason in a Chakra tooltip, so surface it as the failure message.
+
+  The dev harness reads LIVE Balancer API pool data, so a pool that decays upstream (winddown,
+  incident, governance) silently disables this button and the spec dies on a 150s timeout with no
+  cause. This guard turns that class of failure into a few seconds plus a readable reason.
+*/
+export async function assertAddLiquidityEnabled(page: Page, timeoutMs = 15000) {
+  const addLiquidity = button(page, 'Add liquidity').first()
+  const deadline = Date.now() + timeoutMs
+
+  while (Date.now() < deadline) {
+    if (await addLiquidity.isEnabled().catch(() => false)) return
+    await page.waitForTimeout(250)
+  }
+
+  // Disabled: hover to render the tooltip that carries the blocking reason
+  await addLiquidity.hover().catch(() => {})
+  const tooltipText = await page
+    .getByRole('tooltip')
+    .first()
+    .innerText({ timeout: 2000 })
+    .catch(() => '')
+  const reason = tooltipText.trim().replace(/\s+/g, ' ') || 'no tooltip reason rendered'
+
+  throw new Error(
+    `"Add liquidity" stayed disabled on ${page.url()} after ${timeoutMs}ms. ` +
+      `Blocked reason from the pool header tooltip: ${reason}. ` +
+      `This means the pool the spec navigated to no longer allows adds upstream ` +
+      `(usually isPaused or isInRecoveryMode on the live Balancer API). ` +
+      `Repoint the spec at a healthy pool; the app is behaving correctly.`,
+  )
+}
+
 export async function forceClickButton(page: Page, text: string) {
   const regex = new RegExp('^' + text + '$', 'i')
   return page.getByRole('button', { name: regex }).click({ force: true })
