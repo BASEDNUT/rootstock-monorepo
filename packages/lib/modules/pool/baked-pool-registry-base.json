@@ -342,9 +342,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
@@ -490,9 +488,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -554,9 +550,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": "0x2Bdde9A6e0f9ad3f7349E09617cF7fEB655c5981",
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -618,9 +612,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x4200000000000000000000000000000000000006",
@@ -648,9 +640,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -718,9 +708,7 @@
       "swapFee": "0.003",
       "holdersCount": 1,
       "hook": null,
-      "tags": [
-        "BOOSTED"
-      ],
+      "tags": ["BOOSTED"],
       "tokens": [
         {
           "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
@@ -756,7 +744,7 @@
         "cached_at": 1795022512.599874
       },
       "0x1ede2afc985f6d7aeb3f4c84b95a103c00d5de81": {
-        "price_usd": 2.02154953e-05,
+        "price_usd": 2.02154953e-5,
         "source": "geckoterminal",
         "cached_at": 1795022343.2595198
       },
@@ -776,7 +764,7 @@
         "cached_at": 1795022493.8492694
       },
       "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9": {
-        "price_usd": 4.591e-06,
+        "price_usd": 4.591e-6,
         "source": "dexscreener-verified",
         "cached_at": 1795022501.5686543
       },
@@ -861,7 +849,7 @@
         "cached_at": 1795022507.949985
       },
       "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92": {
-        "price_usd": 2.696e-06,
+        "price_usd": 2.696e-6,
         "source": "dexscreener-market",
         "cached_at": 1795022489.8324885
       },
