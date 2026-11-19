@@ -7,7 +7,7 @@ on:
     types: [opened, synchronize]
 
 env:
-  NEXT_PUBLIC_BALANCER_API_URL: https://test-api-v3.balancer.fi/graphql
+  NEXT_PUBLIC_BALANCER_API_URL: https://api-v3.balancer.fi/graphql
   # Turborepo remote cache — every job runs turbo, so these stay workflow-level.
   # App/test secrets are scoped to the jobs that consume them below.
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

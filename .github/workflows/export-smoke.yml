@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NEXT_PUBLIC_BALANCER_API_URL: https://test-api-v3.balancer.fi/graphql
+  NEXT_PUBLIC_BALANCER_API_URL: https://api-v3.balancer.fi/graphql
 
 permissions:
   contents: read
