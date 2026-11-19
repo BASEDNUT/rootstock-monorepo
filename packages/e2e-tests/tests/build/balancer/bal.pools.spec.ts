@@ -10,15 +10,10 @@ test('Rootstock: pools page renders with the baked-registry pool', async ({ page
   await page.goto('http://localhost:3000/pools')
   await expect(page.getByRole('heading', { name: 'Liquidity pools' })).toBeVisible()
 
-  // Baked pool rows are served without any network dependency.
-  // Pool-name display mode is off by default: rows render TOKEN PILLS, so
-  // VVV + DIEM together identify the gtINF mainnet row (no other pool has
-  // both; wNUT appears in every graft so it is not selective alone).
-  // Scope to the table row LINK — the 'Discovered onchain' preview bands
-  // also render token pills, so a bare role=group filter over-matches.
-  const row = page
-    .locator('a[href*="/pools/base/v3/"]')
-    .filter({ hasText: 'VVV' })
-    .filter({ hasText: 'DIEM' })
+  // Anchor on the pool id in the href: the baked registry holds 24 pools
+  // and VVV + DIEM now matches TWO rows (iENG RECLAMM 0x4c6d.. and
+  // gtINF WEIGHTED 0xc2b6..), so that text pair is no longer unique.
+  // The id below is gtINF, the V3 weighted row these specs exercise.
+  const row = page.locator('a[href*="/pools/base/v3/0xc2b6c664a224f046b16289c6ed3246b7547ff3cf"]')
   await expect(row).toBeVisible()
 })

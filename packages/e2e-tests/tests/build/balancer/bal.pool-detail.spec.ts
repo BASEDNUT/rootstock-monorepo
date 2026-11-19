@@ -7,16 +7,11 @@ import { expect, test } from '@playwright/test'
 test('Rootstock: pool detail page renders', async ({ page }) => {
   await page.goto('http://localhost:3000/pools')
 
-  // Rows render token pills (pool-name display mode off by default).
-  // VVV + DIEM together uniquely identify the gtINF mainnet row — the
-  // default pools view is Base mainnet (8 live RPT pools, registry baked
-  // 2026-10-17); Base Sepolia stays selectable but is not preselected.
-  // Scope to the table row LINK — the 'Discovered onchain' preview bands
-  // also render token pills, so a bare role=group filter over-matches.
-  const row = page
-    .locator('a[href*="/pools/base/v3/"]')
-    .filter({ hasText: 'VVV' })
-    .filter({ hasText: 'DIEM' })
+  // Anchor on the pool id in the href: the baked registry holds 24 pools
+  // and VVV + DIEM now matches TWO rows (iENG RECLAMM 0x4c6d.. and
+  // gtINF WEIGHTED 0xc2b6..), so that text pair is no longer unique.
+  // The id below is gtINF, the V3 weighted row these specs exercise.
+  const row = page.locator('a[href*="/pools/base/v3/0xc2b6c664a224f046b16289c6ed3246b7547ff3cf"]')
   await row.click()
 
   await expect(page).toHaveURL(/\/pools\/base\/v3\//)

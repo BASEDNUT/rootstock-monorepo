@@ -118,6 +118,7 @@ describe('buildOnchainPoolEvents — baked raw events → activity shape (B2c)',
       decimals: DECIMALS,
       prices: PRICES,
     })
+
     expect(out.adds).toHaveLength(1)
     expect(out.swaps).toHaveLength(0)
   })
@@ -130,16 +131,25 @@ describe('buildOnchainPoolEvents — baked raw events → activity shape (B2c)',
       decimals: DECIMALS,
       prices: {},
     })
+
     expect(out.adds[0]!.valueUSD).toBe(0)
   })
 
   it('empty events → all-empty result (no crash)', () => {
-    const out = buildOnchainPoolEvents({ events: [], poolId: '0xabc', poolTokens: [], decimals: {}, prices: {} })
+    const out = buildOnchainPoolEvents({
+      events: [],
+      poolId: '0xabc',
+      poolTokens: [],
+      decimals: {},
+      prices: {},
+    })
+
     expect(out).toEqual({ adds: [], removes: [], swaps: [] })
   })
 
   it('events sorted newest-first within their bucket', () => {
     const older = { ...ADD, block: 52900000, timestamp: 1792500000 }
+
     const out = buildOnchainPoolEvents({
       events: [older, ADD],
       poolId: ADD.pool,
@@ -147,6 +157,7 @@ describe('buildOnchainPoolEvents — baked raw events → activity shape (B2c)',
       decimals: DECIMALS,
       prices: PRICES,
     })
+
     expect(out.adds[0]!.timestamp).toBeGreaterThan(out.adds[1]!.timestamp)
   })
 })
@@ -160,15 +171,23 @@ describe('buildOnchainPoolEventsAsGqlEvents — GqlPoolEvent shape for the activ
       decimals: DECIMALS,
       prices: PRICES,
     })
+
     expect(gql).toHaveLength(1)
     const e = gql[0]!
     expect(e.__typename).toBe('GqlPoolAddRemoveEventV3')
     expect(e.type).toBe('ADD')
     expect(e.id).toContain(ADD.tx)
     expect(e.poolId).toBe(ADD.pool)
-    const addEvent = e as unknown as { tokens: { address: string; amount: string; valueUSD: number }[] }
+
+    const addEvent = e as unknown as {
+      tokens: { address: string; amount: string; valueUSD: number }[]
+    }
+
     expect(addEvent.tokens).toHaveLength(4)
-    expect(addEvent.tokens.find(t => t.address === '0xac130701aa31c284c36609e2489f150f419ad7ad')?.amount).toBe('771.69')
+
+    expect(
+      addEvent.tokens.find(t => t.address === '0xac130701aa31c284c36609e2489f150f419ad7ad')?.amount
+    ).toBe('771.69')
   })
 
   it('SWAP → GqlPoolSwapEventV3 shape (tokenIn/tokenOut)', () => {
@@ -179,17 +198,29 @@ describe('buildOnchainPoolEventsAsGqlEvents — GqlPoolEvent shape for the activ
       decimals: DECIMALS,
       prices: PRICES,
     })
+
     const e = gql[0]!
     expect(e.__typename).toBe('GqlPoolSwapEventV3')
     expect(e.type).toBe('SWAP')
-    const swapEvent = e as unknown as { tokenIn: { address: string; amount: string }; tokenOut: { address: string; amount: string } }
+
+    const swapEvent = e as unknown as {
+      tokenIn: { address: string; amount: string }
+      tokenOut: { address: string; amount: string }
+    }
+
     expect(swapEvent.tokenIn.address).toBe('0x3f2327221dd4f0bae660172606d6b288a1cf8ad9')
     expect(swapEvent.tokenOut.amount).toBe('16.835074')
   })
 
   it('empty events → []', () => {
     expect(
-      buildOnchainPoolEventsAsGqlEvents({ events: [], poolId: '0xabc', poolTokens: [], decimals: {}, prices: {} })
+      buildOnchainPoolEventsAsGqlEvents({
+        events: [],
+        poolId: '0xabc',
+        poolTokens: [],
+        decimals: {},
+        prices: {},
+      })
     ).toEqual([])
   })
 })

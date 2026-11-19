@@ -20,10 +20,13 @@ const WNUT = '0xBA5ED46e31F80dafF307cbf60bd422a6f62E3dd3'
 
 describe('resolveTokenDecimals — registry-first decimals resolution (B1)', () => {
   it('extracts decimals from baked poolTokens (SNUT 9, cbBTC 8)', () => {
-    const pools = [pool([
-      { address: SNUT, decimals: 9 },
-      { address: CBTC, decimals: 8 },
-    ])]
+    const pools = [
+      pool([
+        { address: SNUT, decimals: 9 },
+        { address: CBTC, decimals: 8 },
+      ]),
+    ]
+
     const { decimals, missing } = resolveTokenDecimals(pools, {})
     expect(decimals[SNUT.toLowerCase()]).toBe(9)
     expect(decimals[CBTC.toLowerCase()]).toBe(8)
@@ -69,10 +72,12 @@ describe('fetchMissingTokenDecimals — onchain erc20 fallback (B1)', () => {
       { status: 'success', result: 6 },
       { status: 'failure', error: new Error('revert') },
     ])
+
     const out = await fetchMissingTokenDecimals(
       { multicall } as unknown as Parameters<typeof fetchMissingTokenDecimals>[0],
       [USDC, WNUT]
     )
+
     expect(out[USDC.toLowerCase()]).toBe(6)
     expect(out[WNUT.toLowerCase()]).toBeUndefined()
     expect(multicall).toHaveBeenCalledTimes(1)
@@ -80,10 +85,12 @@ describe('fetchMissingTokenDecimals — onchain erc20 fallback (B1)', () => {
 
   it('empty address list → {} without calling the client', async () => {
     const multicall = vi.fn(async () => [])
+
     const out = await fetchMissingTokenDecimals(
       { multicall } as unknown as Parameters<typeof fetchMissingTokenDecimals>[0],
       []
     )
+
     expect(out).toEqual({})
     expect(multicall).not.toHaveBeenCalled()
   })
@@ -92,10 +99,12 @@ describe('fetchMissingTokenDecimals — onchain erc20 fallback (B1)', () => {
     const multicall = vi.fn(async () => {
       throw new Error('rpc down')
     })
+
     const out = await fetchMissingTokenDecimals(
       { multicall } as unknown as Parameters<typeof fetchMissingTokenDecimals>[0],
       [USDC]
     )
+
     expect(out).toEqual({})
   })
 })

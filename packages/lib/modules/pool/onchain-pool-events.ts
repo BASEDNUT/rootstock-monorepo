@@ -19,8 +19,7 @@ export const T_LIQUIDITY_ADDED =
   '0xa26a52d8d53702bba7f137907b8e1f99ff87f6d450144270ca25e72481cca871'
 export const T_LIQUIDITY_REMOVED =
   '0x8ce0d53c0b010debc14b5e112019f61530364db7f9957ae0422dd17f4e95b870'
-export const T_SWAP =
-  '0x0874b2d545cb271cdbda4e093020c452328b24af12382ed62c4d00f5c26709db'
+export const T_SWAP = '0x0874b2d545cb271cdbda4e093020c452328b24af12382ed62c4d00f5c26709db'
 
 export interface OnchainAddRemoveEvent {
   __typename: 'GqlPoolAddRemoveEventV3'
@@ -85,7 +84,7 @@ function fmtAmount(raw: bigint, decimals: number | undefined): string {
 function usdFor(raw: bigint, decimals: number | undefined, price: number | undefined): number {
   if (!price) return 0
   const d = decimals ?? 18
-  return Number(raw) / 10 ** d * price
+  return (Number(raw) / 10 ** d) * price
 }
 
 /** Decode one Vault activity log; null for unknown/malformed — never throws. */
@@ -109,6 +108,7 @@ export function decodePoolEventLog(
     if (amountsHead + 1 > w.length) return null
     const amountsLen = Number(BigInt('0x' + w[amountsHead]))
     const amounts: bigint[] = []
+
     for (let i = 0; i < amountsLen; i++) {
       const idx = amountsHead + 1 + i
       if (idx >= w.length) return null

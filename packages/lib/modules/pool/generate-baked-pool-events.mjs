@@ -1,4 +1,4 @@
-/* global setTimeout, URL, console, process, writeFileSync */
+/* global setTimeout, URL, console, process */
 // Rootstock: generates the baked POOL ACTIVITY EVENTS ledger (adds/removes/
 // swaps per pool) from full onchain history via an archive RPC — same laws
 // as generate-baked-registry.mjs (Tenderly gateway, chunked, 429 backoff).
