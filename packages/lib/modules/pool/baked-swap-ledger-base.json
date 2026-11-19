@@ -1,10 +1,10 @@
 {
   "version": 2,
   "chainId": 8453,
-  "cursor": 58873688,
-  "savedAt": 1794965113934,
-  "coverageStartMs": 1794883365000,
-  "coverageStartBlock": 58464951,
+  "cursor": 59292452,
+  "savedAt": 1795048883032,
+  "coverageStartMs": 1791052447000,
+  "coverageStartBlock": 52131550,
   "buckets": [
     {
       "hour": 497835,
@@ -574,6 +574,377 @@
       "feeAmountRaw": "1700974420439280"
     },
     {
+      "hour": 498343,
+      "pool": "0x90be902deea848a38ca1b0d8ef36782d6606fd84",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "88420219932961056922790",
+      "feeAmountRaw": "265260659798883170769"
+    },
+    {
+      "hour": 498343,
+      "pool": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "3931306676388303499298300",
+      "feeAmountRaw": "11793920029164910497895"
+    },
+    {
+      "hour": 498371,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xf4d97f2da56e8c3098f3a8d538db630a2606a024",
+      "amountInRaw": "2184780202030755",
+      "feeAmountRaw": "6554340606094"
+    },
+    {
+      "hour": 498381,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "540694842381875",
+      "feeAmountRaw": "1622084527146"
+    },
+    {
+      "hour": 498382,
+      "pool": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "33501784623832",
+      "feeAmountRaw": "100505353872"
+    },
+    {
+      "hour": 498382,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "1911602267870099",
+      "feeAmountRaw": "5734806803610"
+    },
+    {
+      "hour": 498382,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "1135089822717698",
+      "feeAmountRaw": "3405269468153"
+    },
+    {
+      "hour": 498383,
+      "pool": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
+      "token": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+      "amountInRaw": "216347948168683",
+      "feeAmountRaw": "649043844506"
+    },
+    {
+      "hour": 498385,
+      "pool": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "token": "0xb20000000000000000000078ee7ce2fe4908108c",
+      "amountInRaw": "64019",
+      "feeAmountRaw": "192"
+    },
+    {
+      "hour": 498390,
+      "pool": "0x68fe849e274c8e97dc8ea39d7863689689ccd99f",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "23245700246289",
+      "feeAmountRaw": "69737100739"
+    },
+    {
+      "hour": 498391,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "500148304156998",
+      "feeAmountRaw": "1500444912471"
+    },
+    {
+      "hour": 498391,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "501380457032186",
+      "feeAmountRaw": "1504141371096"
+    },
+    {
+      "hour": 498392,
+      "pool": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "21410068260060",
+      "feeAmountRaw": "64230204781"
+    },
+    {
+      "hour": 498410,
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "token": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "amountInRaw": "130522892750500391339001",
+      "feeAmountRaw": "1305228927505003913391"
+    },
+    {
+      "hour": 498421,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "802233324768692",
+      "feeAmountRaw": "2406699974306"
+    },
+    {
+      "hour": 498423,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "507219641222290",
+      "feeAmountRaw": "1521658923667"
+    },
+    {
+      "hour": 498423,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "698550433088531",
+      "feeAmountRaw": "2095651299266"
+    },
+    {
+      "hour": 498425,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "154774250253547491",
+      "feeAmountRaw": "464322750760643"
+    },
+    {
+      "hour": 498425,
+      "pool": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "30483648900862",
+      "feeAmountRaw": "91450946703"
+    },
+    {
+      "hour": 498469,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "167532147844334626",
+      "feeAmountRaw": "502596443533004"
+    },
+    {
+      "hour": 498470,
+      "pool": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
+      "token": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+      "amountInRaw": "227332811553735",
+      "feeAmountRaw": "681998434661"
+    },
+    {
+      "hour": 498471,
+      "pool": "0x68fe849e274c8e97dc8ea39d7863689689ccd99f",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "19364641125606",
+      "feeAmountRaw": "58093923377"
+    },
+    {
+      "hour": 498471,
+      "pool": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "378652814598929644986142",
+      "feeAmountRaw": "1135958443796788934959"
+    },
+    {
+      "hour": 498479,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "1623",
+      "feeAmountRaw": "4"
+    },
+    {
+      "hour": 498481,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "1681",
+      "feeAmountRaw": "5"
+    },
+    {
+      "hour": 498482,
+      "pool": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "18520618525188",
+      "feeAmountRaw": "55561855576"
+    },
+    {
+      "hour": 498482,
+      "pool": "0x9e75fc8ebcece644ed9e6229bae8cb1368b61349",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "584",
+      "feeAmountRaw": "1"
+    },
+    {
+      "hour": 498482,
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "token": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "amountInRaw": "132523535970717733523912",
+      "feeAmountRaw": "1325235359707177335240"
+    },
+    {
+      "hour": 498484,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "61117361081425187",
+      "feeAmountRaw": "183352083244276"
+    },
+    {
+      "hour": 498484,
+      "pool": "0x86dab2c51981508d4b82579af5a9708cd05698c6",
+      "token": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "amountInRaw": "2912734520279",
+      "feeAmountRaw": "8738203561"
+    },
+    {
+      "hour": 498484,
+      "pool": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "3253277516156637",
+      "feeAmountRaw": "9759832548470"
+    },
+    {
+      "hour": 498502,
+      "pool": "0x68fe849e274c8e97dc8ea39d7863689689ccd99f",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "22139507615648",
+      "feeAmountRaw": "66418522847"
+    },
+    {
+      "hour": 498506,
+      "pool": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "21984606958166",
+      "feeAmountRaw": "65953820875"
+    },
+    {
+      "hour": 498511,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "128107921838031055",
+      "feeAmountRaw": "384323765514094"
+    },
+    {
+      "hour": 498518,
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "token": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "amountInRaw": "133802605492661744937948",
+      "feeAmountRaw": "1338026054926617449380"
+    },
+    {
+      "hour": 498520,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "213351562679678288",
+      "feeAmountRaw": "640054688039035"
+    },
+    {
+      "hour": 498520,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "387573300536527",
+      "feeAmountRaw": "1162719901609"
+    },
+    {
+      "hour": 498524,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "18648572925901871",
+      "feeAmountRaw": "55945718777706"
+    },
+    {
+      "hour": 498524,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "1119690007378748",
+      "feeAmountRaw": "3359070022136"
+    },
+    {
+      "hour": 498525,
+      "pool": "0x113efb3d35b7c466dfd9880f5b16e018e53f333c",
+      "token": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
+      "amountInRaw": "2578455766680",
+      "feeAmountRaw": "7735367301"
+    },
+    {
+      "hour": 498525,
+      "pool": "0x68fe849e274c8e97dc8ea39d7863689689ccd99f",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "24327601132368",
+      "feeAmountRaw": "72982803398"
+    },
+    {
+      "hour": 498525,
+      "pool": "0xf246b832b1d156e4bfffcf8811fc4996a09d60fd",
+      "token": "0xb3e328455c4059eeb9e3f84b5543f74e24e7e1b",
+      "amountInRaw": "112042475983695136",
+      "feeAmountRaw": "336127427951086"
+    },
+    {
+      "hour": 498525,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "amountInRaw": "820916477832429",
+      "feeAmountRaw": "2462749433497"
+    },
+    {
+      "hour": 498526,
+      "pool": "0x16032e8d674a9af48760a6322fa624a7c204c0dd",
+      "token": "0xb8de15fb529d98c93c749de63c749d48d25a30df",
+      "amountInRaw": "24012903048759",
+      "feeAmountRaw": "72038709147"
+    },
+    {
+      "hour": 498529,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "236957740909736065",
+      "feeAmountRaw": "710873222729209"
+    },
+    {
+      "hour": 498530,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "1263",
+      "feeAmountRaw": "3"
+    },
+    {
+      "hour": 498531,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xf4d97f2da56e8c3098f3a8d538db630a2606a024",
+      "amountInRaw": "2412610517040925",
+      "feeAmountRaw": "7237831551124"
+    },
+    {
+      "hour": 498531,
+      "pool": "0xf64ae6f64be7c223092c399dfd2e388db5e16080",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "2610",
+      "feeAmountRaw": "7"
+    },
+    {
+      "hour": 498532,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xf4d97f2da56e8c3098f3a8d538db630a2606a024",
+      "amountInRaw": "1737377292296860",
+      "feeAmountRaw": "5212131876891"
+    },
+    {
+      "hour": 498537,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xf4d97f2da56e8c3098f3a8d538db630a2606a024",
+      "amountInRaw": "2119806211274776",
+      "feeAmountRaw": "6359418633825"
+    },
+    {
+      "hour": 498566,
+      "pool": "0x8c6beb4a446ae9dae760c4c26124482bd2895bce",
+      "token": "0xc768c589647798a6ee01a91fde98ef2ed046dbd6",
+      "amountInRaw": "422371",
+      "feeAmountRaw": "1267"
+    },
+    {
+      "hour": 498566,
+      "pool": "0xfb961bc2163a60adc37b17d76efb3b2e95797873",
+      "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "amountInRaw": "2769",
+      "feeAmountRaw": "8"
+    },
+    {
+      "hour": 498568,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "212748259034772333",
+      "feeAmountRaw": "638244777104317"
+    },
+    {
       "hour": 498578,
       "pool": "0xc2b6c664a224f046b16289c6ed3246b7547ff3cf",
       "token": "0xba5ed46e31f80daff307cbf60bd422a6f62e3dd3",
@@ -635,6 +1006,41 @@
       "token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
       "amountInRaw": "1738",
       "feeAmountRaw": "5"
+    },
+    {
+      "hour": 498602,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "176095289015793532",
+      "feeAmountRaw": "528285867047381"
+    },
+    {
+      "hour": 498613,
+      "pool": "0xf3240825c7d1953c670bc4c380dd37b9ed09073f",
+      "token": "0xecaf81eb42cd30014eb44130b89bcd6d4ad98b92",
+      "amountInRaw": "759637413069392588148334",
+      "feeAmountRaw": "2278912239208177764446"
+    },
+    {
+      "hour": 498615,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xacfe6019ed1a7dc6f7b508c02d1b04ec88cc21bf",
+      "amountInRaw": "206224575343932035",
+      "feeAmountRaw": "618673726031797"
+    },
+    {
+      "hour": 498616,
+      "pool": "0xf8e5ca8397ed7fa5c17ebd73c3b42660abf62c53",
+      "token": "0x3f2327221dd4f0bae660172606d6b288a1cf8ad9",
+      "amountInRaw": "135711789229274936912687",
+      "feeAmountRaw": "1357117892292749369127"
+    },
+    {
+      "hour": 498619,
+      "pool": "0x4c6d8b194993a6938a280d984f34d43cc0ee434c",
+      "token": "0xf4d97f2da56e8c3098f3a8d538db630a2606a024",
+      "amountInRaw": "2521576679461491",
+      "feeAmountRaw": "7564730038385"
     }
   ]
 }

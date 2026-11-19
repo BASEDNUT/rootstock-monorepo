@@ -50,6 +50,14 @@ export interface RuntimeSwapLedger {
   cursor?: number
   /** Server-declared staleness — honoured even if savedAt looks recent. */
   stale: boolean
+  /**
+   * Served scan-range start (epoch ms / block) — the envelope the server
+   * actually covers. Without it the frontend cannot claim full-history
+   * windows: coverage start would default to savedAt and every 7d/30d/
+   * lifetime APR would dash despite a complete ledger (2026-11-18 fix).
+   */
+  coverageStartMs?: number
+  coverageStartBlock?: number
 }
 
 /** The bake, as the hook holds it (chain-selected JSON import). */
@@ -148,11 +156,25 @@ export async function fetchRuntimeSwapLedger(
         ? payload.cursor
         : undefined
 
+    const coverageStartMs =
+      typeof payload.coverageStartMs === 'number' &&
+      Number.isFinite(payload.coverageStartMs) &&
+      payload.coverageStartMs > 0
+        ? payload.coverageStartMs
+        : undefined
+
+    const coverageStartBlock =
+      typeof payload.coverageStartBlock === 'number' && Number.isFinite(payload.coverageStartBlock)
+        ? payload.coverageStartBlock
+        : undefined
+
     return {
       buckets: rawBuckets,
       savedAtMs,
       cursor,
       stale: payload.stale === true,
+      coverageStartMs,
+      coverageStartBlock,
     }
   } catch {
     return null
@@ -186,7 +208,12 @@ export function resolveEffectiveLedger({
       source: 'runtime',
       buckets: runtime.buckets,
       stale: runtime.stale || tooOld,
-      coverage: { startMs: runtime.savedAtMs, savedAtMs: runtime.savedAtMs },
+      // The server's own scan-range start is the window truth; savedAtMs is
+      // only the fallback when the envelope is not served (2026-11-18).
+      coverage: {
+        startMs: runtime.coverageStartMs ?? runtime.savedAtMs,
+        savedAtMs: runtime.savedAtMs,
+      },
     }
   }
 

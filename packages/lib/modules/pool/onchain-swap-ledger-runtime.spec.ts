@@ -148,3 +148,53 @@ describe('resolveEffectiveLedger — runtime primary, baked flagged fallback', (
     expect(out.coverage).toBeUndefined()
   })
 })
+
+describe('coverage envelope passthrough — window start truth (2026-11-18)', () => {
+  it('fetchRuntimeSwapLedger carries coverageStartMs + coverageStartBlock from the payload', async () => {
+    const body = {
+      buckets: [bucket()],
+      savedAt: new Date(NOW - HOUR).toISOString(),
+      coverageStartMs: NOW - 30 * 24 * HOUR,
+      coverageStartBlock: 52_131_550,
+      cursor: 59_000_000,
+      stale: false,
+    }
+
+    const out = await fetchRuntimeSwapLedger({ fetchImpl: vi.fn(() => ok(body)) as never })
+
+    expect(out).not.toBeNull()
+    expect(out!.coverageStartMs).toBe(NOW - 30 * 24 * HOUR)
+    expect(out!.coverageStartBlock).toBe(52_131_550)
+  })
+
+  it('stays usable when the payload omits the coverage envelope', async () => {
+    const body = { buckets: [bucket()], savedAt: NOW - HOUR, stale: false }
+
+    const out = await fetchRuntimeSwapLedger({ fetchImpl: vi.fn(() => ok(body)) as never })
+
+    expect(out).not.toBeNull()
+    expect(out!.coverageStartMs).toBeUndefined()
+  })
+
+  it('resolveEffectiveLedger uses the served coverageStartMs so full-history windows can be claimed', () => {
+    const runtime = {
+      buckets: [bucket()],
+      savedAtMs: NOW - HOUR,
+      coverageStartMs: NOW - 30 * 24 * HOUR,
+      stale: false,
+    }
+
+    const out = resolveEffectiveLedger({ runtime, baked: null, nowMs: NOW })
+
+    expect(out.coverage?.startMs).toBe(NOW - 30 * 24 * HOUR)
+    expect(out.coverage?.savedAtMs).toBe(NOW - HOUR)
+  })
+
+  it('falls back to savedAtMs as the window start when coverageStartMs is absent', () => {
+    const runtime = { buckets: [bucket()], savedAtMs: NOW - HOUR, stale: false }
+
+    const out = resolveEffectiveLedger({ runtime, baked: null, nowMs: NOW })
+
+    expect(out.coverage?.startMs).toBe(NOW - HOUR)
+  })
+})
